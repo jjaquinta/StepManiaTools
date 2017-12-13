@@ -10,9 +10,13 @@ import jo.sm.dl.data.SMTune;
 
 public class ProjectLogic
 {
-    public static SMProject newInstance()
+    public static SMProject newInstance(String[] argv)
     {
-        return new SMProject();
+        SMProject proj = new SMProject();
+        for (int i = 0; i < argv.length; i++)
+            if ("--markPatterns".equalsIgnoreCase(argv[i]))
+                proj.getFlags().add(SMProject.MARK_PATTERNS);
+        return proj;
     }
     
     public static boolean load(SMProject proj, File input)
@@ -94,7 +98,7 @@ public class ProjectLogic
                     continue;
                 System.out.println("\n"+name);
                 File fout = new File(outdir, name.substring(0, name.length() - 4));
-                SMProject proj = ProjectLogic.newInstance();
+                SMProject proj = ProjectLogic.newInstance(argv);
                 ProjectLogic.load(proj, fin[i]);
                 ProjectLogic.dance(proj);
                 proj.getTune().setTitle(fout.getName());

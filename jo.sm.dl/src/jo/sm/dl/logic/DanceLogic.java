@@ -57,12 +57,14 @@ public class DanceLogic
     private static int addPatternNotes(SMProject proj, int quantity, int ticksPerMeasure, long granularity)
     {
         int used = 0;
-        for (PatDef pattern : proj.getPatterns())
+        for (int k = 0; k < proj.getPatterns().size(); k++)
         {
+            PatDef pattern = proj.getPatterns().get(k);
             for (int i = 0; i < pattern.getNotes().size(); i++)
                 pattern.getSteps().add(randomNote());
-            for (PatInst inst : pattern.getInstances())
+            for (int j = 0; j < pattern.getInstances().size(); j++)
             {
+                PatInst inst = pattern.getInstances().get(j);
                 for (int i = 0; i < inst.getNotes().size(); i++)
                 {
                     MIDINote n = inst.getNotes().get(i);
@@ -71,6 +73,13 @@ public class DanceLogic
                         if (setNote(proj.getTune(), ticksPerMeasure, n.getTick(), pattern.getSteps().get(i)))
                             used++;
                     }
+                }
+                if (proj.getFlags().contains(SMProject.MARK_PATTERNS))
+                {
+                    float start = inst.getNotes().get(0).getTick()*proj.getMIDI().getMSPerTick()/1000.0f;
+                    float stop = inst.getNotes().get(inst.getNotes().size() - 1).getTick()*proj.getMIDI().getMSPerTick()/1000.0f;
+                    proj.getTune().getLyrics().add(new SMMark(start, "P"+k+"_"+j+" start"));
+                    proj.getTune().getLyrics().add(new SMMark(stop, "P"+k+"_"+j+" end"));
                 }
             }
             if (used > quantity)

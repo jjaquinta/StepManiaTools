@@ -2,10 +2,15 @@ package jo.sm.dl.data;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SMProject
 {
+    public static final String MARK_PATTERNS = "mark_patterns";
+    
+    private Set<String> mFlags = new HashSet<>();
     private File     mInput;
     private File     mOutput;
     private SMTune   mTune;
@@ -60,5 +65,15 @@ public class SMProject
     public void setPatterns(List<PatDef> patterns)
     {
         mPatterns = patterns;
+    }
+
+    public Set<String> getFlags()
+    {
+        return mFlags;
+    }
+
+    public void setFlags(Set<String> flags)
+    {
+        mFlags = flags;
     }
 }

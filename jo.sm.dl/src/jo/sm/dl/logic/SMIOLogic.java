@@ -4,12 +4,15 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import jo.sm.dl.data.SMBeat;
 import jo.sm.dl.data.SMMark;
 import jo.sm.dl.data.SMMeasure;
 import jo.sm.dl.data.SMTune;
+import jo.util.utils.obj.StringUtils;
 
 public class SMIOLogic
 {
@@ -26,7 +29,7 @@ public class SMIOLogic
         write(wtr, "CREDIT", tune.getCredit());
         write(wtr, "BANNER", tune.getBanner());
         write(wtr, "BACKGROUND", tune.getBackground());
-        write(wtr, "LYRICSPATH", tune.getLyricsPath());
+        addLyrics(wtr, tune, out);
         write(wtr, "CDTITLE", tune.getCDTitle());
         write(wtr, "MUSIC", tune.getMusic());
         write(wtr, "OFFSET", "0.000000");
@@ -85,7 +88,7 @@ public class SMIOLogic
         write(wtr, "CREDIT", tune.getCredit());
         write(wtr, "BANNER", tune.getBanner());
         write(wtr, "BACKGROUND", tune.getBackground());
-        write(wtr, "LYRICSPATH", tune.getLyricsPath());
+        addLyrics(wtr, tune, out);
         write(wtr, "CDTITLE", tune.getCDTitle());
         write(wtr, "MUSIC", tune.getMusic());
         write(wtr, "OFFSET", tune.getOffset());
@@ -101,7 +104,7 @@ public class SMIOLogic
         write(wtr, "COMBOS", "");
         write(wtr, "SPEEDS", "");
         write(wtr, "SCROLLS", "");
-        write(wtr, "LABELS", "");
+        write(wtr, "LABELS", tune.getLabels());
         write(wtr, "BGCHANGES", "");
         write(wtr, "KEYSOUNDS", "");
         write(wtr, "ATTACKS", "");
@@ -136,6 +139,35 @@ public class SMIOLogic
         wtr.close();
     }
 
+    private static void addLyrics(BufferedWriter wtr, SMTune tune, File base) throws IOException
+    {
+        if (tune.getLyricsPath() != null)
+            write(wtr, "LYRICSPATH", tune.getLyricsPath());
+        else if (tune.getLyrics().size() > 0)
+        {
+            sortMarks(tune.getLyrics());
+            String lyricsName = base.getName();
+            int o = lyricsName.lastIndexOf('.');
+            if (o > 0)
+                lyricsName = lyricsName.substring(0, o) + ".lrc";
+            else
+                lyricsName += ".lrc";
+            File lyricsFile = new File(base.getParentFile(), lyricsName);
+            BufferedWriter lwtr = new BufferedWriter(new FileWriter(lyricsFile));
+            for (SMMark mark : tune.getLyrics())
+            {
+                int m = (int)Math.floor(mark.getMark()/60);
+                int s = ((int)Math.floor(mark.getMark()))%60;
+                int c = ((int)Math.floor(((mark.getMark() - Math.floor(mark.getMark()))*100)));
+                String line = "["+m+":"+StringUtils.zeroPrefix(s, 2)+"."+StringUtils.zeroPrefix(c, 2)+"]"+mark.getStrValue();
+                lwtr.write(line);
+                lwtr.newLine();
+            }
+            lwtr.close();
+            write(wtr, "LYRICSPATH", lyricsName);
+        }
+    }
+    
     public static String toString(SMBeat beat)
     {
         StringBuffer sb = new StringBuffer();
@@ -167,6 +199,7 @@ public class SMIOLogic
             wtr.newLine();
             return;
         }
+        sortMarks(marks);
         for (int i = 0; i < marks.size(); i++)
         {
             if (i == 0)
@@ -181,10 +214,23 @@ public class SMIOLogic
             wtr.newLine();
         }
     }
+    public static void sortMarks(List<SMMark> marks)
+    {
+        Collections.sort(marks, new Comparator<SMMark>() {
+            @Override
+            public int compare(SMMark o1, SMMark o2)
+            {
+                return (int)Math.signum(o1.getMark() - o2.getMark());
+            }
+        });
+    }
     
     private static void write(BufferedWriter wtr, SMMark mark) throws IOException
     {
-        wtr.write(String.valueOf(mark.getMark())+"="+String.valueOf(mark.getValue()));
+        if (mark.getNumValue() != null)
+            wtr.write(String.valueOf(mark.getMark())+"="+String.valueOf(mark.getNumValue()));
+        else
+            wtr.write(String.valueOf(mark.getMark())+"="+String.valueOf(mark.getStrValue()));
     }
     
     private static void write(BufferedWriter wtr, String tag, float value) throws IOException

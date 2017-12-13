@@ -24,6 +24,8 @@ public class SMTune
     private float           mDisplayBPM;
     private List<SMMark>    mBPMs     = new ArrayList<>();
     private List<SMMark>    mStops    = new ArrayList<>();
+    private List<SMMark>    mLabels   = new ArrayList<>();
+    private List<SMMark>    mLyrics   = new ArrayList<>();
     // BGCHANGES
     // FGCHANGES
     // note data
@@ -233,5 +235,21 @@ public class SMTune
     public void setMeasures(List<SMMeasure> measures)
     {
         mMeasures = measures;
+    }
+    public List<SMMark> getLabels()
+    {
+        return mLabels;
+    }
+    public void setLabels(List<SMMark> labels)
+    {
+        mLabels = labels;
+    }
+    public List<SMMark> getLyrics()
+    {
+        return mLyrics;
+    }
+    public void setLyrics(List<SMMark> lyrics)
+    {
+        mLyrics = lyrics;
     }
 }

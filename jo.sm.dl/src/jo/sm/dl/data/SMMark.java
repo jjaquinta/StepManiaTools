@@ -3,7 +3,8 @@ package jo.sm.dl.data;
 public class SMMark
 {
     private float   mMark;
-    private float   mValue;
+    private Float   mNumValue;
+    private String  mStrValue;
     
     public SMMark()
     {       
@@ -12,7 +13,13 @@ public class SMMark
     public SMMark(float m, float b)
     {
         mMark = m;
-        mValue = b;
+        mNumValue = b;
+    }
+    
+    public SMMark(float m, String b)
+    {
+        mMark = m;
+        mStrValue = b;
     }
     
     public float getMark()
@@ -23,12 +30,22 @@ public class SMMark
     {
         mMark = mark;
     }
-    public float getValue()
+    public Float getNumValue()
     {
-        return mValue;
+        return mNumValue;
     }
-    public void setValue(float value)
+    public void setNumValue(Float value)
     {
-        mValue = value;
+        mNumValue = value;
+    }
+
+    public String getStrValue()
+    {
+        return mStrValue;
+    }
+
+    public void setStrValue(String strValue)
+    {
+        mStrValue = strValue;
     }
 }
