@@ -11,6 +11,8 @@ public class SMProject
     public static final String MARK_PATTERNS = "mark_patterns";
     public static final String ENERGY_GRAPH = "energy_graph";
     public static final String NOTE_GRAPH = "note_graph";
+    public static final String OGG_OUT = "ogg_out";
+    public static final String MP3_OUT = "mp3_out";
     
     private Set<String> mFlags = new HashSet<>();
     private File     mInput;

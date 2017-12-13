@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import jo.audio.util.svc.mp3.MIDItoMP3;
+import jo.audio.util.svc.mp3.MIDItoOGG;
 import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.data.SMTune;
@@ -20,6 +21,10 @@ public class ProjectLogic
                 proj.getFlags().add(SMProject.ENERGY_GRAPH);
             else if ("--noteGraph".equalsIgnoreCase(argv[i]))
                 proj.getFlags().add(SMProject.NOTE_GRAPH);
+            else if ("--ogg".equalsIgnoreCase(argv[i]))
+                proj.getFlags().add(SMProject.OGG_OUT);
+            else if ("--mp3".equalsIgnoreCase(argv[i]))
+                proj.getFlags().add(SMProject.MP3_OUT);
         return proj;
     }
     
@@ -53,18 +58,25 @@ public class ProjectLogic
         proj.setOutput(output);
         String name = output.getName();
         // MP3
-        File mp3 = new File(output, name+".mp3");
+        File soundFile;
+        if (proj.getFlags().contains(SMProject.MP3_OUT))
+            soundFile = new File(output, name+".mp3");
+        else
+            soundFile = new File(output, name+".ogg");
         try
         {
-            if (!mp3.exists())
-                MIDItoMP3.convert(proj.getInput(), mp3);
+            if (!soundFile.exists())
+                if (proj.getFlags().contains(SMProject.MP3_OUT))
+                    MIDItoMP3.convert(proj.getInput(), soundFile);
+                else
+                    MIDItoOGG.convert(proj.getInput(), soundFile);
         }
         catch (Exception e1)
         {
             e1.printStackTrace();
             return false;
         }
-        proj.getTune().setMusic(mp3.getName());
+        proj.getTune().setMusic(soundFile.getName());
         proj.getTune().setArtist("Unknown artist");
         // stepfile
         File sm = new File(output, name+".sm");
@@ -96,7 +108,7 @@ public class ProjectLogic
     {
         try
         {
-            String doOnly = "All My Loving";
+            String doOnly = "Eleanor";//null;//
             //File indir = new File("d:\\temp\\data\\sm");
             //File outdir = new File("d:\\Program Files (x86)\\StepMania 5\\Songs\\generated");
             File indir = new File("d:\\temp\\data\\sm\\Beatles");

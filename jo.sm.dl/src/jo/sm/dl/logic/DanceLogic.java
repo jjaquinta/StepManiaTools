@@ -80,28 +80,37 @@ public class DanceLogic
             MIDINote best = null;
             long bestd = 0;
             int bestidx = 0;
-            for (MIDINote note : notesOfInterest)
+            if (taken.size() == 0)
             {
-                int idx = Collections.binarySearch(taken, note.getTick(), c);
-                if (idx >= 0)
-                    continue;
-                idx = -idx - 1;
-                long dist;
-                if (idx == 0)
-                    dist = taken.get(0) - note.getTick();
-                else if (idx == taken.size())
-                    dist = note.getTick() - taken.get(taken.size() - 1);
-                else
-                    dist = Math.min(note.getTick() - taken.get(idx - 1), taken.get(idx) - note.getTick());
-                if ((best == null) || (dist > bestd))
+                bestidx = 0;
+                best = notesOfInterest.get(RND.nextInt(notesOfInterest.size()));
+            }
+            else
+                for (MIDINote note : notesOfInterest)
                 {
-                    best = note;
-                    bestd = dist;
-                    bestidx = idx;
-                }
-            }                
+                    int idx = Collections.binarySearch(taken, note.getTick(), c);
+                    if (idx >= 0)
+                        continue;
+                    idx = -idx - 1;
+                    long dist;
+                    if (idx == 0)
+                        dist = taken.get(0) - note.getTick();
+                    else if (idx == taken.size())
+                        dist = note.getTick() - taken.get(taken.size() - 1);
+                    else
+                        dist = Math.min(note.getTick() - taken.get(idx - 1), taken.get(idx) - note.getTick());
+                    if ((best == null) || (dist > bestd))
+                    {
+                        best = note;
+                        bestd = dist;
+                        bestidx = idx;
+                    }
+                }                
+            if (best == null)
+                break;
             used += setNote(steps, ticksPerMeasure, best.getTick(), randomNote()) ? 1 : 0;
             taken.add(bestidx, best.getTick());
+            notesOfInterest.remove(best);
         }
         return used;
     }
@@ -132,6 +141,8 @@ public class DanceLogic
                 long startTick = inst.getNotes().get(0).getTick();
                 long endTick = inst.getNotes().get(inst.getNotes().size() - 1).getTick();
                 if (intersects(startTick, endTick, taken))
+                    continue;
+                if (startTick%granularity != 0)
                     continue;
                 taken.add(new DanceBlackout(startTick, endTick));
                 System.out.print("P"+k+"_"+j+": ");
