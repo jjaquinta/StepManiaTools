@@ -237,20 +237,20 @@ public class MIDILogic
         // add patterns
         for (int i = 0; i < proj.getPatterns().size(); i++)
         {
-            int y = img.getHeight() - i - 1;
-            if (y <= minNote)
+            int y = minNote + i*2 + 1;
+            if (y >= img.getHeight())
                 break;
             PatDef pat = proj.getPatterns().get(i);
             for (int j = 0; j < pat.getInstances().size(); j++)
             {
                 PatInst inst = pat.getInstances().get(j);
-                int x1 = (int)(inst.getNotes().get(0).getTick()/2);
-                int x2 = (int)(inst.getNotes().get(inst.getNotes().size() - 1).getTick()/2);
+                int x1 = (int)(inst.getNotes().get(0).getTick()/q);
+                int x2 = (int)(inst.getNotes().get(inst.getNotes().size() - 1).getTick()/q);
                 if (inst.isUsed())
                     g.setColor(VOICE_COLOR[i%VOICE_COLOR.length]);
                 else
                     g.setColor(Color.DARK_GRAY);
-                g.drawLine(x1, y, x2, y);
+                g.drawLine(x1, y + j%2, x2, y + j%2);
             }
         }
         g.dispose();

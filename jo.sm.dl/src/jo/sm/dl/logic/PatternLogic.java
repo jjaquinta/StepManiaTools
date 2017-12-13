@@ -134,7 +134,11 @@ public class PatternLogic
         {
             for (int i = 0; i < voice.size() - def.getNotes().size(); i++)
                 if (isPattern(def, voice, i))
+                {
                     def.getInstances().add(makePatInst(def, voice, i));
+                    i += def.getNotes().size();
+                    i--; // since we're going to ++ right away
+                }
         }
     }
 
