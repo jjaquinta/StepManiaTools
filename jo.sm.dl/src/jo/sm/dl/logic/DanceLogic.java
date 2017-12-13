@@ -93,6 +93,7 @@ public class DanceLogic
                     proj.getTune().getLyrics().add(new SMMark(start, "P"+k+"_"+j+" start"));
                     proj.getTune().getLyrics().add(new SMMark(stop, "P"+k+"_"+j+" end"));
                 }
+                inst.setUsed(true);
             }
             if (used > quantity)
                 break;

@@ -5,6 +5,7 @@ import java.util.List;
 
 public class PatInst
 {
+    private boolean        mUsed;
     private List<MIDINote> mNotes = new ArrayList<>();
 
     public List<MIDINote> getNotes()
@@ -15,5 +16,15 @@ public class PatInst
     public void setNotes(List<MIDINote> notes)
     {
         mNotes = notes;
+    }
+
+    public boolean isUsed()
+    {
+        return mUsed;
+    }
+
+    public void setUsed(boolean used)
+    {
+        mUsed = used;
     }
 }

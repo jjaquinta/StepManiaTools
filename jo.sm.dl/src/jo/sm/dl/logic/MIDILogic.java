@@ -23,6 +23,8 @@ import javax.sound.midi.Track;
 
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITune;
+import jo.sm.dl.data.PatDef;
+import jo.sm.dl.data.PatInst;
 import jo.sm.dl.data.SMProject;
 
 public class MIDILogic
@@ -201,6 +203,10 @@ public class MIDILogic
         g.dispose();
         ImageIO.write(img, "PNG", eg);
     }
+    
+    private static final Color[] VOICE_COLOR = {
+      Color.YELLOW, Color.BLUE, Color.GREEN, Color.CYAN, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED,       
+    };
 
     public static void writeNoteGraph(SMProject proj, int scale, File ng) throws IOException
     {
@@ -209,13 +215,43 @@ public class MIDILogic
         Graphics g = img.getGraphics();
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, img.getWidth(), img.getHeight());
-        g.setColor(Color.YELLOW);
+        // add notes
+        int minNote = 0;
+        Map<Long, Color> voiceToColor = new HashMap<>();
         for (MIDINote n : proj.getMIDI().getNotes())
         {
             int x1 = (int)(n.getTick()/q);
             int x2 = (int)((n.getTick() + n.getDuration())/q);
-            x2 = x1 + scale;
-            g.drawLine(x1, n.getPitch(), x2, n.getPitch());
+            x2 = x1 + 1;
+            Color c = voiceToColor.get(n.getVoice());
+            if (c == null)
+            {
+                c = VOICE_COLOR[voiceToColor.size()%VOICE_COLOR.length];
+                voiceToColor.put(n.getVoice(), c);
+            }
+            g.setColor(c);
+            int y = n.getPitch();
+            g.drawLine(x1, y, x2, y);
+            minNote = Math.max(minNote, y);
+        }
+        // add patterns
+        for (int i = 0; i < proj.getPatterns().size(); i++)
+        {
+            int y = img.getHeight() - i - 1;
+            if (y <= minNote)
+                break;
+            PatDef pat = proj.getPatterns().get(i);
+            for (int j = 0; j < pat.getInstances().size(); j++)
+            {
+                PatInst inst = pat.getInstances().get(j);
+                int x1 = (int)(inst.getNotes().get(0).getTick()/2);
+                int x2 = (int)(inst.getNotes().get(inst.getNotes().size() - 1).getTick()/2);
+                if (inst.isUsed())
+                    g.setColor(VOICE_COLOR[i%VOICE_COLOR.length]);
+                else
+                    g.setColor(Color.DARK_GRAY);
+                g.drawLine(x1, y, x2, y);
+            }
         }
         g.dispose();
         ImageIO.write(img, "PNG", ng);

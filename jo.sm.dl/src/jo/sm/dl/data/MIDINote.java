@@ -10,6 +10,14 @@ public class MIDINote
     private int mBank;
     private int mProgram;
     
+    // utilities
+    public long getVoice()
+    {
+        long v = ((long)getTrack()<<32) | ((long)getBank()<<16) | ((long)getProgram()<<0);
+        return v;
+    }
+    
+    // getters and setters
     public int getPitch()
     {
         return mPitch;

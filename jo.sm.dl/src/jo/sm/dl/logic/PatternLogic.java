@@ -24,7 +24,7 @@ public class PatternLogic
         Map<Long, List<MIDINote>> voices = new HashMap<>();
         for (MIDINote note : proj.getMIDI().getNotes())
         {
-            long v = ((long)note.getTrack()<<32) | ((long)note.getBank()<<16) | ((long)note.getProgram()<<0);
+            long v = note.getVoice();
             List<MIDINote> voice = voices.get(v);
             if (voice == null)
             {
