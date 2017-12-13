@@ -27,7 +27,8 @@ public class DanceLogic
     public static void dance(SMProject proj)
     {
         MIDITune midi = proj.getMIDI();
-        SMTune steps = proj.getTune();
+        SMTune steps = proj.getTune();        
+        int granularity = midi.getPulsesPerQuarter();
         steps.setDisplayBPM(midi.getBeatsPerMinute());
         steps.getBPMs().add(new SMMark(0, midi.getBeatsPerMinute()));
         long ticksPerMeasure = midi.getPulsesPerQuarter()*4;
@@ -35,28 +36,74 @@ public class DanceLogic
         {
             SMMeasure m = new SMMeasure();
             m.setStartTick(tick);
-            m.getBeats().add(new SMBeat(tick + midi.getPulsesPerQuarter()*0));
-            m.getBeats().add(new SMBeat(tick + midi.getPulsesPerQuarter()*1));
-            m.getBeats().add(new SMBeat(tick + midi.getPulsesPerQuarter()*2));
-            m.getBeats().add(new SMBeat(tick + midi.getPulsesPerQuarter()*3));
+            m.getBeats().add(new SMBeat(tick + granularity*0));
+            m.getBeats().add(new SMBeat(tick + granularity*1));
+            m.getBeats().add(new SMBeat(tick + granularity*2));
+            m.getBeats().add(new SMBeat(tick + granularity*3));
             steps.getMeasures().add(m);
         }
         int targetSteps = (int)midi.getLengthInSeconds();
         System.out.println("Target steps: "+targetSteps);
         List<DanceBlackout> taken = new ArrayList<>();
-        int used = addPatternNotes(proj, (int)(targetSteps*PATTERN_QUOTA), (int)ticksPerMeasure, midi.getPulsesPerQuarter(), taken);
+        int used = addPatternNotes(proj, (int)(targetSteps*PATTERN_QUOTA), (int)ticksPerMeasure, granularity, taken);
         System.out.println("Pattern steps: "+used);
         if (used < targetSteps)
-        {
-            List<MIDINote> notesOfInterest = findNotes(midi, targetSteps - used, midi.getPulsesPerQuarter());
-            for (MIDINote note : notesOfInterest)
-                used += setNote(steps, ticksPerMeasure, note.getTick(), randomNote()) ? 1 : 0;
-        }
+            used += addRandomNotes(midi, steps, ticksPerMeasure, granularity, targetSteps);
         System.out.println("Total steps: "+used);
         steps.setNotesDescription(System.getProperty("user.name"));
         steps.setNotesChartType("dance-single");
         steps.setNotesDifficulty("Easy");
         steps.setNotesMeter(1);
+    }
+
+    public static int addRandomNotes(MIDITune midi, SMTune steps,
+            long ticksPerMeasure, long granularity, int targetSteps)
+    {
+        int used = 0;
+        Comparator<Long> c = new Comparator<Long>() {            
+            @Override
+            public int compare(Long o1, Long o2)
+            {
+                return (int)Math.signum(o1 - o2);
+            }
+        };
+        List<MIDINote> notesOfInterest = findNotes(midi, granularity);
+        List<Long> taken = new ArrayList<>();
+        for (SMMeasure m : steps.getMeasures())
+            for (SMBeat b : m.getBeats())
+                if (b.isAnySteps())
+                    taken.add(b.getTick());
+        Collections.sort(taken);
+        while ((notesOfInterest.size() > 0) && (used < targetSteps))
+        {
+            // sort notes
+            MIDINote best = null;
+            long bestd = 0;
+            int bestidx = 0;
+            for (MIDINote note : notesOfInterest)
+            {
+                int idx = Collections.binarySearch(taken, note.getTick(), c);
+                if (idx >= 0)
+                    continue;
+                idx = -idx - 1;
+                long dist;
+                if (idx == 0)
+                    dist = taken.get(0) - note.getTick();
+                else if (idx == taken.size())
+                    dist = note.getTick() - taken.get(taken.size() - 1);
+                else
+                    dist = Math.min(note.getTick() - taken.get(idx - 1), taken.get(idx) - note.getTick());
+                if ((best == null) || (dist > bestd))
+                {
+                    best = note;
+                    bestd = dist;
+                    bestidx = idx;
+                }
+            }                
+            used += setNote(steps, ticksPerMeasure, best.getTick(), randomNote()) ? 1 : 0;
+            taken.add(bestidx, best.getTick());
+        }
+        return used;
     }
 
     private static int addPatternNotes(SMProject proj, int quantity, int ticksPerMeasure, long granularity, List<DanceBlackout> taken)
@@ -193,7 +240,7 @@ public class DanceLogic
         }
     }
 
-    private static List<MIDINote> findNotes(MIDITune midi, int quantity, long granularity)
+    private static List<MIDINote> findNotes(MIDITune midi, long granularity)
     {
         List<MIDINote> notes = new ArrayList<>();
         notes.addAll(midi.getNotes());
@@ -201,29 +248,6 @@ public class DanceLogic
         for (Iterator<MIDINote> i = notes.iterator(); i.hasNext(); )
             if (i.next().getTick()%granularity != 0)
                 i.remove();
-        // sort by velocity
-        Collections.sort(notes, new Comparator<MIDINote>() {
-            public int compare(MIDINote o1, MIDINote o2) {
-                return (o2.getVelocity() - o1.getVelocity());
-            };
-        });
-        // pick highest velociy
-        for (int i = 0; i < quantity; i++)
-        {
-            if (notes.size() <= i)
-                break;
-            MIDINote baseNote = notes.get(i);
-            long baseTick = baseNote.getTick();
-            // remove any others that are too close
-            for (int j = notes.size() - 1; j > i; j--)
-            {
-                long noteTick = notes.get(j).getTick();
-                if (Math.abs(noteTick - baseTick) < granularity)
-                    notes.remove(j);
-            }
-        }
-        while (notes.size() > quantity)
-            notes.remove(quantity);
         return notes;
     }
 }

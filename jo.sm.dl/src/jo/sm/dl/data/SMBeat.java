@@ -21,6 +21,18 @@ public class SMBeat
         mTick = tick;
     }
 
+    // utilities
+    
+    public boolean isAnySteps()
+    {
+        for (char ch : mNotes)
+            if (ch != NOTE_NONE)
+                return true;
+        return false;
+    }    
+
+    // getters and setters
+    
     public char[] getNotes()
     {
         return mNotes;
@@ -39,5 +51,5 @@ public class SMBeat
     public void setTick(long tick)
     {
         mTick = tick;
-    }    
+    }
 }
