@@ -201,4 +201,23 @@ public class MIDILogic
         g.dispose();
         ImageIO.write(img, "PNG", eg);
     }
+
+    public static void writeNoteGraph(SMProject proj, int scale, File ng) throws IOException
+    {
+        int q = proj.getMIDI().getPulsesPerQuarter()/scale;
+        BufferedImage img = new BufferedImage((int)(proj.getMIDI().getLengthInTicks()/q), 256, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = img.getGraphics();
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, img.getWidth(), img.getHeight());
+        g.setColor(Color.YELLOW);
+        for (MIDINote n : proj.getMIDI().getNotes())
+        {
+            int x1 = (int)(n.getTick()/q);
+            int x2 = (int)((n.getTick() + n.getDuration())/q);
+            x2 = x1 + scale;
+            g.drawLine(x1, n.getPitch(), x2, n.getPitch());
+        }
+        g.dispose();
+        ImageIO.write(img, "PNG", ng);
+    }
 }

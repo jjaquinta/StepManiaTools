@@ -18,6 +18,8 @@ public class ProjectLogic
                 proj.getFlags().add(SMProject.MARK_PATTERNS);
             else if ("--energyGraph".equalsIgnoreCase(argv[i]))
                 proj.getFlags().add(SMProject.ENERGY_GRAPH);
+            else if ("--noteGraph".equalsIgnoreCase(argv[i]))
+                proj.getFlags().add(SMProject.NOTE_GRAPH);
         return proj;
     }
     
@@ -75,6 +77,11 @@ public class ProjectLogic
             {
                 File eg = new File(output, "energy_graph.png");
                 MIDILogic.writeEnergyGraph(proj, 4, eg);
+            }
+            if (proj.getFlags().contains(SMProject.NOTE_GRAPH))
+            {
+                File ng = new File(output, "note_graph.png");
+                MIDILogic.writeNoteGraph(proj, 4, ng);
             }
         }
         catch (IOException e)
