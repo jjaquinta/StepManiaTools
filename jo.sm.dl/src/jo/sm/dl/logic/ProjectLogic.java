@@ -16,6 +16,8 @@ public class ProjectLogic
         for (int i = 0; i < argv.length; i++)
             if ("--markPatterns".equalsIgnoreCase(argv[i]))
                 proj.getFlags().add(SMProject.MARK_PATTERNS);
+            else if ("--energyGraph".equalsIgnoreCase(argv[i]))
+                proj.getFlags().add(SMProject.ENERGY_GRAPH);
         return proj;
     }
     
@@ -69,6 +71,11 @@ public class ProjectLogic
         {
             SMIOLogic.writeSM(proj.getTune(), sm);
             SMIOLogic.writeSSC(proj.getTune(), ssc);
+            if (proj.getFlags().contains(SMProject.ENERGY_GRAPH))
+            {
+                File eg = new File(output, "energy_graph.png");
+                MIDILogic.writeEnergyGraph(proj, 4, eg);
+            }
         }
         catch (IOException e)
         {

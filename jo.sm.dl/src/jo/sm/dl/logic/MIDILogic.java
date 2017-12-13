@@ -1,11 +1,17 @@
 package jo.sm.dl.logic;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
@@ -17,6 +23,7 @@ import javax.sound.midi.Track;
 
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITune;
+import jo.sm.dl.data.SMProject;
 
 public class MIDILogic
 {
@@ -165,5 +172,33 @@ public class MIDILogic
             a = temp;
         }
         return a;
+    }
+
+    public static void writeEnergyGraph(SMProject proj, int scale, File eg) throws IOException
+    {
+        int q = proj.getMIDI().getPulsesPerQuarter()/scale;
+        Map<Long, Integer> energy = new HashMap<>();
+        for (MIDINote n : proj.getMIDI().getNotes())
+        {
+            long t = n.getTick();
+            t /= q;
+            if (!energy.containsKey(t) || (n.getVelocity() > energy.get(t)))
+                energy.put(t,  n.getVelocity());
+        }
+        List<Long> keys = new ArrayList<>();        
+        keys.addAll(energy.keySet());
+        Collections.sort(keys);
+        BufferedImage img = new BufferedImage(keys.size(), 256, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = img.getGraphics();
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, img.getWidth(), img.getHeight());
+        g.setColor(Color.YELLOW);
+        for (int x = 0; x < keys.size(); x++)
+        {
+            int y = energy.get(keys.get(x));
+            g.drawLine(x, img.getHeight()-1, x, img.getHeight() - y);
+        }
+        g.dispose();
+        ImageIO.write(img, "PNG", eg);
     }
 }

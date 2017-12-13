@@ -9,6 +9,7 @@ import java.util.Set;
 public class SMProject
 {
     public static final String MARK_PATTERNS = "mark_patterns";
+    public static final String ENERGY_GRAPH = "energy_graph";
     
     private Set<String> mFlags = new HashSet<>();
     private File     mInput;
