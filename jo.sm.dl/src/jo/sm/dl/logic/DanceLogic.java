@@ -39,7 +39,9 @@ public class DanceLogic
             steps.getMeasures().add(m);
         }
         int targetSteps = (int)midi.getLengthInSeconds();
-        int used = addPatternNotes(proj, targetSteps, (int)ticksPerMeasure, midi.getPulsesPerQuarter());
+        System.out.println("Target steps: "+targetSteps);
+        List<DanceBlackout> taken = new ArrayList<>();
+        int used = addPatternNotes(proj, targetSteps, (int)ticksPerMeasure, midi.getPulsesPerQuarter(), taken);
         System.out.println("Pattern steps: "+used);
         if (used < targetSteps)
         {
@@ -54,7 +56,7 @@ public class DanceLogic
         steps.setNotesMeter(1);
     }
 
-    private static int addPatternNotes(SMProject proj, int quantity, int ticksPerMeasure, long granularity)
+    private static int addPatternNotes(SMProject proj, int quantity, int ticksPerMeasure, long granularity, List<DanceBlackout> taken)
     {
         int used = 0;
         for (int k = 0; k < proj.getPatterns().size(); k++)
@@ -65,15 +67,25 @@ public class DanceLogic
             for (int j = 0; j < pattern.getInstances().size(); j++)
             {
                 PatInst inst = pattern.getInstances().get(j);
+                long startTick = inst.getNotes().get(0).getTick();
+                long endTick = inst.getNotes().get(inst.getNotes().size() - 1).getTick();
+                if (intersects(startTick, endTick, taken))
+                    continue;
+                taken.add(new DanceBlackout(startTick, endTick));
+                System.out.print("P"+k+"_"+j+": ");
                 for (int i = 0; i < inst.getNotes().size(); i++)
                 {
                     MIDINote n = inst.getNotes().get(i);
                     if (n.getTick()%granularity == 0)
                     {
                         if (setNote(proj.getTune(), ticksPerMeasure, n.getTick(), pattern.getSteps().get(i)))
+                        {
                             used++;
+                            System.out.print(DanceLogic.patternToStep(pattern.getSteps().get(i)));
+                        }
                     }
                 }
+                System.out.println();
                 if (proj.getFlags().contains(SMProject.MARK_PATTERNS))
                 {
                     float start = inst.getNotes().get(0).getTick()*proj.getMIDI().getMSPerTick()/1000.0f;
@@ -86,6 +98,31 @@ public class DanceLogic
                 break;
         }
         return used;
+    }
+
+    private static String patternToStep(String pattern)
+    {
+        switch (pattern)
+        {
+            case "1000":
+                return "<";
+            case "0100":
+                return "^";
+            case "0010":
+                return "v";
+            case "0001":
+                return ">";
+        }
+        return "?";
+    }
+    
+    private static boolean intersects(long startTick, long endTick,
+            List<DanceBlackout> taken)
+    {
+        for (DanceBlackout t : taken)
+            if (t.overlaps(startTick, endTick))
+                return true;
+        return false;
     }
 
     public static String randomNote()
@@ -171,5 +208,30 @@ public class DanceLogic
         while (notes.size() > quantity)
             notes.remove(quantity);
         return notes;
+    }
+}
+
+class DanceBlackout
+{
+    long    mStartTick;
+    long    mEndTick;
+    
+    public DanceBlackout(long start, long end)
+    {
+        mStartTick = start;
+        mEndTick = end;
+    }
+    
+    public boolean contains(long tick)
+    {
+        return (mStartTick <= tick) && (tick <= mEndTick);
+    }
+    
+    public boolean overlaps(long s, long e)
+    {
+        if (mStartTick < s)
+            return mEndTick > s;
+        else
+            return e > mStartTick;
     }
 }
