@@ -2,10 +2,12 @@ package jo.sm.dl.data;
 
 public class PatNote
 {
+    private int mIndex;
     private int mDeltaPitch;
     private int mDeltaVelocity;
     private long mDeltaTick;
     private long mDuration;
+    private String mSteps;
     
     public int getDeltaPitch()
     {
@@ -38,5 +40,21 @@ public class PatNote
     public void setDuration(long duration)
     {
         mDuration = duration;
+    }
+    public String getSteps()
+    {
+        return mSteps;
+    }
+    public void setSteps(String steps)
+    {
+        mSteps = steps;
+    }
+    public int getIndex()
+    {
+        return mIndex;
+    }
+    public void setIndex(int index)
+    {
+        mIndex = index;
     }
 }

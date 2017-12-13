@@ -7,8 +7,33 @@ public class PatDef
 {
     private List<PatNote> mNotes = new ArrayList<>();
     private List<PatInst> mInstances = new ArrayList<>();
-    private List<String> mSteps = new ArrayList<>();
     private long         mBeat;
+
+    // utilties
+    public float getQLen(int q)
+    {
+        float score = 0;
+        for (PatNote note : mNotes)
+            if (note.getDeltaTick()%q == 0)
+                score += 1;
+            else if (note.getDeltaTick()%(q/2) == 0)
+                score += .5f;
+            else if (note.getDeltaTick()%(q/4) == 0)
+                score += .25f;
+        return score;
+    }
+    
+    public int getScore(int q)
+    {
+        //return getInstances().size()*getNotes().size();
+        //return getInstances().size();
+        //return getNotes().size();
+        float score = getQLen(q);
+        score *= Math.log10(getInstances().size());
+        return (int)score;
+    }
+    
+    // getters and setters
     
     public List<PatNote> getNotes()
     {
@@ -25,14 +50,6 @@ public class PatDef
     public void setInstances(List<PatInst> instances)
     {
         mInstances = instances;
-    }
-    public List<String> getSteps()
-    {
-        return mSteps;
-    }
-    public void setSteps(List<String> steps)
-    {
-        mSteps = steps;
     }
     public long getBeat()
     {

@@ -25,6 +25,8 @@ import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.PatInst;
+import jo.sm.dl.data.SMBeat;
+import jo.sm.dl.data.SMMeasure;
 import jo.sm.dl.data.SMProject;
 
 public class MIDILogic
@@ -216,7 +218,8 @@ public class MIDILogic
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, img.getWidth(), img.getHeight());
         // add notes
-        int minNote = 0;
+        int minNote = 256;
+        int maxNote = 0;
         Map<Long, Color> voiceToColor = new HashMap<>();
         for (MIDINote n : proj.getMIDI().getNotes())
         {
@@ -232,12 +235,13 @@ public class MIDILogic
             g.setColor(c);
             int y = n.getPitch();
             g.drawLine(x1, y, x2, y);
+            maxNote = Math.max(maxNote, y);
             minNote = Math.max(minNote, y);
         }
         // add patterns
         for (int i = 0; i < proj.getPatterns().size(); i++)
         {
-            int y = minNote + i*2 + 1;
+            int y = maxNote + i*2 + 1;
             if (y >= img.getHeight())
                 break;
             PatDef pat = proj.getPatterns().get(i);
@@ -253,6 +257,16 @@ public class MIDILogic
                 g.drawLine(x1, y + j%2, x2, y + j%2);
             }
         }
+        // add steps
+        g.setColor(Color.WHITE);
+        for (SMMeasure measure : proj.getTune().getMeasures())
+            for (SMBeat beat : measure.getBeats())
+            {
+                int x = (int)(beat.getTick()/q);
+                for (int y = 0; y < beat.getNotes().length; y++)
+                    if ('0' != beat.getNotes()[y])
+                        g.drawLine(x, y, x, y);
+            }
         g.dispose();
         ImageIO.write(img, "PNG", ng);
     }

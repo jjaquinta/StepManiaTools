@@ -11,6 +11,7 @@ import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.PatInst;
+import jo.sm.dl.data.PatNote;
 import jo.sm.dl.data.SMBeat;
 import jo.sm.dl.data.SMMark;
 import jo.sm.dl.data.SMMeasure;
@@ -20,6 +21,8 @@ import jo.sm.dl.data.SMTune;
 public class DanceLogic
 {
     private static Random RND = new Random();
+
+    private static float PATTERN_QUOTA = .75f;
     
     public static void dance(SMProject proj)
     {
@@ -41,7 +44,7 @@ public class DanceLogic
         int targetSteps = (int)midi.getLengthInSeconds();
         System.out.println("Target steps: "+targetSteps);
         List<DanceBlackout> taken = new ArrayList<>();
-        int used = addPatternNotes(proj, targetSteps, (int)ticksPerMeasure, midi.getPulsesPerQuarter(), taken);
+        int used = addPatternNotes(proj, (int)(targetSteps*PATTERN_QUOTA), (int)ticksPerMeasure, midi.getPulsesPerQuarter(), taken);
         System.out.println("Pattern steps: "+used);
         if (used < targetSteps)
         {
@@ -62,8 +65,20 @@ public class DanceLogic
         for (int k = 0; k < proj.getPatterns().size(); k++)
         {
             PatDef pattern = proj.getPatterns().get(k);
-            for (int i = 0; i < pattern.getNotes().size(); i++)
-                pattern.getSteps().add(randomNote());
+            List<PatNote> notes = new ArrayList<>();
+            for (PatNote n : pattern.getNotes())
+                if (n.getDeltaTick()%granularity == 0)
+                    notes.add(n);
+            // aim to be under quota by thinning out pattern
+            int overbudget = used + notes.size()*pattern.getInstances().size() - quantity;
+            if (overbudget > 0)
+            {
+                int tothin = overbudget/pattern.getInstances().size() + 1;
+                while (tothin-- > 0)
+                    notes.remove(RND.nextInt(notes.size()));
+            }
+            if (notes.size() < PatternLogic.MIN_INST)
+                continue;
             for (int j = 0; j < pattern.getInstances().size(); j++)
             {
                 PatInst inst = pattern.getInstances().get(j);
@@ -73,16 +88,13 @@ public class DanceLogic
                     continue;
                 taken.add(new DanceBlackout(startTick, endTick));
                 System.out.print("P"+k+"_"+j+": ");
-                for (int i = 0; i < inst.getNotes().size(); i++)
+                for (PatNote pNote : notes)
                 {
-                    MIDINote n = inst.getNotes().get(i);
-                    if (n.getTick()%granularity == 0)
+                    MIDINote n = inst.getNotes().get(pNote.getIndex());
+                    if (setNote(proj.getTune(), ticksPerMeasure, n.getTick(), pNote.getSteps()))
                     {
-                        if (setNote(proj.getTune(), ticksPerMeasure, n.getTick(), pattern.getSteps().get(i)))
-                        {
-                            used++;
-                            System.out.print(DanceLogic.patternToStep(pattern.getSteps().get(i)));
-                        }
+                        used++;
+                        System.out.print(DanceLogic.patternToStep(pNote.getSteps()));
                     }
                 }
                 System.out.println();
@@ -94,6 +106,8 @@ public class DanceLogic
                     proj.getTune().getLyrics().add(new SMMark(stop, "P"+k+"_"+j+" end"));
                 }
                 inst.setUsed(true);
+                if (used > quantity)
+                    break;
             }
             if (used > quantity)
                 break;
@@ -144,6 +158,8 @@ public class DanceLogic
     
     private static boolean setNote(SMTune steps, long ticksPerMeasure, long tick, String step)
     {
+        if (step.equals("0000"))
+            return false;
         SMMeasure m = steps.getMeasures().get((int)(tick/ticksPerMeasure));
         if (tick < m.getStartTick() || (tick >= m.getStartTick() + ticksPerMeasure))
             throw new IllegalStateException(); // should never happen

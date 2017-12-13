@@ -16,8 +16,8 @@ import jo.sm.dl.data.SMProject;
 
 public class PatternLogic
 {
-    private static final int MIN_PAT = 4;
-    private static final int MIN_INST = 4;
+    public static final int MIN_PAT = 4;
+    public static final int MIN_INST = 4;
     
     public static void findPatterns(SMProject proj)
     {
@@ -34,7 +34,8 @@ public class PatternLogic
             if ((voice.size() == 0) || (voice.get(voice.size() - 1).getTick() != note.getTick()))
                 voice.add(note);
         }
-        System.out.println(proj.getMIDI().getPulsesPerQuarter()+" pulses per quarternote");
+        int q = proj.getMIDI().getPulsesPerQuarter();
+        System.out.println(q+" pulses per quarternote");
         System.out.println(voices.size()+" voices");
         for (Long v : voices.keySet())
         {
@@ -57,6 +58,7 @@ public class PatternLogic
                 if (best != null)
                 {
                     calcLCD(best);
+                    addSteps(best);
                     proj.getPatterns().add(best);
                 }
             }
@@ -65,15 +67,14 @@ public class PatternLogic
             @Override
             public int compare(PatDef o1, PatDef o2)
             {
-                //return o2.getInstances().size()*o2.getNotes().size() - o1.getInstances().size()*o1.getNotes().size();
-                return o2.getNotes().size() - o1.getNotes().size();
+                return o2.getScore(q) - o1.getScore(q);
             }
         });
         System.out.println(proj.getPatterns().size()+" patterns");
         for (int i = 0; i < Math.min(5, proj.getPatterns().size()); i++)
         {
             PatDef def = proj.getPatterns().get(i);
-            System.out.println("  len="+def.getNotes().size()+", insts="+def.getInstances().size()+", beat="+def.getBeat());
+            System.out.println("  len="+def.getNotes().size()+"/"+def.getQLen(q)+", insts="+def.getInstances().size()+", beat="+def.getBeat()+", score="+def.getScore(q));
             System.out.print("    ticks=");
             for (int j = 0; j < def.getNotes().size(); j++)
                 System.out.print(" "+def.getNotes().get(j).getDeltaTick());
@@ -85,6 +86,12 @@ public class PatternLogic
         }
     }
     
+    private static void addSteps(PatDef pattern)
+    {
+        for (PatNote note : pattern.getNotes())
+            note.setSteps(DanceLogic.randomNote());
+    }
+
     private static void calcLCD(PatDef best)
     {
         long lcd = best.getNotes().get(1).getDeltaTick();
@@ -179,6 +186,7 @@ public class PatternLogic
         {
             MIDINote n = voice.get(o + i);
             PatNote note = new PatNote();
+            note.setIndex(i);
             note.setDeltaPitch(n.getPitch() - base.getPitch());
             note.setDeltaTick(n.getTick() - base.getTick());
             note.setDeltaVelocity(n.getVelocity() - base.getVelocity());
