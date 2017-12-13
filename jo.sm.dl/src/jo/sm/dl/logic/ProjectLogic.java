@@ -60,11 +60,11 @@ public class ProjectLogic
         proj.getTune().setArtist("Unknown artist");
         // stepfile
         File sm = new File(output, name+".sm");
-        //File ssc = new File(output, name+".ssc");
+        File ssc = new File(output, name+".ssc");
         try
         {
             SMIOLogic.writeSM(proj.getTune(), sm);
-            //SMIOLogic.writeSSC(proj.getTune(), ssc);
+            SMIOLogic.writeSSC(proj.getTune(), ssc);
         }
         catch (IOException e)
         {
@@ -78,6 +78,7 @@ public class ProjectLogic
     {
         try
         {
+            String doOnly = "All My Loving";
             //File indir = new File("d:\\temp\\data\\sm");
             //File outdir = new File("d:\\Program Files (x86)\\StepMania 5\\Songs\\generated");
             File indir = new File("d:\\temp\\data\\sm\\Beatles");
@@ -88,6 +89,8 @@ public class ProjectLogic
             {
                 String name = fin[i].getName();
                 if (!name.endsWith(".mid"))
+                    continue;
+                if ((doOnly != null) && (name.indexOf(doOnly) < 0))
                     continue;
                 System.out.println("\n"+name);
                 File fout = new File(outdir, name.substring(0, name.length() - 4));
