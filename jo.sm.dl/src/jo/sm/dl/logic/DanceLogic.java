@@ -130,7 +130,7 @@ public class DanceLogic
             if (overbudget > 0)
             {
                 int tothin = overbudget/pattern.getInstances().size() + 1;
-                while (tothin-- > 0)
+                while ((tothin-- > 0) && (notes.size() > 0))
                     notes.remove(RND.nextInt(notes.size()));
             }
             if (notes.size() < PatternLogic.MIN_INST)
@@ -218,7 +218,10 @@ public class DanceLogic
     {
         if (step.equals("0000"))
             return false;
-        SMMeasure m = steps.getMeasures().get((int)(tick/ticksPerMeasure));
+        int measureIdx = (int)(tick/ticksPerMeasure);
+        if (measureIdx >= steps.getMeasures().size())
+            return false;
+        SMMeasure m = steps.getMeasures().get(measureIdx);
         if (tick < m.getStartTick() || (tick >= m.getStartTick() + ticksPerMeasure))
             throw new IllegalStateException(); // should never happen
         long offset = tick - m.getStartTick();

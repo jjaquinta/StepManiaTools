@@ -21,6 +21,8 @@ public class PatternLogic
     
     public static void findPatterns(SMProject proj)
     {
+        MIDINote firstNote = null;
+        MIDINote lastNote = null;
         Map<Long, List<MIDINote>> voices = new HashMap<>();
         for (MIDINote note : proj.getMIDI().getNotes())
         {
@@ -33,10 +35,15 @@ public class PatternLogic
             }
             if ((voice.size() == 0) || (voice.get(voice.size() - 1).getTick() != note.getTick()))
                 voice.add(note);
+            if ((firstNote == null) || (note.getTick() < firstNote.getTick()))
+                firstNote = note;
+            if ((lastNote == null) || (note.getTick() + note.getDuration() > lastNote.getTick() + lastNote.getDuration()))
+                lastNote = note;
         }
         int q = proj.getMIDI().getPulsesPerQuarter();
         System.out.println(q+" pulses per quarternote");
         System.out.println(voices.size()+" voices");
+        System.out.println("First tick="+firstNote.getTick()+", lastTick="+lastNote.getTick()+"->"+(lastNote.getTick() + lastNote.getDuration()));
         for (Long v : voices.keySet())
         {
             List<MIDINote> voice = voices.get(v);

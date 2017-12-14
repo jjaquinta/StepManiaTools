@@ -33,6 +33,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
+import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Track;
 import javax.sound.sampled.AudioFileFormat;
@@ -84,8 +85,11 @@ public class MIDItoWAVLogic {
             long len = (long) (stream.getFormat().getFrameRate() * (total + 4)); 
             stream = new AudioInputStream(stream, stream.getFormat(), len); 
  
-            AudioSystem.write(stream, AudioFileFormat.Type.WAVE, outStream); 
- 
+            long bytesWritten = AudioSystem.write(stream, AudioFileFormat.Type.WAVE, outStream);
+            int frameSize = format.getFrameSize();
+            float frameRate = format.getFrameRate();
+            float durationInSeconds = (bytesWritten / (frameSize * frameRate));
+            
             synth.close(); 
         } catch (Exception e) { 
             e.printStackTrace(); 
@@ -136,7 +140,18 @@ public class MIDItoWAVLogic {
                     } 
             } else { 
                 if (recv != null) 
-                    recv.send(msg, curtime); 
+                {
+                    recv.send(msg, curtime);
+                    if (msg instanceof ShortMessage)
+                    {
+                        ShortMessage smsg = (ShortMessage)msg;
+                        if (smsg.getCommand() == 0x90)
+                        {   // NOTE ON
+                            //int pitch = smsg.getData1();
+                            //System.out.println("Tick="+tick+", time="+curtime+", pitch="+pitch);
+                        }
+                    }
+                }
             } 
         } 
  

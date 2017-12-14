@@ -9,7 +9,7 @@ public class MIDITune
     private long           mGranularity;
     private int            mTracks;
     private int            mPulsesPerQuarter;
-    private int            mBeatsPerMinute;
+    private float          mBeatsPerMinute;
     private long           mLengthInTicks;
     private float          mLengthInSeconds;
 
@@ -77,12 +77,12 @@ public class MIDITune
         mPulsesPerQuarter = pulsesPerQuarter;
     }
 
-    public int getBeatsPerMinute()
+    public float getBeatsPerMinute()
     {
         return mBeatsPerMinute;
     }
 
-    public void setBeatsPerMinute(int beatsPerMinute)
+    public void setBeatsPerMinute(float beatsPerMinute)
     {
         mBeatsPerMinute = beatsPerMinute;
     }

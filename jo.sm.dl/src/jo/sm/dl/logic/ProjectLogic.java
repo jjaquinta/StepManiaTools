@@ -108,7 +108,7 @@ public class ProjectLogic
     {
         try
         {
-            String doOnly = "Eleanor";//null;//
+            String doOnly = null;//"Eleanor";//
             //File indir = new File("d:\\temp\\data\\sm");
             //File outdir = new File("d:\\Program Files (x86)\\StepMania 5\\Songs\\generated");
             File indir = new File("d:\\temp\\data\\sm\\Beatles");

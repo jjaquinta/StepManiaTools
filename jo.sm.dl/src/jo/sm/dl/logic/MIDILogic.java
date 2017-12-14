@@ -63,11 +63,14 @@ public class MIDILogic
         float lengthInSeconds = sequence.getMicrosecondLength()/1000/1000;
         float quartersPerSecond = quartersPerSong/lengthInSeconds;
         float quartersPerMinute = quartersPerSecond*60;
+        float beatLengthMS = tune.getMSPerTick()*tune.getPulsesPerQuarter();
+        float bpm = 60000L/beatLengthMS;
         tune.setLengthInTicks(sequence.getTickLength());
         tune.setLengthInSeconds(lengthInSeconds);
-        tune.setBeatsPerMinute((int)quartersPerMinute);
+        tune.setBeatsPerMinute(quartersPerMinute);
         System.out.println("divisionType="+sequence.getDivisionType()+", resolution="+sequence.getResolution()+", PPQ="+Sequence.PPQ);
         System.out.println("usLength="+sequence.getMicrosecondLength()+", tickLength="+sequence.getTickLength()+", ms/tick="+msPerTick);
+        System.out.println("qpm="+quartersPerMinute+", bpm="+bpm);
         Track[] tracks = sequence.getTracks();
         tune.setTracks(tracks.length);
         //System.out.println(tracks.length+" tracks");
