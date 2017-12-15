@@ -65,7 +65,6 @@ public class PatternLogic
                 if (best != null)
                 {
                     calcLCD(best);
-                    addSteps(best);
                     proj.getPatterns().add(best);
                 }
             }
@@ -91,12 +90,6 @@ public class PatternLogic
                 System.out.print(" "+def.getInstances().get(j).getNotes().get(0).getTick());
             System.out.println();
         }
-    }
-    
-    private static void addSteps(PatDef pattern)
-    {
-        for (PatNote note : pattern.getNotes())
-            note.setSteps(DanceLogic.randomNote());
     }
 
     private static void calcLCD(PatDef best)

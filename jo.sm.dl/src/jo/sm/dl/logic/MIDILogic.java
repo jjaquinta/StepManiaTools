@@ -262,7 +262,7 @@ public class MIDILogic
         }
         // add steps
         g.setColor(Color.WHITE);
-        for (SMMeasure measure : proj.getTune().getMeasures())
+        for (SMMeasure measure : proj.getTune().getCharts().get(0).getMeasures())
             for (SMBeat beat : measure.getBeats())
             {
                 int x = (int)(beat.getTick()/q);

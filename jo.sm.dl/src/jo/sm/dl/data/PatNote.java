@@ -9,6 +9,20 @@ public class PatNote
     private long mDuration;
     private String mSteps;
     
+    public PatNote()
+    {        
+    }
+    
+    public PatNote(PatNote c, String steps)
+    {
+        mIndex = c.mIndex;
+        mDeltaPitch = c.mDeltaPitch;
+        mDeltaVelocity = c.mDeltaVelocity;
+        mDeltaTick = c.mDeltaTick;
+        mDuration = c.mDuration;
+        mSteps = steps;
+    }
+    
     public int getDeltaPitch()
     {
         return mDeltaPitch;
@@ -41,14 +55,6 @@ public class PatNote
     {
         mDuration = duration;
     }
-    public String getSteps()
-    {
-        return mSteps;
-    }
-    public void setSteps(String steps)
-    {
-        mSteps = steps;
-    }
     public int getIndex()
     {
         return mIndex;
@@ -56,5 +62,13 @@ public class PatNote
     public void setIndex(int index)
     {
         mIndex = index;
+    }
+    public String getSteps()
+    {
+        return mSteps;
+    }
+    public void setSteps(String steps)
+    {
+        mSteps = steps;
     }
 }

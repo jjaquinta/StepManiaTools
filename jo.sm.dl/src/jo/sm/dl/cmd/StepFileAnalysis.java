@@ -25,6 +25,7 @@ public class StepFileAnalysis
     private File        mInFile;
     private List<StepData> mStepFiles = new ArrayList<>();
     private Map<String,AllStepNotesData> mNotesByDiff = new HashMap<>();
+    private Map<Integer,AllStepNotesData> mNotesByMeter = new HashMap<>();
     private Map<String,Map<Integer,AllStepNotesData>> mNotesByDiffMeter = new HashMap<>();
     
     public StepFileAnalysis(String[] argv)
@@ -59,6 +60,13 @@ public class StepFileAnalysis
             for (Integer meter : meters)
                 report(nmdata.get(meter), true);
         }
+        Integer[] keys = mNotesByMeter.keySet().toArray(new Integer[0]);
+        Arrays.sort(keys);
+        for (Integer key : keys)
+        {
+            AllStepNotesData data = mNotesByMeter.get(key);
+            report(data, true);
+        }
     }
     
     private void report(AllStepNotesData data, boolean meter)
@@ -84,6 +92,7 @@ public class StepFileAnalysis
         report("Note192nds", data.mNote192nds);
         reportFloat("BPM", data.mBPM);                
         reportFloat("NPM", data.mNPM);                
+        reportFloat("Double%", data.mDoublePC);                
         reportFloat("Length", data.mSongLength);                
         System.out.println();
     }
@@ -98,8 +107,16 @@ public class StepFileAnalysis
         Collections.sort(data);
         float average = tot/data.size();
         float lowq = data.get(data.size()/4);
+        float midq = data.get(data.size()/2);
         float uppq = data.get(data.size()*3/4);
-        System.out.println(title+": "+average+" ["+lowq+" - "+uppq+"]");
+        System.out.println(title+": "+average+" ["+lowq+" - "+midq+" - "+uppq+"]");
+        if (Float.isNaN(average))
+        {
+            System.out.print("  (");
+            for (Float f : data)
+                System.out.print(" "+f);
+            System.out.println(" )");
+        }
     }
     
     private void report(String title, List<Integer> data)
@@ -112,8 +129,9 @@ public class StepFileAnalysis
         Collections.sort(data);
         int average = tot/data.size();
         int lowq = data.get(data.size()/4);
+        int midq = data.get(data.size()/2);
         int uppq = data.get(data.size()*3/4);
-        System.out.println(title+": "+average+" ["+lowq+" - "+uppq+"]");
+        System.out.println(title+": "+average+" ["+lowq+" - "+midq+" - "+uppq+"]");
     }
     
     private void analyse()
@@ -146,6 +164,15 @@ public class StepFileAnalysis
                     ndata.mDifficulty = nd.mDifficulty.toLowerCase();
                     ndata.mMeter = nd.mMeter;
                     nmdata.put(nd.mMeter, ndata);
+                }
+                ndata.add(nd);
+                ndata = mNotesByMeter.get(nd.mMeter);
+                if (ndata == null)
+                {
+                    ndata = new AllStepNotesData();
+                    ndata.mDifficulty = "combined";
+                    ndata.mMeter = nd.mMeter;
+                    mNotesByMeter.put(nd.mMeter, ndata);
                 }
                 ndata.add(nd);
             }
@@ -270,6 +297,7 @@ public class StepFileAnalysis
             st.nextToken(); // radar
             String measures = st.nextToken();
             st = new StringTokenizer(measures, ",");
+            int doubles = 0;
             while (st.hasMoreTokens())
             {
                 String measure = st.nextToken();
@@ -282,6 +310,7 @@ public class StepFileAnalysis
                     if (line.length() == 0)
                         continue;
                     mcount++;
+                    int steps = 0;
                     for (char c : line.toCharArray())
                         switch (c)
                         {
@@ -290,12 +319,15 @@ public class StepFileAnalysis
                             case '1':
                                 nd.mNotes++;
                                 notes++;
+                                steps++;
                                 break;
                             case '2':
                                 nd.mHolds++;
+                                steps++;
                                 break;
                             case '4':
                                 nd.mRolls++;
+                                steps++;
                                 break;
                             case 'M':
                                 nd.mMines++;
@@ -303,6 +335,8 @@ public class StepFileAnalysis
                         }
                     if (line.length() > 4)
                         mcount += line.length()/4 - 1;
+                    if (steps > 1)
+                        doubles++;
                 }
                 if (mcount == 4)
                     nd.mNote4ths += notes;
@@ -329,6 +363,12 @@ public class StepFileAnalysis
             nd.mBPM = data.getBPM();
             nd.mSongLength = nd.mMeasures*4/nd.mBPM;
             nd.mNPM = nd.mNotes/nd.mSongLength;
+            if (doubles == 0)
+                nd.mDoublePC = 0;
+            else
+                nd.mDoublePC = doubles/(float)(nd.mNotes - doubles);
+            if (Float.isNaN(nd.mDoublePC))
+                System.out.println("WTF?");
             data.getNotes().add(nd);
         }
     }
@@ -366,6 +406,7 @@ public class StepFileAnalysis
         public List<Float> mBPM = new ArrayList<>();
         public List<Float> mNPM = new ArrayList<>();
         public List<Float> mSongLength = new ArrayList<>();
+        public List<Float> mDoublePC = new ArrayList<>();
 
         public void add(StepNotesData nd)
         {
@@ -385,6 +426,7 @@ public class StepFileAnalysis
             mBPM.add(nd.mBPM);
             mNPM.add(nd.mNPM);
             mSongLength.add(nd.mSongLength);
+            mDoublePC.add(nd.mDoublePC);
         }
     }
 

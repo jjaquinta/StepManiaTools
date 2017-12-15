@@ -67,5 +67,6 @@ public class StepData
         public int     mMeasures;
         public float   mSongLength;
         public float   mNPM;
+        public float   mDoublePC;
     }
 }

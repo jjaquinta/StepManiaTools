@@ -13,6 +13,7 @@ import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.PatInst;
 import jo.sm.dl.data.PatNote;
 import jo.sm.dl.data.SMBeat;
+import jo.sm.dl.data.SMChart;
 import jo.sm.dl.data.SMMark;
 import jo.sm.dl.data.SMMeasure;
 import jo.sm.dl.data.SMProject;
@@ -23,14 +24,61 @@ public class DanceLogic
     private static Random RND = new Random();
 
     private static float PATTERN_QUOTA = .75f;
+
+    private static final String[] DIFFICULTIES = {
+            "Beginner", "Easy", "Medium", "Hard", "Challenge"
+    };
+    private static final int[] NPMS = {
+            96,
+            66,
+            85,
+            103,
+            125,
+            146,
+            168,
+            197,
+            235,
+            339,
+            398,
+            454,
+            542,
+    };
+    private static final float[] DOUBLES = {
+            8.0f,
+            10.0f,
+            11.0f,
+            12.0f,
+            14.0f,
+            11.0f,
+            14.0f,
+            12.0f,
+            11.0f,
+            14.0f,
+            17.0f,
+            16.0f,
+            16.0f,
+    };
     
     public static void dance(SMProject proj)
     {
         MIDITune midi = proj.getMIDI();
         SMTune steps = proj.getTune();        
-        int granularity = midi.getPulsesPerQuarter();
         steps.setDisplayBPM(midi.getBeatsPerMinute());
         steps.getBPMs().add(new SMMark(0, midi.getBeatsPerMinute()));
+        int idx = 0;
+        for (int i = 0; i < DIFFICULTIES.length; i++)
+        {
+            idx += RND.nextInt(2) + 1;
+            generateChart(proj, DIFFICULTIES[i], idx+1, NPMS[idx], DOUBLES[idx]);
+        }
+    }
+    
+    private static void generateChart(SMProject proj, String difficulty, int meter, int npm, float doublePC)
+    {
+        MIDITune midi = proj.getMIDI();
+        SMChart chart = new SMChart();
+        proj.getTune().getCharts().add(chart);
+        int granularity = midi.getPulsesPerQuarter();
         long ticksPerMeasure = midi.getPulsesPerQuarter()*4;
         for (long tick = 0; tick < midi.getLengthInTicks(); tick += ticksPerMeasure)
         {
@@ -40,24 +88,24 @@ public class DanceLogic
             m.getBeats().add(new SMBeat(tick + granularity*1));
             m.getBeats().add(new SMBeat(tick + granularity*2));
             m.getBeats().add(new SMBeat(tick + granularity*3));
-            steps.getMeasures().add(m);
+            chart.getMeasures().add(m);
         }
-        int targetSteps = (int)midi.getLengthInSeconds();
+        int targetSteps = (int)midi.getLengthInSeconds()*npm/60;
         System.out.println("Target steps: "+targetSteps);
         List<DanceBlackout> taken = new ArrayList<>();
-        int used = addPatternNotes(proj, (int)(targetSteps*PATTERN_QUOTA), (int)ticksPerMeasure, granularity, taken);
+        int used = addPatternNotes(proj, chart, (int)(targetSteps*PATTERN_QUOTA), (int)ticksPerMeasure, granularity, doublePC, taken);
         System.out.println("Pattern steps: "+used);
         if (used < targetSteps)
-            used += addRandomNotes(midi, steps, ticksPerMeasure, granularity, targetSteps);
+            used += addRandomNotes(midi, chart, ticksPerMeasure, granularity, doublePC, targetSteps);
         System.out.println("Total steps: "+used);
-        steps.setNotesDescription(System.getProperty("user.name"));
-        steps.setNotesChartType("dance-single");
-        steps.setNotesDifficulty("Easy");
-        steps.setNotesMeter(1);
+        chart.setNotesDescription(System.getProperty("user.name"));
+        chart.setNotesChartType("dance-single");
+        chart.setNotesDifficulty(difficulty);
+        chart.setNotesMeter(meter);
     }
 
-    public static int addRandomNotes(MIDITune midi, SMTune steps,
-            long ticksPerMeasure, long granularity, int targetSteps)
+    public static int addRandomNotes(MIDITune midi, SMChart chart,
+            long ticksPerMeasure, long granularity, float doublePC, int targetSteps)
     {
         int used = 0;
         Comparator<Long> c = new Comparator<Long>() {            
@@ -69,7 +117,7 @@ public class DanceLogic
         };
         List<MIDINote> notesOfInterest = findNotes(midi, granularity);
         List<Long> taken = new ArrayList<>();
-        for (SMMeasure m : steps.getMeasures())
+        for (SMMeasure m : chart.getMeasures())
             for (SMBeat b : m.getBeats())
                 if (b.isAnySteps())
                     taken.add(b.getTick());
@@ -108,14 +156,14 @@ public class DanceLogic
                 }                
             if (best == null)
                 break;
-            used += setNote(steps, ticksPerMeasure, best.getTick(), randomNote()) ? 1 : 0;
+            used += setNote(chart, ticksPerMeasure, best.getTick(), randomNote(doublePC)) ? 1 : 0;
             taken.add(bestidx, best.getTick());
             notesOfInterest.remove(best);
         }
         return used;
     }
 
-    private static int addPatternNotes(SMProject proj, int quantity, int ticksPerMeasure, long granularity, List<DanceBlackout> taken)
+    private static int addPatternNotes(SMProject proj, SMChart chart, int quantity, int ticksPerMeasure, long granularity, float doublePC, List<DanceBlackout> taken)
     {
         int used = 0;
         for (int k = 0; k < proj.getPatterns().size(); k++)
@@ -124,7 +172,7 @@ public class DanceLogic
             List<PatNote> notes = new ArrayList<>();
             for (PatNote n : pattern.getNotes())
                 if (n.getDeltaTick()%granularity == 0)
-                    notes.add(n);
+                    notes.add(new PatNote(n, randomNote(doublePC)));
             // aim to be under quota by thinning out pattern
             int overbudget = used + notes.size()*pattern.getInstances().size() - quantity;
             if (overbudget > 0)
@@ -149,7 +197,7 @@ public class DanceLogic
                 for (PatNote pNote : notes)
                 {
                     MIDINote n = inst.getNotes().get(pNote.getIndex());
-                    if (setNote(proj.getTune(), ticksPerMeasure, n.getTick(), pNote.getSteps()))
+                    if (setNote(chart, ticksPerMeasure, n.getTick(), pNote.getSteps()))
                     {
                         used++;
                         System.out.print(DanceLogic.patternToStep(pNote.getSteps()));
@@ -185,6 +233,18 @@ public class DanceLogic
                 return "v";
             case "0001":
                 return ">";
+            case "1100":
+                return "(<^)";
+            case "1010":
+                return "(<v)";
+            case "1001":
+                return "(<>)";
+            case "0110":
+                return "(^v)";
+            case "0101":
+                return "(^>)";
+            case "0011":
+                return "(v>)";
         }
         return "?";
     }
@@ -198,30 +258,47 @@ public class DanceLogic
         return false;
     }
 
-    public static String randomNote()
+    public static String randomNote(float doublePC)
     {
-        switch (DanceLogic.RND.nextInt(4))
-        {
-            case 0:
-                return "1000";
-            case 1:
-                return "0100";
-            case 2:
-                return "0010";
-            case 3:
-                return "0001";
-        }
+        if (DanceLogic.RND.nextFloat() > doublePC)
+            switch (DanceLogic.RND.nextInt(4))
+            {
+                case 0:
+                    return "1000";
+                case 1:
+                    return "0100";
+                case 2:
+                    return "0010";
+                case 3:
+                    return "0001";
+            }
+        else
+            switch (DanceLogic.RND.nextInt(6))
+            {
+                case 0:
+                    return "1100";
+                case 1:
+                    return "1010";
+                case 2:
+                    return "1001";
+                case 3:
+                    return "0110";
+                case 4:
+                    return "0101";
+                case 5:
+                    return "0011";
+            }
         return "0000";
     }
     
-    private static boolean setNote(SMTune steps, long ticksPerMeasure, long tick, String step)
+    private static boolean setNote(SMChart chart, long ticksPerMeasure, long tick, String step)
     {
         if (step.equals("0000"))
             return false;
         int measureIdx = (int)(tick/ticksPerMeasure);
-        if (measureIdx >= steps.getMeasures().size())
+        if (measureIdx >= chart.getMeasures().size())
             return false;
-        SMMeasure m = steps.getMeasures().get(measureIdx);
+        SMMeasure m = chart.getMeasures().get(measureIdx);
         if (tick < m.getStartTick() || (tick >= m.getStartTick() + ticksPerMeasure))
             throw new IllegalStateException(); // should never happen
         long offset = tick - m.getStartTick();
