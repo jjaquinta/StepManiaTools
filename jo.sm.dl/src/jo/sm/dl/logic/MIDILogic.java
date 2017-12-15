@@ -26,8 +26,10 @@ import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.PatInst;
 import jo.sm.dl.data.SMBeat;
+import jo.sm.dl.data.SMMark;
 import jo.sm.dl.data.SMMeasure;
 import jo.sm.dl.data.SMProject;
+import jo.util.utils.obj.ByteUtils;
 
 public class MIDILogic
 {
@@ -136,9 +138,12 @@ public class MIDILogic
                     byte[] data = msg.getMessage();
                     if (((data[0]&0xff) == 0xff) && ((data[1]&0xff) == 0x51))
                     {   // tempo
-                        //int msPerQuarter = ByteUtils.toInt((byte)0, data[2], data[3], data[4]);
-                        //int bpm = 60000000/msPerQuarter;
-                        //System.out.print("  (tempo ms/q="+msPerQuarter+", bpm="+bpm+")");
+                        int msPerQuarter = ByteUtils.toInt((byte)0, data[3], data[4], data[5]);
+                        float tbpm = 60000000f/msPerQuarter;
+                        float beat = (event.getTick()/(float)tune.getPulsesPerQuarter());
+                        System.out.println("Track "+i+" tick="+event.getTick()+" beat="+beat+"  (tempo ms/q="+msPerQuarter+", bpm="+tbpm+")");
+                        if (i == 0)
+                            tune.getBPMs().add(new SMMark(beat, tbpm));
                     }
                     //else
                     //    System.out.print(" 0X"+Integer.toHexString(msg.getMessage()[0]&0xFF)+"."+Integer.toHexString(msg.getMessage()[1]&0xFF));

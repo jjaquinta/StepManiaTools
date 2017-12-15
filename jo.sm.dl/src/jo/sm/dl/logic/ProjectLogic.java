@@ -25,6 +25,15 @@ public class ProjectLogic
                 proj.getFlags().add(SMProject.OGG_OUT);
             else if ("--mp3".equalsIgnoreCase(argv[i]))
                 proj.getFlags().add(SMProject.MP3_OUT);
+            else if ("--sm".equalsIgnoreCase(argv[i]))
+                proj.getFlags().add(SMProject.SM_OUT);
+            else if ("--scc".equalsIgnoreCase(argv[i]) || "--ssc".equalsIgnoreCase(argv[i]))
+                proj.getFlags().add(SMProject.SSC_OUT);
+            else if ("--beginner".equalsIgnoreCase(argv[i]))
+                proj.getDifficulties().put("beginner", Integer.parseInt(argv[++i]));
+        
+        if (!proj.isFlag(SMProject.SM_OUT) && !proj.isFlag(SMProject.SSC_OUT))
+            proj.getFlags().add(SMProject.SM_OUT);
         return proj;
     }
     
@@ -79,18 +88,24 @@ public class ProjectLogic
         proj.getTune().setMusic(soundFile.getName());
         proj.getTune().setArtist("Unknown artist");
         // stepfile
-        File sm = new File(output, name+".sm");
-        File ssc = new File(output, name+".ssc");
         try
         {
-            SMIOLogic.writeSM(proj.getTune(), sm);
-            SMIOLogic.writeSSC(proj.getTune(), ssc);
-            if (proj.getFlags().contains(SMProject.ENERGY_GRAPH))
+            if (proj.isFlag(SMProject.SM_OUT))
+            {
+                File sm = new File(output, name+".sm");
+                SMIOLogic.writeSM(proj.getTune(), sm);
+            }
+            if (proj.isFlag(SMProject.SSC_OUT))
+            {
+                File ssc = new File(output, name+".ssc");
+                SMIOLogic.writeSSC(proj.getTune(), ssc);
+            }
+            if (proj.isFlag(SMProject.ENERGY_GRAPH))
             {
                 File eg = new File(output, "energy_graph.png");
                 MIDILogic.writeEnergyGraph(proj, 4, eg);
             }
-            if (proj.getFlags().contains(SMProject.NOTE_GRAPH))
+            if (proj.isFlag(SMProject.NOTE_GRAPH))
             {
                 File ng = new File(output, "note_graph.png");
                 MIDILogic.writeNoteGraph(proj, 4, ng);
@@ -108,7 +123,7 @@ public class ProjectLogic
     {
         try
         {
-            String doOnly = "All My Lov";//null;//
+            String doOnly = null;//"Eleanor";//
             //File indir = new File("d:\\temp\\data\\sm");
             //File outdir = new File("d:\\Program Files (x86)\\StepMania 5\\Songs\\generated");
             File indir = new File("d:\\temp\\data\\sm\\Beatles");

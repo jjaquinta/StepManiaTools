@@ -1,5 +1,6 @@
 package jo.sm.dl.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MIDITune
@@ -12,6 +13,7 @@ public class MIDITune
     private float          mBeatsPerMinute;
     private long           mLengthInTicks;
     private float          mLengthInSeconds;
+    private List<SMMark>   mBPMs     = new ArrayList<>();
 
     // utilities
 
@@ -105,5 +107,15 @@ public class MIDITune
     public void setLengthInSeconds(float lengthInSeconds)
     {
         mLengthInSeconds = lengthInSeconds;
+    }
+
+    public List<SMMark> getBPMs()
+    {
+        return mBPMs;
+    }
+
+    public void setBPMs(List<SMMark> bPMs)
+    {
+        mBPMs = bPMs;
     }
 }

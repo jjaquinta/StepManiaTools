@@ -64,12 +64,12 @@ public class DanceLogic
         MIDITune midi = proj.getMIDI();
         SMTune steps = proj.getTune();        
         steps.setDisplayBPM(midi.getBeatsPerMinute());
-        steps.getBPMs().add(new SMMark(0, midi.getBeatsPerMinute()));
+        steps.getBPMs().addAll(midi.getBPMs());
         int idx = 0;
         for (int i = 0; i < DIFFICULTIES.length; i++)
         {
             idx += RND.nextInt(2) + 1;
-            generateChart(proj, DIFFICULTIES[i], idx+1, NPMS[idx], DOUBLES[idx]);
+            generateChart(proj, DIFFICULTIES[i], idx+1, NPMS[idx], 0/*DOUBLES[idx]*/);
         }
     }
     
