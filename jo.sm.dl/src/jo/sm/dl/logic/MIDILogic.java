@@ -83,6 +83,7 @@ public class MIDILogic
             Map<Integer,MIDINote> onNotes = new HashMap<>();
             int bank = 0;
             int program = 0;
+            int[] controlValues = new int[256];
             for (int j = 0; j < track.size(); j++)
             {
                 MidiEvent event = track.get(j);
@@ -101,6 +102,8 @@ public class MIDILogic
                         note.setTrack(i);
                         note.setPitch(pitch);
                         note.setVelocity(velocity);
+                        note.setVolume(controlValues[7]);
+                        note.setExpression(controlValues[11]);
                         notes.add(note);
                         if (onNotes.containsKey(pitch))
                         {
@@ -124,11 +127,15 @@ public class MIDILogic
                         //Instrument instrument = getInstrument(bank, program);
                         //System.out.print(" ("+instrument.getName()+")");
                     }
-                    else if (smsg.getCommand() == 0xb0)
+                    else if ((smsg.getCommand()&0xF0) == 0xb0)
                     {   // channel mode message
-                        //int v = smsg.getData1();
-                        //int c = smsg.getData2();
-                        //System.out.print(" c("+c+","+v+")");
+                        int c = smsg.getData1();
+                        int v = smsg.getData2();
+                        controlValues[c] = v;
+                        if (c == 11)
+                            System.out.print(" exp("+v+")."+event.getTick());
+                        else if (c == 7)
+                            System.out.print(" vol("+v+")."+event.getTick());
                     }
                     //else
                     //    System.out.print(" 0x"+Integer.toHexString(smsg.getCommand()));
@@ -189,26 +196,44 @@ public class MIDILogic
     public static void writeEnergyGraph(SMProject proj, int scale, File eg) throws IOException
     {
         int q = proj.getMIDI().getPulsesPerQuarter()/scale;
-        Map<Long, Integer> energy = new HashMap<>();
+        Map<Long, Integer> velocity = new HashMap<>();
+        Map<Long, Integer> expression = new HashMap<>();
+        Map<Long, Integer> volume = new HashMap<>();
         for (MIDINote n : proj.getMIDI().getNotes())
         {
             long t = n.getTick();
             t /= q;
-            if (!energy.containsKey(t) || (n.getVelocity() > energy.get(t)))
-                energy.put(t,  n.getVelocity());
+            if (!velocity.containsKey(t) || (n.getVelocity() > velocity.get(t)))
+                velocity.put(t,  n.getVelocity());
+            if (!expression.containsKey(t) || (n.getExpression() > expression.get(t)))
+                expression.put(t,  n.getExpression());
+            if (!volume.containsKey(t) || (n.getVolume() > volume.get(t)))
+                volume.put(t,  n.getVolume());
         }
         List<Long> keys = new ArrayList<>();        
-        keys.addAll(energy.keySet());
+        keys.addAll(velocity.keySet());
         Collections.sort(keys);
-        BufferedImage img = new BufferedImage(keys.size(), 256, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage img = new BufferedImage(keys.size(), 256*3, BufferedImage.TYPE_INT_ARGB);
         Graphics g = img.getGraphics();
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, img.getWidth(), img.getHeight());
         g.setColor(Color.YELLOW);
         for (int x = 0; x < keys.size(); x++)
         {
-            int y = energy.get(keys.get(x));
-            g.drawLine(x, img.getHeight()-1, x, img.getHeight() - y);
+            int y = velocity.get(keys.get(x));
+            g.drawLine(x, 256-1, x, 256 - y);
+        }
+        g.setColor(Color.GREEN);
+        for (int x = 0; x < keys.size(); x++)
+        {
+            int y = expression.get(keys.get(x));
+            g.drawLine(x, 512-1, x, 512- y);
+        }
+        g.setColor(Color.BLUE);
+        for (int x = 0; x < keys.size(); x++)
+        {
+            int y = volume.get(keys.get(x));
+            g.drawLine(x, 768-1, x, 768 - y);
         }
         g.dispose();
         ImageIO.write(img, "PNG", eg);

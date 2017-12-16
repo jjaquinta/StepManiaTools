@@ -4,6 +4,8 @@ public class MIDINote
 {
     private int mPitch;
     private int mVelocity;
+    private int mExpression;
+    private int mVolume;
     private long mTick;
     private long mDuration;
     private int mTrack;
@@ -73,5 +75,25 @@ public class MIDINote
     public void setVelocity(int velocity)
     {
         mVelocity = velocity;
+    }
+
+    public int getExpression()
+    {
+        return mExpression;
+    }
+
+    public void setExpression(int expression)
+    {
+        mExpression = expression;
+    }
+
+    public int getVolume()
+    {
+        return mVolume;
+    }
+
+    public void setVolume(int volume)
+    {
+        mVolume = volume;
     }
 }
