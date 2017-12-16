@@ -18,8 +18,16 @@ public class SMProject
     public static final String SM_OUT = "sm_out";
     public static final String SSC_OUT = "scc_out";
     
+    public static final String DIFF_BEGINNER = "Beginner";
+    public static final String DIFF_EASY = "Easy";
+    public static final String DIFF_MEDIUM = "Medium";
+    public static final String DIFF_HARD = "Hard";
+    public static final String DIFF_CHALLENGE = "Challenge";
+
+    
     private Set<String> mFlags = new HashSet<>();
     private Map<String,Integer> mDifficulties = new HashMap<String, Integer>();
+    private String mArtist = "Unknown artist";
     private File     mInput;
     private File     mOutput;
     private SMTune   mTune;
@@ -102,5 +110,15 @@ public class SMProject
     public void setDifficulties(Map<String, Integer> difficulties)
     {
         mDifficulties = difficulties;
+    }
+
+    public String getArtist()
+    {
+        return mArtist;
+    }
+
+    public void setArtist(String artist)
+    {
+        mArtist = artist;
     }
 }

@@ -26,7 +26,7 @@ public class DanceLogic
     private static float PATTERN_QUOTA = .75f;
 
     private static final String[] DIFFICULTIES = {
-            "Beginner", "Easy", "Medium", "Hard", "Challenge"
+            SMProject.DIFF_BEGINNER, SMProject.DIFF_EASY, SMProject.DIFF_MEDIUM, SMProject.DIFF_HARD, SMProject.DIFF_CHALLENGE
     };
     private static final int[] NPMS = {
             96,
@@ -65,10 +65,9 @@ public class DanceLogic
         SMTune steps = proj.getTune();        
         steps.setDisplayBPM(midi.getBeatsPerMinute());
         steps.getBPMs().addAll(midi.getBPMs());
-        int idx = 0;
         for (int i = 0; i < DIFFICULTIES.length; i++)
         {
-            idx += RND.nextInt(2) + 1;
+            int idx = proj.getDifficulties().get(DIFFICULTIES[i]);
             generateChart(proj, DIFFICULTIES[i], idx+1, NPMS[idx], 0/*DOUBLES[idx]*/);
         }
     }

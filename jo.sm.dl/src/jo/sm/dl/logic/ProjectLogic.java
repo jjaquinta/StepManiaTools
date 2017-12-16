@@ -14,6 +14,11 @@ public class ProjectLogic
     public static SMProject newInstance(String[] argv)
     {
         SMProject proj = new SMProject();
+        proj.getDifficulties().put(SMProject.DIFF_BEGINNER, 1);
+        proj.getDifficulties().put(SMProject.DIFF_EASY, 2);
+        proj.getDifficulties().put(SMProject.DIFF_MEDIUM, 4);
+        proj.getDifficulties().put(SMProject.DIFF_HARD, 8);
+        proj.getDifficulties().put(SMProject.DIFF_CHALLENGE, 12);
         for (int i = 0; i < argv.length; i++)
             if ("--markPatterns".equalsIgnoreCase(argv[i]))
                 proj.getFlags().add(SMProject.MARK_PATTERNS);
@@ -29,8 +34,18 @@ public class ProjectLogic
                 proj.getFlags().add(SMProject.SM_OUT);
             else if ("--scc".equalsIgnoreCase(argv[i]) || "--ssc".equalsIgnoreCase(argv[i]))
                 proj.getFlags().add(SMProject.SSC_OUT);
+            else if ("--artist".equalsIgnoreCase(argv[i]))
+                proj.setArtist(argv[++i]);
             else if ("--beginner".equalsIgnoreCase(argv[i]))
-                proj.getDifficulties().put("beginner", Integer.parseInt(argv[++i]));
+                proj.getDifficulties().put(SMProject.DIFF_BEGINNER, Integer.parseInt(argv[++i]));
+            else if ("--easy".equalsIgnoreCase(argv[i]))
+                proj.getDifficulties().put(SMProject.DIFF_EASY, Integer.parseInt(argv[++i]));
+            else if ("--medium".equalsIgnoreCase(argv[i]))
+                proj.getDifficulties().put(SMProject.DIFF_MEDIUM, Integer.parseInt(argv[++i]));
+            else if ("--hard".equalsIgnoreCase(argv[i]))
+                proj.getDifficulties().put(SMProject.DIFF_HARD, Integer.parseInt(argv[++i]));
+            else if ("--challenge".equalsIgnoreCase(argv[i]))
+                proj.getDifficulties().put(SMProject.DIFF_CHALLENGE, Integer.parseInt(argv[++i]));
         
         if (!proj.isFlag(SMProject.SM_OUT) && !proj.isFlag(SMProject.SSC_OUT))
             proj.getFlags().add(SMProject.SM_OUT);
@@ -86,20 +101,20 @@ public class ProjectLogic
             return false;
         }
         proj.getTune().setMusic(soundFile.getName());
-        proj.getTune().setArtist("Unknown artist");
+        proj.getTune().setArtist(proj.getArtist());
         // stepfile
         try
         {
+            File sm = new File(output, name+".sm");
             if (proj.isFlag(SMProject.SM_OUT))
-            {
-                File sm = new File(output, name+".sm");
                 SMIOLogic.writeSM(proj.getTune(), sm);
-            }
+            else
+                sm.delete();
+            File ssc = new File(output, name+".ssc");
             if (proj.isFlag(SMProject.SSC_OUT))
-            {
-                File ssc = new File(output, name+".ssc");
                 SMIOLogic.writeSSC(proj.getTune(), ssc);
-            }
+            else
+                ssc.delete();
             if (proj.isFlag(SMProject.ENERGY_GRAPH))
             {
                 File eg = new File(output, "energy_graph.png");
