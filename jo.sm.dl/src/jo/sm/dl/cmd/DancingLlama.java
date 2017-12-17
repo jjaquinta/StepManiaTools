@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jo.sm.dl.data.SMProject;
+import jo.sm.dl.logic.DifficultyLogic;
 import jo.sm.dl.logic.ProjectLogic;
 
 public class DancingLlama
@@ -61,6 +62,7 @@ public class DancingLlama
             else
                 args.add(mArgs[i]);
         mArgs = args.toArray(new String[0]);
+        DifficultyLogic.init(mArgs);
     }
     
     public static void main(String[] argv)

@@ -17,14 +17,49 @@ public class MIDITune
 
     // utilities
 
-    public long tickToMS(long tick)
+    public float tickToMinutes(long tick)
     {
-        return (long)(tick * mMSPerTick);
+        float targetBeat = tickToBeat(tick);
+        float minutes = 0;
+        float lastMark = 0;
+        float bpm = 60;
+        for (SMMark mark : mBPMs)
+        {
+            if (mark.getMark() <= targetBeat)
+            {
+                float elapsedBeats = mark.getMark() - lastMark; 
+                float elapsedMinutes = elapsedBeats/bpm;
+                minutes += elapsedMinutes;
+                lastMark = mark.getMark();
+                bpm = mark.getNumValue();
+            }
+            else
+            {
+                float elapsedBeats = targetBeat - lastMark; 
+                float elapsedMinutes = elapsedBeats/bpm;
+                minutes += elapsedMinutes;
+                lastMark = mark.getMark();
+                bpm = mark.getNumValue();
+                break;
+            }
+        }
+        if (lastMark < targetBeat)
+        {
+            float elapsedBeats = targetBeat - lastMark; 
+            float elapsedMinutes = elapsedBeats/bpm;
+            minutes += elapsedMinutes;
+        }
+        return minutes;
     }
 
-    public long msToTicks(long ms)
+    public float tickToBeat(long tick)
     {
-        return (long)(ms / mMSPerTick);
+        return tick/(float)mPulsesPerQuarter;
+    }
+
+    public int beatToTick(float beat)
+    {
+        return (int)(beat*mPulsesPerQuarter);
     }
 
     // getters and setters

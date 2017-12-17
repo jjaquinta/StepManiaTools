@@ -1,6 +1,6 @@
 package jo.sm.dl.data;
 
-public class MIDINote
+public class MIDINote implements Comparable<MIDINote>
 {
     private int mPitch;
     private int mVelocity;
@@ -17,6 +17,12 @@ public class MIDINote
     {
         long v = ((long)getTrack()<<32) | ((long)getBank()<<16) | ((long)getProgram()<<0);
         return v;
+    }
+    
+    @Override
+    public int compareTo(MIDINote o)
+    {
+        return (int)Math.signum(mTick - o.mTick);
     }
     
     // getters and setters
