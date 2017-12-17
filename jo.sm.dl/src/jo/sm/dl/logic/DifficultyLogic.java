@@ -125,6 +125,8 @@ public class DifficultyLogic
             p.setNote48ths(NOTES[meter - 1][6]);
             p.setNote64ths(NOTES[meter - 1][7]);
             p.setNote192nds(NOTES[meter - 1][8]);
+            if (meter == 1)
+                p.setNoBackArrow(true);
             mProfiles.put(meter, p);
         }
     }

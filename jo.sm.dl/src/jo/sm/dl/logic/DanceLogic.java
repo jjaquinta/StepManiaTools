@@ -384,34 +384,22 @@ public class DanceLogic
 
     public static String randomNote(DiffProfile diff)
     {
-        if (DanceLogic.RND.nextFloat() > diff.getDoublePC())
-            switch (DanceLogic.RND.nextInt(4))
-            {
-                case 0:
-                    return "1000";
-                case 1:
-                    return "0100";
-                case 2:
-                    return "0010";
-                case 3:
-                    return "0001";
-            }
+        int roll;
+        if (diff.isNoBackArrow())
+            roll = DanceLogic.RND.nextInt(3);
         else
-            switch (DanceLogic.RND.nextInt(6))
-            {
-                case 0:
-                    return "1100";
-                case 1:
-                    return "1010";
-                case 2:
-                    return "1001";
-                case 3:
-                    return "0110";
-                case 4:
-                    return "0101";
-                case 5:
-                    return "0011";
-            }
+            roll = DanceLogic.RND.nextInt(4);
+        switch (roll)
+        {
+            case 0:
+                return "1000";
+            case 1:
+                return "0010";
+            case 2:
+                return "0001";
+            case 3:
+                return "0100";
+        }
         return "0000";
     }
     

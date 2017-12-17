@@ -17,6 +17,7 @@ public class DiffProfile
     private float mNote48ths; // percentage
     private float mNote64ths; // percentage
     private float mNote192nds; // percentage
+    private boolean mNoBackArrow;
     
     public int getNPM()
     {
@@ -137,5 +138,13 @@ public class DiffProfile
     public void setMeter(int meter)
     {
         mMeter = meter;
+    }
+    public boolean isNoBackArrow()
+    {
+        return mNoBackArrow;
+    }
+    public void setNoBackArrow(boolean noBackArrow)
+    {
+        mNoBackArrow = noBackArrow;
     }
 }

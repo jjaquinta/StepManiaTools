@@ -21,6 +21,7 @@ public class PatternLogic
     
     public static void findPatterns(SMProject proj)
     {
+        // sort notes by voices
         MIDINote firstNote = null;
         MIDINote lastNote = null;
         Map<Long, List<MIDINote>> voices = new HashMap<>();
@@ -49,13 +50,15 @@ public class PatternLogic
             List<MIDINote> voice = voices.get(v);
             for (int i = 0; i < voice.size() - MIN_PAT; i++)
             {
+                if ((voice.get(i).getTick()%q) != 0)
+                    continue;   // patterns must start on a beat
                 PatDef best = null;
                 for (int patLen = MIN_PAT; i + patLen < voice.size(); patLen++)
                 {
                     PatDef def = makePatDef(voice, i, patLen);
                     if (patExists(proj.getPatterns(), def))
                         continue;
-                    findInstances(def, voices.values());
+                    findInstances(def, voices.values(), q);
                     if (def.getInstances().size() < MIN_INST)
                         break;
                     if ((best != null) && (def.getInstances().size() < best.getInstances().size()))
@@ -135,17 +138,21 @@ public class PatternLogic
         return true;
     }
 
-    private static void findInstances(PatDef def, Collection<List<MIDINote>> voices)
+    private static void findInstances(PatDef def, Collection<List<MIDINote>> voices, int quarter)
     {
         for (List<MIDINote> voice : voices)
         {
             for (int i = 0; i < voice.size() - def.getNotes().size(); i++)
+            {
+                if ((voice.get(i).getTick()%quarter) != 0)
+                    continue;
                 if (isPattern(def, voice, i))
                 {
                     def.getInstances().add(makePatInst(def, voice, i));
                     i += def.getNotes().size();
                     i--; // since we're going to ++ right away
                 }
+            }
         }
     }
 
