@@ -23,6 +23,21 @@ public class PatDef
         return score;
     }
     
+    public float getNormalizedVolume()
+    {
+        long length = mNotes.get(mNotes.size() - 1).getDeltaTick();
+        float vol = 0;
+        for (PatInst inst : mInstances)
+            for (MIDINote note : inst.getNotes())
+            {
+                int loud = note.getVelocity() + note.getExpression() + note.getVolume();
+                vol += loud*note.getDuration();
+            }
+        vol /= mInstances.size();
+        vol /= length;
+        return vol;
+    }
+    
     public int getScore(int q)
     {
         //return getInstances().size()*getNotes().size();
@@ -30,6 +45,7 @@ public class PatDef
         //return getNotes().size();
         float score = getQLen(q);
         score *= Math.log10(getInstances().size());
+        score *= getNormalizedVolume();
         return (int)score;
     }
     
