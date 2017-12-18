@@ -231,30 +231,25 @@ public class DanceLogic
 
     private static String patternToStep(String pattern)
     {
-        switch (pattern)
+        StringBuffer step = new StringBuffer();
+        for (int i = 0; i < 4; i++)
         {
-            case "1000":
-                return "<";
-            case "0100":
-                return "^";
-            case "0010":
-                return "v";
-            case "0001":
-                return ">";
-            case "1100":
-                return "(<^)";
-            case "1010":
-                return "(<v)";
-            case "1001":
-                return "(<>)";
-            case "0110":
-                return "(^v)";
-            case "0101":
-                return "(^>)";
-            case "0011":
-                return "(v>)";
+            char ch = pattern.toCharArray()[i];
+            if (ch == SMBeat.NOTE_NORMAL)
+                step.append("<^v>".charAt(i));
+            else if (ch == SMBeat.NOTE_HOLD_HEAD)
+                step.append("@>");
+            else if (ch == SMBeat.NOTE_HOLD_RELEASE)
+                step.append("<@");
+            else if (ch == SMBeat.NOTE_MINE)
+                step.append("!");
         }
-        return "?";
+        if (step.length() > 1)
+        {
+            step.insert(0, "(");
+            step.append(")");
+        }
+        return step.toString();
     }
     
     private static boolean intersects(long startTick, long endTick,
@@ -349,6 +344,7 @@ public class DanceLogic
 //        float minuteElapsed = minuteEnd - minuteStart;
         annotateDoubles(diff, beats);
         annotateHolds(chart, ticksPerMeasure, diff, beats);
+        annotateMines(ticksPerMeasure, diff, beats);
     }
 
     private static void annotateDoubles(DiffProfile diff, List<SMBeat> beats)
@@ -472,6 +468,55 @@ public class DanceLogic
             long beatEnd = choice.getTick() + choice.getNote().getDuration();
             beatEnd -= beatEnd%q; // end on nearest quarter note
             setNote(chart, ticksPerMeasure, null, beatEnd, step);
+        }
+    }
+
+    private static void annotateMines(long ticksPerMeasure, DiffProfile diff, List<SMBeat> beats)
+    {
+        final Map<SMBeat, Long> suitability = new HashMap<>();
+        long q = ticksPerMeasure/4;
+        for (int i = 0; i < beats.size(); i++)
+        {
+            SMBeat beat = beats.get(i);
+            if (beat.getTick()%q != 0)
+                continue; // start on a quarter
+            if (beat.getHowManySteps() != 1)
+                continue;
+            MIDINote note = beat.getNote();
+            long loud = note.getVelocity() + note.getExpression() + note.getVolume();
+            loud /= (beat.getAlignment()/4); // negative bias off of quarter notes 
+            long score = loud*beat.getNote().getDuration(); // long notes good
+            suitability.put(beat, score);
+        }
+        float quotaF = beats.size()*diff.getMinesPC() + diff.getMinesRoundOff();
+        int quota = (int)quotaF;
+        diff.setMinesRoundOff(quotaF - quota);
+        if (quota <= 0)
+            return;
+        if (suitability.size() == 0)
+            return;
+        if (quota > suitability.size())
+            quota = suitability.size();
+        List<SMBeat> candidates = new ArrayList<>();
+        candidates.addAll(suitability.keySet());
+        Collections.sort(candidates, new Comparator<SMBeat>() {
+            @Override
+            public int compare(SMBeat o1, SMBeat o2)
+            {
+                long l1 = suitability.get(o1);
+                long l2 = suitability.get(o2);
+                return (int)Math.signum(l2 - l1);
+            }
+        });
+        for (int i = 0; i < quota; i++)
+        {
+            SMBeat choice = candidates.get(i);
+            List<Integer> indexes = new ArrayList<>();
+            for (int j = 0; j < choice.getNotes().length; j++)
+                if (choice.getNotes()[j] == SMBeat.NOTE_NONE)
+                    indexes.add(j);
+            int idx = indexes.get(RND.nextInt(indexes.size()));
+            choice.getNotes()[idx] = SMBeat.NOTE_MINE;
         }
     }
 

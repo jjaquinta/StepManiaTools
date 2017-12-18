@@ -34,7 +34,7 @@ public class DifficultyLogic
             .02f,
             .04f,
             .08f,  // 5
-            .00f,
+            .09f,
             .10f,
             .11f,
             .12f,
@@ -49,7 +49,7 @@ public class DifficultyLogic
             .02f,
             .04f,
             .08f,  // 5
-            .00f,
+            .09f,
             .10f,
             .11f,
             .12f,
@@ -74,19 +74,19 @@ public class DifficultyLogic
             .0f,
     };
     private static final float[] MINES = {
-            .0f,   // 1
-            .0f,
-            .0f,
-            .0f,
-            .0f,  // 5
-            .0f,
-            .0f,
-            .0f,
-            .0f,
-            .0f,  // 10
-            .0f,
-            .0f,
-            .0f,
+            .00f,   // 1
+            .00f,
+            .01f,
+            .02f,
+            .04f,  // 5
+            .04f,
+            .05f,
+            .05f,
+            .06f,
+            .06f,  // 10
+            .06f,
+            .06f,
+            .06f,
     };
     private static final float[][] NOTES = {
             // 4ths, 8ths, 12ths, 16ths, 24ths, 32nds, 48ths, 64ths, 192nds, 
