@@ -2,10 +2,13 @@ package jo.sm.dl.logic;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import jo.sm.dl.data.DiffProfile;
 import jo.sm.dl.data.MIDINote;
@@ -39,6 +42,7 @@ public class DanceLogic
         {
             int idx = proj.getDifficulties().get(DIFFICULTIES[i]);
             DiffProfile diff = DifficultyLogic.getProfile(idx);
+            diff.reset();
             generateChart(proj, DIFFICULTIES[i], diff);
         }
     }
@@ -54,10 +58,10 @@ public class DanceLogic
         {
             SMMeasure m = new SMMeasure();
             m.setStartTick(tick);
-            m.getBeats().add(new SMBeat(tick + quarter*0));
-            m.getBeats().add(new SMBeat(tick + quarter*1));
-            m.getBeats().add(new SMBeat(tick + quarter*2));
-            m.getBeats().add(new SMBeat(tick + quarter*3));
+            m.getBeats().add(new SMBeat(m, tick + quarter*0, 4));
+            m.getBeats().add(new SMBeat(m, tick + quarter*1, 4));
+            m.getBeats().add(new SMBeat(m, tick + quarter*2, 4));
+            m.getBeats().add(new SMBeat(m, tick + quarter*3, 4));
             chart.getMeasures().add(m);
         }
         int targetSteps = (int)midi.getLengthInSeconds()*diff.getNPM()/60;
@@ -90,10 +94,15 @@ public class DanceLogic
             return 0;
         List<MIDINote> selectedNotes = thinToQuota(midi, quarter, diff,
                 notesOfInterest);
-        int used = 0;
+        List<SMBeat> beats = new ArrayList<>();
         for (MIDINote note : selectedNotes)
-            used += setNote(chart, ticksPerMeasure, note.getTick(), randomNote(diff)) ? 1 : 0;
-        return used;
+        {
+            SMBeat beat = setNote(chart, ticksPerMeasure, note, randomNote(diff));
+            if (beat != null)
+                beats.add(beat);
+        }
+        annotateBeats(midi, diff, beats, startTick, endTick);
+        return beats.size();
     }
 
     public static List<MIDINote> thinToQuota(MIDITune midi, long quarter,
@@ -187,18 +196,22 @@ public class DanceLogic
                     continue;
                 taken.add(new DanceBlackout(startTick, endTick));
                 System.out.print("P"+k+"_"+j+": ");
+                List<SMBeat> beats = new ArrayList<>();
                 for (int i = 0; i < notes.size(); i++)
                 {
                     Integer idx = notes.get(i);
                     String step = steps.get(i);
                     MIDINote n = inst.getNotes().get(idx);
-                    if (setNote(chart, ticksPerMeasure, n.getTick(), step))
+                    SMBeat beat = setNote(chart, ticksPerMeasure, n, step);
+                    if (beat != null)
                     {
                         used++;
                         System.out.print(DanceLogic.patternToStep(step));
+                        beats.add(beat);
                     }
                 }
                 System.out.println();
+                annotateBeats(proj.getMIDI(), diff, beats, startTick, endTick);
                 if (proj.getFlags().contains(SMProject.MARK_PATTERNS))
                 {
                     float start = inst.getNotes().get(0).getTick()*proj.getMIDI().getMSPerTick()/1000.0f;
@@ -215,135 +228,6 @@ public class DanceLogic
         }
         return used;
     }
-
-    /*
-    public static int addRandomNotes(MIDITune midi, SMChart chart,
-            long ticksPerMeasure, long quarter, DiffProfile diff, int targetSteps)
-    {
-        int used = 0;
-        Comparator<Long> c = new Comparator<Long>() {            
-            @Override
-            public int compare(Long o1, Long o2)
-            {
-                return (int)Math.signum(o1 - o2);
-            }
-        };
-        List<MIDINote> notesOfInterest = findNotes(midi, quarter);
-        List<Long> taken = new ArrayList<>();
-        for (SMMeasure m : chart.getMeasures())
-            for (SMBeat b : m.getBeats())
-                if (b.isAnySteps())
-                    taken.add(b.getTick());
-        Collections.sort(taken);
-        while ((notesOfInterest.size() > 0) && (used < targetSteps))
-        {
-            // sort notes
-            MIDINote best = null;
-            long bestd = 0;
-            int bestidx = 0;
-            if (taken.size() == 0)
-            {
-                bestidx = 0;
-                best = notesOfInterest.get(RND.nextInt(notesOfInterest.size()));
-            }
-            else
-                for (MIDINote note : notesOfInterest)
-                {
-                    int idx = Collections.binarySearch(taken, note.getTick(), c);
-                    if (idx >= 0)
-                        continue;
-                    idx = -idx - 1;
-                    long dist;
-                    if (idx == 0)
-                        dist = taken.get(0) - note.getTick();
-                    else if (idx == taken.size())
-                        dist = note.getTick() - taken.get(taken.size() - 1);
-                    else
-                        dist = Math.min(note.getTick() - taken.get(idx - 1), taken.get(idx) - note.getTick());
-                    if ((best == null) || (dist > bestd))
-                    {
-                        best = note;
-                        bestd = dist;
-                        bestidx = idx;
-                    }
-                }                
-            if (best == null)
-                break;
-            used += setNote(chart, ticksPerMeasure, best.getTick(), randomNote(diff)) ? 1 : 0;
-            taken.add(bestidx, best.getTick());
-            notesOfInterest.remove(best);
-        }
-        return used;
-    }
-
-    private static List<MIDINote> findNotes(MIDITune midi, long granularity)
-    {
-        List<MIDINote> notes = new ArrayList<>();
-        notes.addAll(midi.getNotes());
-        // remove those off acceptable beat
-        for (Iterator<MIDINote> i = notes.iterator(); i.hasNext(); )
-            if (i.next().getTick()%granularity != 0)
-                i.remove();
-        return notes;
-    }
-    private static int addPatternNotes(SMProject proj, SMChart chart, int quantity, int ticksPerMeasure, long quarter, DiffProfile diff, List<DanceBlackout> taken)
-    {
-        int used = 0;
-        for (int k = 0; k < proj.getPatterns().size(); k++)
-        {
-            PatDef pattern = proj.getPatterns().get(k);
-            List<PatNote> notes = new ArrayList<>();
-            for (PatNote n : pattern.getNotes())
-                if (n.getDeltaTick()%quarter == 0)
-                    notes.add(new PatNote(n, randomNote(diff)));
-            // aim to be under quota by thinning out pattern
-            int overbudget = used + notes.size()*pattern.getInstances().size() - quantity;
-            if (overbudget > 0)
-            {
-                int tothin = overbudget/pattern.getInstances().size() + 1;
-                while ((tothin-- > 0) && (notes.size() > 0))
-                    notes.remove(RND.nextInt(notes.size()));
-            }
-            if (notes.size() < PatternLogic.MIN_INST)
-                continue;
-            for (int j = 0; j < pattern.getInstances().size(); j++)
-            {
-                PatInst inst = pattern.getInstances().get(j);
-                long startTick = inst.getNotes().get(0).getTick();
-                long endTick = inst.getNotes().get(inst.getNotes().size() - 1).getTick();
-                if (intersects(startTick, endTick, taken))
-                    continue;
-                if (startTick%quarter != 0)
-                    continue;
-                taken.add(new DanceBlackout(startTick, endTick));
-                System.out.print("P"+k+"_"+j+": ");
-                for (PatNote pNote : notes)
-                {
-                    MIDINote n = inst.getNotes().get(pNote.getIndex());
-                    if (setNote(chart, ticksPerMeasure, n.getTick(), pNote.getSteps()))
-                    {
-                        used++;
-                        System.out.print(DanceLogic.patternToStep(pNote.getSteps()));
-                    }
-                }
-                System.out.println();
-                if (proj.getFlags().contains(SMProject.MARK_PATTERNS))
-                {
-                    float start = inst.getNotes().get(0).getTick()*proj.getMIDI().getMSPerTick()/1000.0f;
-                    float stop = inst.getNotes().get(inst.getNotes().size() - 1).getTick()*proj.getMIDI().getMSPerTick()/1000.0f;
-                    proj.getTune().getLyrics().add(new SMMark(start, "P"+k+"_"+j+" start"));
-                    proj.getTune().getLyrics().add(new SMMark(stop, "P"+k+"_"+j+" end"));
-                }
-                inst.setUsed(true);
-                if (used > quantity)
-                    break;
-            }
-            if (used > quantity)
-                break;
-        }
-        return used;
-    }
-*/
 
     private static String patternToStep(String pattern)
     {
@@ -403,13 +287,14 @@ public class DanceLogic
         return "0000";
     }
     
-    private static boolean setNote(SMChart chart, long ticksPerMeasure, long tick, String step)
+    private static SMBeat setNote(SMChart chart, long ticksPerMeasure, MIDINote note, String step)
     {
         if (step.equals("0000"))
-            return false;
+            return null;
+        long tick = note.getTick();
         int measureIdx = (int)(tick/ticksPerMeasure);
         if (measureIdx >= chart.getMeasures().size())
-            return false;
+            return null;
         SMMeasure m = chart.getMeasures().get(measureIdx);
         if (tick < m.getStartTick() || (tick >= m.getStartTick() + ticksPerMeasure))
             throw new IllegalStateException("tick="+tick+", measureIdx="+measureIdx+", start="+m.getStartTick()+", measure="+ticksPerMeasure); // should never happen
@@ -425,20 +310,22 @@ public class DanceLogic
         if ((new String(b.getNotes())).equals("0000"))
         {
             b.setNotes(step.toCharArray());
-            return true;
+            b.setNote(note);
+            return b;
         }
         else
-            return false;
+            return null;
     }
     
     private static void expandMeasure(SMMeasure m, long newGap)
     {
         if (m.getBeats().size() == 64)
             throw new IllegalStateException("Got as high fidelity as we can");
+        int alignment = m.getBeats().size()*2;
         for (int i = m.getBeats().size() - 1; i >= 0; i--)
         {
             SMBeat oldBeat = m.getBeats().get(i);
-            SMBeat newBeat = new SMBeat(oldBeat.getTick() + newGap);
+            SMBeat newBeat = new SMBeat(m, oldBeat.getTick() + newGap, alignment);
             m.getBeats().add(i + 1, newBeat);
         }
     }
@@ -450,6 +337,68 @@ public class DanceLogic
             if ((note.getTick() >= startTick) && (note.getTick() <= endTick))
                 notes.add(note);
         return notes;
+    }
+
+    private static void annotateBeats(MIDITune midi, DiffProfile diff, List<SMBeat> beats, long startTick, long endTick)
+    {
+        Collections.sort(beats);
+//        float minuteStart = midi.tickToMinutes(beats.get(0).getTick());
+//        float minuteEnd = midi.tickToMinutes(beats.get(beats.size() - 1).getTick());
+//        float minuteElapsed = minuteEnd - minuteStart;
+        final Map<SMBeat, Long> suitability = new HashMap<>();
+        for (SMBeat beat: beats)
+        {
+            MIDINote note = beat.getNote();
+            long loud = note.getVelocity() + note.getExpression() + note.getVolume();
+            loud /= (beat.getAlignment()/4); // negative bias off of quarter notes 
+            suitability.put(beat, loud);
+        }
+        float quotaDoubleF = beats.size()*diff.getDoublePC() + diff.getDoubleRoundOff();
+        int quotaDouble = (int)quotaDoubleF;
+        diff.setDoubleRoundOff(quotaDoubleF - quotaDouble);
+        if (quotaDouble > 0)
+        {
+            List<SMBeat> candidates = new ArrayList<>();
+            candidates.addAll(beats);
+            Collections.sort(candidates, new Comparator<SMBeat>() {
+                @Override
+                public int compare(SMBeat o1, SMBeat o2)
+                {
+                    long l1 = suitability.get(o1);
+                    long l2 = suitability.get(o2);
+                    return (int)Math.signum(l2 - l1);
+                }
+            });
+            for (int i = 0; i < quotaDouble; i++)
+            {
+                SMBeat choice = candidates.get(i);
+                int idx = beats.indexOf(choice);
+                SMBeat before = (idx > 0) ? beats.get(idx - 1) : null;
+                SMBeat after = (idx < beats.size() - 1) ? beats.get(idx + 1) : null;
+                Set<Integer> choices = new HashSet<>();
+                choices.add(0);choices.add(1);choices.add(2);choices.add(3);
+                removeChoices(choices, choice.getNotes());
+                if (before != null)
+                    removeChoices(choices, before.getNotes());
+                if (after != null)
+                    removeChoices(choices, after.getNotes());
+                if (choices.size() == 0)
+                {
+                    choices.add(0);choices.add(1);choices.add(2);choices.add(3);
+                    removeChoices(choices, choice.getNotes());
+                }
+                int chIDX = choices.toArray(new Integer[]{})[RND.nextInt(choices.size())];
+                choice.getNotes()[chIDX] = '1';
+            }
+        }
+        
+    }
+
+    private static void removeChoices(Set<Integer> choices, char[] notes)
+    {
+        for (int i = 0; i < notes.length; i++)
+            if (notes[i] != '0')
+                choices.remove(i);
     }
 }
 

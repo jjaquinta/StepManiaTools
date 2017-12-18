@@ -18,6 +18,19 @@ public class DiffProfile
     private float mNote64ths; // percentage
     private float mNote192nds; // percentage
     private boolean mNoBackArrow;
+    private float mDoubleRoundOff;
+    private float mHoldRoundOff;
+    private float mMinesRoundOff;
+    
+    // utilities
+    public void reset()
+    {
+        mDoubleRoundOff = 0;
+        mHoldRoundOff = 0;
+        mMinesRoundOff = 0;
+    }
+    
+    // getters and setters
     
     public int getNPM()
     {
@@ -146,5 +159,29 @@ public class DiffProfile
     public void setNoBackArrow(boolean noBackArrow)
     {
         mNoBackArrow = noBackArrow;
+    }
+    public float getDoubleRoundOff()
+    {
+        return mDoubleRoundOff;
+    }
+    public void setDoubleRoundOff(float doubleRoundOff)
+    {
+        mDoubleRoundOff = doubleRoundOff;
+    }
+    public float getHoldRoundOff()
+    {
+        return mHoldRoundOff;
+    }
+    public void setHoldRoundOff(float holdRoundOff)
+    {
+        mHoldRoundOff = holdRoundOff;
+    }
+    public float getMinesRoundOff()
+    {
+        return mMinesRoundOff;
+    }
+    public void setMinesRoundOff(float minesRoundOff)
+    {
+        mMinesRoundOff = minesRoundOff;
     }
 }
