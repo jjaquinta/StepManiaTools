@@ -1,19 +1,18 @@
 package jo.sm.dl.cmd;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 import jo.sm.dl.data.SMProject;
-import jo.sm.dl.logic.DifficultyLogic;
 import jo.sm.dl.logic.ProjectLogic;
 
 public class DancingLlama
 {
     private String[] mArgs;
-    private String   mFilter;
-    private File     mInDir;
-    private File     mOutDir;
+    private Properties mSettings;
     
     public DancingLlama(String[] argv)
     {
@@ -25,22 +24,95 @@ public class DancingLlama
         parseArgs();
         try
         {
-            mOutDir.mkdirs();
-            File[] fin = mInDir.listFiles();
-            for (int i = 0; i < fin.length; i++)
+            try
             {
-                String name = fin[i].getName();
-                if (!name.endsWith(".mid"))
-                    continue;
-                if ((mFilter != null) && (name.indexOf(mFilter) < 0))
-                    continue;
-                System.out.println("\n"+name);
-                File fout = new File(mOutDir, name.substring(0, name.length() - 4));
-                SMProject proj = ProjectLogic.newInstance(mArgs);
-                ProjectLogic.load(proj, fin[i]);
-                ProjectLogic.dance(proj);
-                proj.getTune().setTitle(fout.getName());
-                ProjectLogic.save(proj, fout);
+                mSettings.store(System.out, "Base Props Dump");
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            for (StringTokenizer st = new StringTokenizer(mSettings.getProperty("in"), ","); st.hasMoreTokens(); )
+            {
+                File inDir = new File(st.nextToken());
+                Properties props = new Properties(mSettings);
+                File inProps = new File(inDir, "dl.properties");
+                if (inProps.exists())
+                {
+                    FileInputStream fis = new FileInputStream(inProps);
+                    props.load(fis);
+                    fis.close();
+                }
+                try
+                {
+                    props.store(System.out, "In Props Dump");
+                }
+                catch (IOException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                File outDir = new File(props.getProperty("out"));
+                outDir.mkdirs();
+                Properties oProps = new Properties(mSettings);
+                File outProps = new File(outDir, "dl.properties");
+                if (outProps.exists())
+                {
+                    FileInputStream fis = new FileInputStream(outProps);
+                    oProps.load(fis);
+                    fis.close();
+                }
+                try
+                {
+                    oProps.store(System.out, "Out Props Dump");
+                }
+                catch (IOException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                File[] fin = inDir.listFiles();
+                for (int i = 0; i < fin.length; i++)
+                {
+                    String name = fin[i].getName();
+                    if (!name.endsWith(".mid"))
+                        continue;
+                    if (props.containsKey("filter") && (name.indexOf(props.getProperty("filter")) < 0))
+                        continue;
+                    System.out.println("\n"+name);
+                    Properties sProps = new Properties(oProps);
+                    sProps.setProperty("title", name.substring(0, name.length() - 4));
+                    File s1Props = new File(inDir, name.substring(0, name.length() - 4)+".properties");
+                    if (s1Props.exists())
+                    {
+                        FileInputStream fis = new FileInputStream(s1Props);
+                        sProps.load(fis);
+                        fis.close();
+                    }
+                    File fout = new File(outDir, name.substring(0, name.length() - 4));
+                    fout.mkdirs();
+                    File s2Props = new File(outDir, "dl.properties");
+                    if (s2Props.exists())
+                    {
+                        FileInputStream fis = new FileInputStream(s2Props);
+                        sProps.load(fis);
+                        fis.close();
+                    }
+                    try
+                    {
+                        props.store(System.out, "Song props Dump");
+                    }
+                    catch (IOException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    SMProject proj = ProjectLogic.newInstance(sProps);
+                    ProjectLogic.load(proj, fin[i]);
+                    ProjectLogic.dance(proj);
+                    ProjectLogic.save(proj, fout);
+                }
             }
         }
         catch (Exception e)
@@ -51,18 +123,18 @@ public class DancingLlama
     
     private void parseArgs()
     {
-        List<String> args = new ArrayList<>();
+        mSettings = new Properties();
         for (int i = 0; i < mArgs.length; i++)
-            if ("--in".equals(mArgs[i]))
-                mInDir = new File(mArgs[++i]);
-            else if ("--out".equals(mArgs[i]))
-                mOutDir = new File(mArgs[++i]);
-            else if ("--filter".equals(mArgs[i]))
-                mFilter = mArgs[++i];
-            else
-                args.add(mArgs[i]);
-        mArgs = args.toArray(new String[0]);
-        DifficultyLogic.init(mArgs);
+            if (mArgs[i].startsWith("--"))
+            {
+                String key = mArgs[i].substring(2).toLowerCase();
+                String value = "true";
+                if ((i + 1 < mArgs.length) && !mArgs[i+1].startsWith("--"))
+                    value = mArgs[++i];
+                if (mSettings.containsKey(key))
+                    value = mSettings.getProperty(key)+","+value;
+                mSettings.put(key, value);
+            }
     }
     
     public static void main(String[] argv)

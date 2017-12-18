@@ -2,6 +2,7 @@ package jo.sm.dl.logic;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import jo.sm.dl.data.DiffProfile;
 
@@ -9,7 +10,7 @@ public class DifficultyLogic
 {
     private static Map<Integer, DiffProfile> mProfiles = new HashMap<>();
     
-    public static void init(String[] argv)
+    public static void init(Properties props)
     {
         addDefaults();
     }

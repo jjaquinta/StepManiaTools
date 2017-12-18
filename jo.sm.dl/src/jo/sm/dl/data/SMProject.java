@@ -3,20 +3,19 @@ package jo.sm.dl.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Properties;
 
 public class SMProject
 {
-    public static final String MARK_PATTERNS = "mark_patterns";
-    public static final String ENERGY_GRAPH = "energy_graph";
-    public static final String NOTE_GRAPH = "note_graph";
-    public static final String OGG_OUT = "ogg_out";
-    public static final String MP3_OUT = "mp3_out";
-    public static final String SM_OUT = "sm_out";
-    public static final String SSC_OUT = "scc_out";
+    public static final String MARK_PATTERNS = "markPatterns";
+    public static final String ENERGY_GRAPH = "energyGraph";
+    public static final String NOTE_GRAPH = "noteGraph";
+    public static final String OGG_OUT = "ogg";
+    public static final String MP3_OUT = "mp3";
+    public static final String SM_OUT = "sm";
+    public static final String SSC_OUT = "scc";
     
     public static final String DIFF_BEGINNER = "Beginner";
     public static final String DIFF_EASY = "Easy";
@@ -25,9 +24,8 @@ public class SMProject
     public static final String DIFF_CHALLENGE = "Challenge";
 
     
-    private Set<String> mFlags = new HashSet<>();
+    private Properties mProps;
     private Map<String,Integer> mDifficulties = new HashMap<String, Integer>();
-    private String mArtist = "Unknown artist";
     private File     mInput;
     private File     mOutput;
     private SMTune   mTune;
@@ -37,7 +35,7 @@ public class SMProject
     // utilities
     public boolean isFlag(String flag)
     {
-        return mFlags.contains(flag);
+        return mProps.containsKey(flag);
     }
     
     // getters and setters
@@ -92,16 +90,6 @@ public class SMProject
         mPatterns = patterns;
     }
 
-    public Set<String> getFlags()
-    {
-        return mFlags;
-    }
-
-    public void setFlags(Set<String> flags)
-    {
-        mFlags = flags;
-    }
-
     public Map<String, Integer> getDifficulties()
     {
         return mDifficulties;
@@ -112,13 +100,13 @@ public class SMProject
         mDifficulties = difficulties;
     }
 
-    public String getArtist()
+    public Properties getProps()
     {
-        return mArtist;
+        return mProps;
     }
 
-    public void setArtist(String artist)
+    public void setProps(Properties props)
     {
-        mArtist = artist;
+        mProps = props;
     }
 }

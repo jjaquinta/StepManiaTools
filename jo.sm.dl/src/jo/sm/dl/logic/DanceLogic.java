@@ -212,7 +212,7 @@ public class DanceLogic
                 }
                 System.out.println();
                 annotateBeats(chart, ticksPerMeasure, proj.getMIDI(), diff, beats, startTick, endTick);
-                if (proj.getFlags().contains(SMProject.MARK_PATTERNS))
+                if (proj.isFlag(SMProject.MARK_PATTERNS))
                 {
                     float start = inst.getNotes().get(0).getTick()*proj.getMIDI().getMSPerTick()/1000.0f;
                     float stop = inst.getNotes().get(inst.getNotes().size() - 1).getTick()*proj.getMIDI().getMSPerTick()/1000.0f;

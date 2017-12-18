@@ -2,6 +2,7 @@ package jo.sm.dl.logic;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import jo.audio.util.svc.mp3.MIDItoMP3;
 import jo.audio.util.svc.mp3.MIDItoOGG;
@@ -11,44 +12,31 @@ import jo.sm.dl.data.SMTune;
 
 public class ProjectLogic
 {
-    public static SMProject newInstance(String[] argv)
+    public static SMProject newInstance(Properties props)
     {
+        DifficultyLogic.init(props);
         SMProject proj = new SMProject();
+        proj.setProps(props);
         proj.getDifficulties().put(SMProject.DIFF_BEGINNER, 1);
         proj.getDifficulties().put(SMProject.DIFF_EASY, 2);
         proj.getDifficulties().put(SMProject.DIFF_MEDIUM, 4);
         proj.getDifficulties().put(SMProject.DIFF_HARD, 8);
         proj.getDifficulties().put(SMProject.DIFF_CHALLENGE, 12);
-        for (int i = 0; i < argv.length; i++)
-            if ("--markPatterns".equalsIgnoreCase(argv[i]))
-                proj.getFlags().add(SMProject.MARK_PATTERNS);
-            else if ("--energyGraph".equalsIgnoreCase(argv[i]))
-                proj.getFlags().add(SMProject.ENERGY_GRAPH);
-            else if ("--noteGraph".equalsIgnoreCase(argv[i]))
-                proj.getFlags().add(SMProject.NOTE_GRAPH);
-            else if ("--ogg".equalsIgnoreCase(argv[i]))
-                proj.getFlags().add(SMProject.OGG_OUT);
-            else if ("--mp3".equalsIgnoreCase(argv[i]))
-                proj.getFlags().add(SMProject.MP3_OUT);
-            else if ("--sm".equalsIgnoreCase(argv[i]))
-                proj.getFlags().add(SMProject.SM_OUT);
-            else if ("--scc".equalsIgnoreCase(argv[i]) || "--ssc".equalsIgnoreCase(argv[i]))
-                proj.getFlags().add(SMProject.SSC_OUT);
-            else if ("--artist".equalsIgnoreCase(argv[i]))
-                proj.setArtist(argv[++i]);
-            else if ("--beginner".equalsIgnoreCase(argv[i]))
-                proj.getDifficulties().put(SMProject.DIFF_BEGINNER, Integer.parseInt(argv[++i]));
-            else if ("--easy".equalsIgnoreCase(argv[i]))
-                proj.getDifficulties().put(SMProject.DIFF_EASY, Integer.parseInt(argv[++i]));
-            else if ("--medium".equalsIgnoreCase(argv[i]))
-                proj.getDifficulties().put(SMProject.DIFF_MEDIUM, Integer.parseInt(argv[++i]));
-            else if ("--hard".equalsIgnoreCase(argv[i]))
-                proj.getDifficulties().put(SMProject.DIFF_HARD, Integer.parseInt(argv[++i]));
-            else if ("--challenge".equalsIgnoreCase(argv[i]))
-                proj.getDifficulties().put(SMProject.DIFF_CHALLENGE, Integer.parseInt(argv[++i]));
+        if (props.containsKey("ssc"))
+            proj.getProps().setProperty(SMProject.SSC_OUT, "true");
+        if (props.containsKey("beginner"))
+            proj.getDifficulties().put(SMProject.DIFF_BEGINNER, Integer.parseInt(props.getProperty("beginner")));
+        if (props.containsKey("easy"))
+            proj.getDifficulties().put(SMProject.DIFF_EASY, Integer.parseInt(props.getProperty("easy")));
+        if (props.containsKey("medium"))
+            proj.getDifficulties().put(SMProject.DIFF_MEDIUM, Integer.parseInt(props.getProperty("medium")));
+        if (props.containsKey("hard"))
+            proj.getDifficulties().put(SMProject.DIFF_HARD, Integer.parseInt(props.getProperty("hard")));
+        if (props.containsKey("challenge"))
+            proj.getDifficulties().put(SMProject.DIFF_CHALLENGE, Integer.parseInt(props.getProperty("challenge")));
         
         if (!proj.isFlag(SMProject.SM_OUT) && !proj.isFlag(SMProject.SSC_OUT))
-            proj.getFlags().add(SMProject.SM_OUT);
+            proj.getProps().put(SMProject.SM_OUT, "true");
         return proj;
     }
     
@@ -83,14 +71,14 @@ public class ProjectLogic
         String name = output.getName();
         // MP3
         File soundFile;
-        if (proj.getFlags().contains(SMProject.MP3_OUT))
+        if (proj.isFlag(SMProject.MP3_OUT))
             soundFile = new File(output, name+".mp3");
         else
             soundFile = new File(output, name+".ogg");
         try
         {
             if (!soundFile.exists())
-                if (proj.getFlags().contains(SMProject.MP3_OUT))
+                if (proj.isFlag(SMProject.MP3_OUT))
                     MIDItoMP3.convert(proj.getInput(), soundFile);
                 else
                     MIDItoOGG.convert(proj.getInput(), soundFile);
@@ -100,8 +88,15 @@ public class ProjectLogic
             e1.printStackTrace();
             return false;
         }
+        proj.getTune().setTitle(proj.getProps().getProperty("title", proj.getTune().getTitle()));
         proj.getTune().setMusic(soundFile.getName());
-        proj.getTune().setArtist(proj.getArtist());
+        proj.getTune().setArtist(proj.getProps().getProperty("artist", "Unknown artist"));
+        proj.getTune().setCDTitle(proj.getProps().getProperty("cdtitle", ""));
+        proj.getTune().setCredit(proj.getProps().getProperty("credit", ""));
+        proj.getTune().setSubTitle(proj.getProps().getProperty("subtitle", ""));
+        proj.getTune().setTitleTranslit(proj.getProps().getProperty("titletranslit", ""));
+        proj.getTune().setSubTitleTranslit(proj.getProps().getProperty("subtitletranslit", ""));
+        proj.getTune().setArtistTranslit(proj.getProps().getProperty("artisttranslit", ""));
         // stepfile
         try
         {
@@ -132,38 +127,5 @@ public class ProjectLogic
             return false;
         }
         return true;
-    }
-    
-    public static void main(String[] argv)
-    {
-        try
-        {
-            String doOnly = null;//"Eleanor";//
-            //File indir = new File("d:\\temp\\data\\sm");
-            //File outdir = new File("d:\\Program Files (x86)\\StepMania 5\\Songs\\generated");
-            File indir = new File("d:\\temp\\data\\sm\\Beatles");
-            File outdir = new File("d:\\Program Files (x86)\\StepMania 5\\Songs\\Beatles");
-            outdir.mkdirs();
-            File[] fin = indir.listFiles();
-            for (int i = 0; i < fin.length; i++)
-            {
-                String name = fin[i].getName();
-                if (!name.endsWith(".mid"))
-                    continue;
-                if ((doOnly != null) && (name.indexOf(doOnly) < 0))
-                    continue;
-                System.out.println("\n"+name);
-                File fout = new File(outdir, name.substring(0, name.length() - 4));
-                SMProject proj = ProjectLogic.newInstance(argv);
-                ProjectLogic.load(proj, fin[i]);
-                ProjectLogic.dance(proj);
-                proj.getTune().setTitle(fout.getName());
-                ProjectLogic.save(proj, fout);
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
     }
 }
