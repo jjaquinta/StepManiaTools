@@ -44,19 +44,19 @@ public class DifficultyLogic
             .12f,
     };
     private static final float[] HOLDS = {
-            .0f,   // 1
-            .0f,
-            .0f,
-            .0f,
-            .0f,  // 5
-            .0f,
-            .0f,
-            .0f,
-            .0f,
-            .0f,  // 10
-            .0f,
-            .0f,
-            .0f,
+            .00f,   // 1
+            .01f,
+            .02f,
+            .04f,
+            .08f,  // 5
+            .00f,
+            .10f,
+            .11f,
+            .12f,
+            .12f,  // 10
+            .12f,
+            .12f,
+            .12f,
     };
     private static final float[] ROLLS = {
             .0f,   // 1

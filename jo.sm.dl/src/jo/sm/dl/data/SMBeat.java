@@ -36,6 +36,23 @@ public class SMBeat implements Comparable<SMBeat>
                 return true;
         return false;
     }    
+    
+    public int getHowManySteps()
+    {
+        int count = 0;
+        for (char ch : mNotes)
+            if (ch != NOTE_NONE)
+                count++;
+        return count;
+    }
+    
+    public boolean overlap(SMBeat b)
+    {
+        for (int i = 0; i < mNotes.length; i++)
+            if ((mNotes[i] != NOTE_NONE) && (b.mNotes[i] != NOTE_NONE))
+                return true;
+        return false;
+    }
 
     // getters and setters
     
