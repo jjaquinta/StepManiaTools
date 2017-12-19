@@ -8,6 +8,18 @@ public class PatInst
     private boolean        mUsed;
     private List<MIDINote> mNotes = new ArrayList<>();
 
+    // utilities
+
+    public MIDINote findNote(long tick)
+    {
+        for (MIDINote n : mNotes)
+            if (n.getTick() == tick)
+                return n;
+        return null;
+    }
+
+    // getters and setters
+    
     public List<MIDINote> getNotes()
     {
         return mNotes;

@@ -17,7 +17,6 @@ import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.PatInst;
 import jo.sm.dl.data.SMBeat;
 import jo.sm.dl.data.SMChart;
-import jo.sm.dl.data.SMMark;
 import jo.sm.dl.data.SMMeasure;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.data.SMTune;
@@ -177,6 +176,77 @@ public class DanceLogic
                     notesOfInterest);
             if (selectedNotes.size() < PatternLogic.MIN_INST)
                 continue;
+            // first inst
+            List<SMBeat> beats = null;
+            long startTick = 0;
+            long endTick = 0;
+            int j;
+            for (j = 0; j < pattern.getInstances().size(); j++)
+            {
+                PatInst inst = pattern.getInstances().get(j);
+                startTick = inst.getNotes().get(0).getTick();
+                endTick = inst.getNotes().get(inst.getNotes().size() - 1).getTick();
+                if (intersects(startTick, endTick, taken))
+                    continue;
+                if (startTick%quarter != 0)
+                    continue;
+                System.out.print("P"+k+"_"+j+": ");
+                taken.add(new DanceBlackout(startTick, endTick));
+                beats = new ArrayList<>();
+                for (int i = 0; i < selectedNotes.size(); i++)
+                {
+                    MIDINote n = selectedNotes.get(i);
+                    String step = randomNote(diff);
+                    SMBeat beat = setNote(chart, ticksPerMeasure, n, null, step);
+                    if (beat != null)
+                    {
+                        used++;
+                        System.out.print(DanceLogic.patternToStep(step));
+                        beats.add(beat);
+                    }
+                }
+                System.out.println();
+                annotateBeats(chart, ticksPerMeasure, proj.getMIDI(), diff, beats, startTick, endTick);
+                inst.setUsed(true);
+                pattern.used();
+                break;
+            }
+            if (beats == null)
+                break;
+            if (used > quantity)
+                break;
+            beats = chart.getBeats(startTick, endTick);
+            // remaining insts
+            for (j = 0; j < pattern.getInstances().size(); j++)
+            {
+                PatInst inst = pattern.getInstances().get(j);
+                long thisStartTick = inst.getNotes().get(0).getTick();
+                long thisEndTick = inst.getNotes().get(inst.getNotes().size() - 1).getTick();
+                if (intersects(thisStartTick, thisEndTick, taken))
+                    continue;
+                if (thisStartTick%quarter != 0)
+                    continue;
+                System.out.print("P"+k+"_"+j+": ");
+                taken.add(new DanceBlackout(thisStartTick, thisEndTick));
+                for (SMBeat beat : beats)
+                {
+                    long tick = thisStartTick + (beat.getTick() - startTick);
+                    MIDINote n = inst.findNote(tick);
+                    String step = new String(beat.getNotes());
+                    SMBeat b = setNote(chart, ticksPerMeasure, n, tick, step);
+                    if (b != null)
+                    {
+                        used++;
+                        System.out.print(DanceLogic.patternToStep(step));
+                    }
+                }
+                System.out.println();
+                inst.setUsed(true);
+                pattern.used();
+                if (used > quantity)
+                    break;
+            }            
+            /*
             List<Integer> notes = new ArrayList<>();
             List<String> steps = new ArrayList<>();
             for (MIDINote note : selectedNotes)
@@ -223,6 +293,7 @@ public class DanceLogic
                 if (used > quantity)
                     break;
             }
+            */
             if (used > quantity)
                 break;
         }

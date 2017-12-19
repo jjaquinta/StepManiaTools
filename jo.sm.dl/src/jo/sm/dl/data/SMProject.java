@@ -9,7 +9,6 @@ import java.util.Properties;
 
 public class SMProject
 {
-    public static final String MARK_PATTERNS = "markPatterns";
     public static final String ENERGY_GRAPH = "energyGraph";
     public static final String NOTE_GRAPH = "noteGraph";
     public static final String OGG_OUT = "ogg";

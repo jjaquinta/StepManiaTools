@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,6 +273,13 @@ public class MIDILogic
             minNote = Math.max(minNote, y);
         }
         // add patterns
+        Collections.sort(proj.getPatterns(), new Comparator<PatDef>() {
+            @Override
+            public int compare(PatDef o1, PatDef o2)
+            {
+                return o2.getUsed() - o1.getUsed();
+            }
+        });
         for (int i = 0; i < proj.getPatterns().size(); i++)
         {
             int y = maxNote + i*2 + 1;

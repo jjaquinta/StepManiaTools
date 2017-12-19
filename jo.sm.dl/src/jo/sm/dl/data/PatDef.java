@@ -8,8 +8,14 @@ public class PatDef
     private List<PatNote> mNotes = new ArrayList<>();
     private List<PatInst> mInstances = new ArrayList<>();
     private long         mBeat;
+    private int          mUsed;
 
     // utilties
+    public void used()
+    {
+        mUsed++;
+    }
+    
     public float getQLen(int q)
     {
         float score = 0;
@@ -74,5 +80,15 @@ public class PatDef
     public void setBeat(long beat)
     {
         mBeat = beat;
+    }
+
+    public int getUsed()
+    {
+        return mUsed;
+    }
+
+    public void setUsed(int used)
+    {
+        mUsed = used;
     }
 }

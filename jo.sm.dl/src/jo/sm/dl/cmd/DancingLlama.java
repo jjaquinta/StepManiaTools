@@ -2,7 +2,6 @@ package jo.sm.dl.cmd;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -24,15 +23,6 @@ public class DancingLlama
         parseArgs();
         try
         {
-            try
-            {
-                mSettings.store(System.out, "Base Props Dump");
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
             for (StringTokenizer st = new StringTokenizer(mSettings.getProperty("in"), ","); st.hasMoreTokens(); )
             {
                 File inDir = new File(st.nextToken());
@@ -44,15 +34,6 @@ public class DancingLlama
                     props.load(fis);
                     fis.close();
                 }
-                try
-                {
-                    props.store(System.out, "In Props Dump");
-                }
-                catch (IOException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
                 File outDir = new File(props.getProperty("out"));
                 outDir.mkdirs();
                 Properties oProps = new Properties(mSettings);
@@ -62,15 +43,6 @@ public class DancingLlama
                     FileInputStream fis = new FileInputStream(outProps);
                     oProps.load(fis);
                     fis.close();
-                }
-                try
-                {
-                    oProps.store(System.out, "Out Props Dump");
-                }
-                catch (IOException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
                 File[] fin = inDir.listFiles();
                 for (int i = 0; i < fin.length; i++)
@@ -98,15 +70,6 @@ public class DancingLlama
                         FileInputStream fis = new FileInputStream(s2Props);
                         sProps.load(fis);
                         fis.close();
-                    }
-                    try
-                    {
-                        props.store(System.out, "Song props Dump");
-                    }
-                    catch (IOException e)
-                    {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
                     SMProject proj = ProjectLogic.newInstance(sProps);
                     ProjectLogic.load(proj, fin[i]);

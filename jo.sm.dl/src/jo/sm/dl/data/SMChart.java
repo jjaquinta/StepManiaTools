@@ -11,7 +11,24 @@ public class SMChart
     private int             mNotesMeter;
     private float[]         mGrooveMeter = new float[5];
     private List<SMMeasure> mMeasures = new ArrayList<>();
+
+    // utilities
+    public List<SMBeat> getBeats(long startTick, long endTick)
+    {
+        List<SMBeat> beats = new ArrayList<>();
+        for (SMMeasure m : mMeasures)
+        {
+            if (m.getStartTick() > endTick)
+                break;
+            for (SMBeat b : m.getBeats())
+                if ((b.getTick() >= startTick) && (b.getTick() <= endTick))
+                    beats.add(b);
+        }
+        return beats;
+    }
+
     
+    // getters and setters
     public String getNotesChartType()
     {
         return mNotesChartType;
