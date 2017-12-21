@@ -23,7 +23,7 @@ import jo.sm.dl.data.SMTune;
 
 public class DanceLogic
 {
-    private static Random RND = new Random();
+    public static Random RND = new Random();
 
     private static float PATTERN_QUOTA = .75f;
 

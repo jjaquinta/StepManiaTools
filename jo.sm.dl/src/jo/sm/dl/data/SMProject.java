@@ -34,7 +34,7 @@ public class SMProject
     // utilities
     public boolean isFlag(String flag)
     {
-        return mProps.containsKey(flag);
+        return mProps.getProperty(flag) != null;
     }
     
     // getters and setters

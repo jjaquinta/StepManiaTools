@@ -2,6 +2,7 @@ package jo.sm.dl.cmd;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -11,6 +12,7 @@ import jo.sm.dl.logic.ProjectLogic;
 public class DancingLlama
 {
     private String[] mArgs;
+    private File     mBaseDir;
     private Properties mSettings;
     
     public DancingLlama(String[] argv)
@@ -25,7 +27,12 @@ public class DancingLlama
         {
             for (StringTokenizer st = new StringTokenizer(mSettings.getProperty("in"), ","); st.hasMoreTokens(); )
             {
-                File inDir = new File(st.nextToken());
+                String inName = st.nextToken();
+                File inDir = new File(inName);
+                if (!inDir.exists())
+                {
+                    inDir = new File(mBaseDir, inName);
+                }
                 Properties props = new Properties(mSettings);
                 File inProps = new File(inDir, "dl.properties");
                 if (inProps.exists())
@@ -34,9 +41,16 @@ public class DancingLlama
                     props.load(fis);
                     fis.close();
                 }
-                File outDir = new File(props.getProperty("out"));
+                File outDir = null;
+                if ((props.getProperty("SongDir") != null) && (props.getProperty("PackageDir") != null))
+                {
+                    File songDir = new File(props.getProperty("SongDir"));
+                    outDir = new File(songDir, props.getProperty("PackageDir"));
+                }
+                else
+                    outDir = new File(props.getProperty("out"));
                 outDir.mkdirs();
-                Properties oProps = new Properties(mSettings);
+                Properties oProps = new Properties(props);
                 File outProps = new File(outDir, "dl.properties");
                 if (outProps.exists())
                 {
@@ -88,7 +102,22 @@ public class DancingLlama
     {
         mSettings = new Properties();
         for (int i = 0; i < mArgs.length; i++)
-            if (mArgs[i].startsWith("--"))
+            if (mArgs[i].startsWith("--props"))
+            {
+                File propsFile = new File(mArgs[++i]);
+                mBaseDir = propsFile.getParentFile();
+                try
+                {
+                    FileInputStream fis = new FileInputStream(propsFile);
+                    mSettings.load(fis);
+                    fis.close();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else if (mArgs[i].startsWith("--"))
             {
                 String key = mArgs[i].substring(2).toLowerCase();
                 String value = "true";

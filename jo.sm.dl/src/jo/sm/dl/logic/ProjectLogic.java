@@ -1,8 +1,15 @@
 package jo.sm.dl.logic;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+
+import javax.imageio.ImageIO;
 
 import jo.audio.util.svc.mp3.MIDItoMP3;
 import jo.audio.util.svc.mp3.MIDItoOGG;
@@ -100,6 +107,8 @@ public class ProjectLogic
         // stepfile
         try
         {
+            if (proj.isFlag("drawBanner"))
+                makeBanner(proj, output, name);
             File sm = new File(output, name+".sm");
             if (proj.isFlag(SMProject.SM_OUT))
                 SMIOLogic.writeSM(proj.getTune(), sm);
@@ -127,5 +136,50 @@ public class ProjectLogic
             return false;
         }
         return true;
+    }
+    
+    private static final Color[] METALS = { Color.WHITE, Color.YELLOW };
+    private static final Color[] COLORS = { Color.RED, Color.GREEN, Color.BLUE, Color.BLACK, new Color(128,0,128)};
+
+    private static void makeBanner(SMProject proj, File output, String name) throws IOException
+    {
+        File bannerName = new File(output, name+"_banner.png");
+        proj.getTune().setBanner(bannerName.getName());
+        BufferedImage img = new BufferedImage(512, 160, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = img.getGraphics();
+        Color fg;
+        Color bg;
+        if (DanceLogic.RND.nextBoolean())
+        {
+            fg = METALS[DanceLogic.RND.nextInt(METALS.length)];
+            bg = COLORS[DanceLogic.RND.nextInt(COLORS.length)];
+        }
+        else
+        {
+            bg = METALS[DanceLogic.RND.nextInt(METALS.length)];
+            fg = COLORS[DanceLogic.RND.nextInt(COLORS.length)];
+        }
+        g.setColor(bg);
+        g.fillRect(0, 0, img.getWidth(), img.getHeight());
+        Font f = g.getFont();
+        int w = 0;
+        FontMetrics fm = null;
+        for (float s = 72; s > 10; s--)
+        {
+            f = f.deriveFont(s);
+            fm = g.getFontMetrics(f);
+            w = fm.stringWidth(proj.getTune().getTitle());
+            if (w < img.getWidth()*8/10)
+                break;
+        }
+        int fx = (img.getWidth() - w)/2;
+        int fy = (img.getHeight() - fm.getAscent())/2 + fm.getAscent();
+        g.setFont(f);
+        g.setColor(Color.gray);
+        g.drawString(proj.getTune().getTitle(), fx+2, fy+2);
+        g.setColor(fg);
+        g.drawString(proj.getTune().getTitle(), fx, fy);
+        g.dispose();
+        ImageIO.write(img, "PNG", bannerName);
     }
 }

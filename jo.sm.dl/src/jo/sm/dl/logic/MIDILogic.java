@@ -280,12 +280,12 @@ public class MIDILogic
                 return o2.getUsed() - o1.getUsed();
             }
         });
+        int paty = maxNote + 1;
         for (int i = 0; i < proj.getPatterns().size(); i++)
         {
-            int y = maxNote + i*2 + 1;
-            if (y >= img.getHeight())
-                break;
             PatDef pat = proj.getPatterns().get(i);
+            if (pat.getUsed() == 0)
+                continue;
             for (int j = 0; j < pat.getInstances().size(); j++)
             {
                 PatInst inst = pat.getInstances().get(j);
@@ -295,8 +295,11 @@ public class MIDILogic
                     g.setColor(VOICE_COLOR[i%VOICE_COLOR.length]);
                 else
                     g.setColor(Color.DARK_GRAY);
-                g.drawLine(x1, y + j%2, x2, y + j%2);
+                g.drawLine(x1, paty + j%2, x2, paty + j%2);
             }
+            paty += 2;
+            if (paty >= img.getHeight())
+                break;
         }
         // add steps
         g.setColor(Color.WHITE);
