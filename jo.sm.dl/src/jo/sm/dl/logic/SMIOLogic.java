@@ -34,8 +34,8 @@ public class SMIOLogic
         write(wtr, "CDTITLE", tune.getCDTitle());
         write(wtr, "MUSIC", tune.getMusic());
         write(wtr, "OFFSET", "0.000000");
-        write(wtr, "SAMPLESTART", "63.157894");
-        write(wtr, "SAMPLELENGTH", "12.000000");
+        write(wtr, "SAMPLESTART", String.valueOf(tune.getSampleStart()));
+        write(wtr, "SAMPLELENGTH", String.valueOf(tune.getSampleLength()));
         write(wtr, "SELECTABLE", tune.isSelectable());
         write(wtr, "DISPLAYBPM", tune.getDisplayBPM());
         write(wtr, "BPMS", tune.getBPMs());

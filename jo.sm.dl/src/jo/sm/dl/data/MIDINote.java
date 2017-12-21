@@ -19,6 +19,11 @@ public class MIDINote implements Comparable<MIDINote>
         return v;
     }
     
+    public long getLoud()
+    {
+        return mVelocity + mExpression + mVolume;
+    }
+    
     @Override
     public int compareTo(MIDINote o)
     {

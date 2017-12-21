@@ -3,6 +3,8 @@ package jo.sm.dl.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import jo.util.utils.MathUtils;
+
 public class MIDITune
 {
     private float          mMSPerTick;
@@ -52,14 +54,45 @@ public class MIDITune
         return minutes;
     }
 
+    public long minutesToTick(float targetMinutes)
+    {
+        float minutes = 0;
+        float lastMark = 0;
+        float bpm = 60;
+        float beats = 0;
+        for (SMMark mark : mBPMs)
+        {
+            float elapsedBeats = mark.getMark() - lastMark; 
+            float elapsedMinutes = elapsedBeats/bpm;
+            if (minutes + elapsedMinutes < targetMinutes)
+            {
+                minutes += elapsedMinutes;
+                beats += elapsedBeats;
+                lastMark = mark.getMark();
+                bpm = mark.getNumValue();
+            }
+            else
+            {
+                float incrBeats = MathUtils.interpolate(targetMinutes, minutes, minutes + elapsedMinutes, 0, elapsedBeats);
+                beats += incrBeats;
+                return beatToTick(beats);
+            }
+        }
+        float elapsedBeats = tickToBeat(mLengthInTicks) - lastMark; 
+        float elapsedMinutes = elapsedBeats/bpm;
+        float incrBeats = MathUtils.interpolate(targetMinutes, minutes, minutes + elapsedMinutes, 0, elapsedBeats);
+        beats += incrBeats;
+        return beatToTick(beats);
+    }
+
     public float tickToBeat(long tick)
     {
         return tick/(float)mPulsesPerQuarter;
     }
 
-    public int beatToTick(float beat)
+    public long beatToTick(float beat)
     {
-        return (int)(beat*mPulsesPerQuarter);
+        return (long)(beat*mPulsesPerQuarter);
     }
 
     // getters and setters

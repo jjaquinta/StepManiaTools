@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 
 import jo.audio.util.svc.mp3.MIDItoMP3;
 import jo.audio.util.svc.mp3.MIDItoOGG;
+import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.data.SMTune;
@@ -104,6 +105,9 @@ public class ProjectLogic
         proj.getTune().setTitleTranslit(proj.getProps().getProperty("titletranslit", ""));
         proj.getTune().setSubTitleTranslit(proj.getProps().getProperty("subtitletranslit", ""));
         proj.getTune().setArtistTranslit(proj.getProps().getProperty("artisttranslit", ""));
+        float[] sample = findSample(proj);
+        proj.getTune().setSampleStart(sample[0]);
+        proj.getTune().setSampleLength(sample[1]);
         // stepfile
         try
         {
@@ -138,6 +142,28 @@ public class ProjectLogic
         return true;
     }
     
+    private static float[] findSample(SMProject proj)
+    {
+        float[] best = null;
+        long bestv = 0L;
+        for (float start = 0; start < proj.getMIDI().getLengthInSeconds(); start += 5)
+        {
+            long tickStart = proj.getMIDI().minutesToTick(start/60);
+            long tickEnd = proj.getMIDI().minutesToTick((start+15)/60);
+            long loud = 0L;
+            for (MIDINote note : proj.getMIDI().getNotes())
+                if (note.getTick() < tickStart)
+                    continue;
+                else if (note.getTick() < tickEnd)
+                    loud += note.getLoud();
+                else
+                    break;
+            if ((loud > bestv) || (best == null))
+                best = new float[] { start, 15 };
+        }
+        return best;
+    }
+
     private static final Color[] METALS = { Color.WHITE, Color.YELLOW };
     private static final Color[] COLORS = { Color.RED, Color.GREEN, Color.BLUE, Color.BLACK, new Color(128,0,128)};
 
