@@ -1,6 +1,6 @@
 package jo.sm.dle.cmd;
 
-import jo.sm.dle.data.DirectoryBean;
+import jo.sm.dle.cmd.ui.DLEFrame;
 import jo.sm.dle.logic.RuntimeLogic;
 
 public class DancingLlamaEditor
@@ -12,9 +12,8 @@ public class DancingLlamaEditor
     
     public void run()
     {
-        System.out.println(RuntimeLogic.getInstance().getDirectories().size()+" directories");
-        for (DirectoryBean dir : RuntimeLogic.getInstance().getDirectories())
-            System.out.println("\t"+dir.getName()+" "+dir.getSongs().size()+" songs");
+        DLEFrame frame = new DLEFrame();
+        frame.setVisible(true);
     }
     
     public static void main(String[] argv)

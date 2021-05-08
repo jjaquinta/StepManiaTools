@@ -11,11 +11,13 @@ public class RuntimeBean extends PCSBean
 {
     private String[]            mArgs;
     private File                mBaseDir;
+    private File                mPropsFile;
     private Properties          mSettings;
     private List<DirectoryBean> mDirectories = new ArrayList<>();
     
     private DirectoryBean       mSelectedDirectory;
     private SongBean            mSelectedSong;
+    private String              mError;
 
     public String[] getArgs()
     {
@@ -80,6 +82,28 @@ public class RuntimeBean extends PCSBean
                 );
         mSelectedSong = selectedSong;
         firePropertyChange();
+    }
+
+    public String getError()
+    {
+        return mError;
+    }
+
+    public void setError(String error)
+    {
+        queuePropertyChange("error", mError, error);
+        mError = error;
+        firePropertyChange();
+    }
+
+    public File getPropsFile()
+    {
+        return mPropsFile;
+    }
+
+    public void setPropsFile(File propsFile)
+    {
+        mPropsFile = propsFile;
     }
 
 }

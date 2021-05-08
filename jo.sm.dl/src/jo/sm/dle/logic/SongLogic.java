@@ -3,6 +3,9 @@ package jo.sm.dle.logic;
 import java.io.File;
 import java.util.Properties;
 
+import jo.sm.dl.data.SMProject;
+import jo.sm.dl.logic.NotationLogic;
+import jo.sm.dl.logic.ProjectLogic;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
 import jo.util.utils.obj.BooleanUtils;
@@ -37,5 +40,26 @@ public class SongLogic
             return;
         dir.getSongs().add(song);
     }
+    
+    public static void load(SongBean song)
+    {
+        SMProject proj = ProjectLogic.newInstance(song.getInSettings());
+        ProjectLogic.load(proj, song.getMidiFile());
+        ProjectLogic.dance(proj);
+        song.setProject(proj);
+        proj.getMIDI().setNotation(NotationLogic.makeNotation(proj.getMIDI()));
+        if (song.getTracks().size() == 0)
+            for (int i = proj.getMIDI().getTracks() - 1; i >= 0; i--)
+                song.getTracks().add(i);
+    }
 
+    public static void toggleTrack(int track)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song.getTracks().contains(track))
+            song.getTracks().remove(track);
+        else
+            song.getTracks().add(track);
+        song.fireMonotonicPropertyChange("tracks");
+    }
 }

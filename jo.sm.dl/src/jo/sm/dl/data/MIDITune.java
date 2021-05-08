@@ -7,15 +7,16 @@ import jo.util.utils.MathUtils;
 
 public class MIDITune
 {
-    private float          mMSPerTick;
-    private List<MIDINote> mNotes;
-    private long           mGranularity;
-    private int            mTracks;
-    private int            mPulsesPerQuarter;
-    private float          mBeatsPerMinute;
-    private long           mLengthInTicks;
-    private float          mLengthInSeconds;
-    private List<SMMark>   mBPMs     = new ArrayList<>();
+    private float              mMSPerTick;
+    private List<MIDINote>     mNotes;
+    private List<MIDINotation> mNotation;
+    private long               mGranularity;
+    private int                mTracks;
+    private int                mPulsesPerQuarter;
+    private float              mBeatsPerMinute;
+    private long               mLengthInTicks;
+    private float              mLengthInSeconds;
+    private List<SMMark>       mBPMs = new ArrayList<>();
 
     // utilities
 
@@ -29,16 +30,16 @@ public class MIDITune
         {
             if (mark.getMark() <= targetBeat)
             {
-                float elapsedBeats = mark.getMark() - lastMark; 
-                float elapsedMinutes = elapsedBeats/bpm;
+                float elapsedBeats = mark.getMark() - lastMark;
+                float elapsedMinutes = elapsedBeats / bpm;
                 minutes += elapsedMinutes;
                 lastMark = mark.getMark();
                 bpm = mark.getNumValue();
             }
             else
             {
-                float elapsedBeats = targetBeat - lastMark; 
-                float elapsedMinutes = elapsedBeats/bpm;
+                float elapsedBeats = targetBeat - lastMark;
+                float elapsedMinutes = elapsedBeats / bpm;
                 minutes += elapsedMinutes;
                 lastMark = mark.getMark();
                 bpm = mark.getNumValue();
@@ -47,8 +48,8 @@ public class MIDITune
         }
         if (lastMark < targetBeat)
         {
-            float elapsedBeats = targetBeat - lastMark; 
-            float elapsedMinutes = elapsedBeats/bpm;
+            float elapsedBeats = targetBeat - lastMark;
+            float elapsedMinutes = elapsedBeats / bpm;
             minutes += elapsedMinutes;
         }
         return minutes;
@@ -62,8 +63,8 @@ public class MIDITune
         float beats = 0;
         for (SMMark mark : mBPMs)
         {
-            float elapsedBeats = mark.getMark() - lastMark; 
-            float elapsedMinutes = elapsedBeats/bpm;
+            float elapsedBeats = mark.getMark() - lastMark;
+            float elapsedMinutes = elapsedBeats / bpm;
             if (minutes + elapsedMinutes < targetMinutes)
             {
                 minutes += elapsedMinutes;
@@ -73,26 +74,28 @@ public class MIDITune
             }
             else
             {
-                float incrBeats = MathUtils.interpolate(targetMinutes, minutes, minutes + elapsedMinutes, 0, elapsedBeats);
+                float incrBeats = MathUtils.interpolate(targetMinutes, minutes,
+                        minutes + elapsedMinutes, 0, elapsedBeats);
                 beats += incrBeats;
                 return beatToTick(beats);
             }
         }
-        float elapsedBeats = tickToBeat(mLengthInTicks) - lastMark; 
-        float elapsedMinutes = elapsedBeats/bpm;
-        float incrBeats = MathUtils.interpolate(targetMinutes, minutes, minutes + elapsedMinutes, 0, elapsedBeats);
+        float elapsedBeats = tickToBeat(mLengthInTicks) - lastMark;
+        float elapsedMinutes = elapsedBeats / bpm;
+        float incrBeats = MathUtils.interpolate(targetMinutes, minutes,
+                minutes + elapsedMinutes, 0, elapsedBeats);
         beats += incrBeats;
         return beatToTick(beats);
     }
 
     public float tickToBeat(long tick)
     {
-        return tick/(float)mPulsesPerQuarter;
+        return tick / (float)mPulsesPerQuarter;
     }
 
     public long beatToTick(float beat)
     {
-        return (long)(beat*mPulsesPerQuarter);
+        return (long)(beat * mPulsesPerQuarter);
     }
 
     // getters and setters
@@ -185,5 +188,15 @@ public class MIDITune
     public void setBPMs(List<SMMark> bPMs)
     {
         mBPMs = bPMs;
+    }
+
+    public List<MIDINotation> getNotation()
+    {
+        return mNotation;
+    }
+
+    public void setNotation(List<MIDINotation> notation)
+    {
+        mNotation = notation;
     }
 }

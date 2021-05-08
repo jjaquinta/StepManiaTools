@@ -2,11 +2,16 @@ package jo.sm.dle.logic;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.function.BiConsumer;
 
+import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.RuntimeBean;
+import jo.sm.dle.data.SongBean;
+import jo.util.utils.PCSBeanUtils;
 
 public class RuntimeLogic
 {
@@ -25,6 +30,11 @@ public class RuntimeLogic
         parseFiles();
     }
     
+    public static void term()
+    {
+        writeProperties(mRuntime.getSettings(), mRuntime.getPropsFile());
+    }
+
     private static void parseFiles()
     {
         try
@@ -51,6 +61,7 @@ public class RuntimeLogic
                 File propsFile = new File(args[++i]);
                 mRuntime.setBaseDir(propsFile.getParentFile());
                 readProperties(mRuntime.getSettings(), propsFile);
+                mRuntime.setPropsFile(propsFile);
             }
             else if (args[i].startsWith("--"))
             {
@@ -89,5 +100,37 @@ public class RuntimeLogic
             }
         }
         return true;
+    }
+
+    public static boolean writeProperties(Properties props, File file)
+    {
+        try
+        {
+            FileOutputStream fos = new FileOutputStream(file);
+            props.store(fos, "Overall Properties");
+            fos.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    public static void listen(String prop, BiConsumer<Object, Object> action)
+    {
+        PCSBeanUtils.listen(RuntimeLogic.getInstance(), prop, action);
+    }
+
+    public static void select(DirectoryBean dir)
+    {
+        mRuntime.setSelectedDirectory(dir);
+    }
+
+    public static void select(SongBean song)
+    {
+        SongLogic.load(song);
+        mRuntime.setSelectedSong(song);
     }
 }
