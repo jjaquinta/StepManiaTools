@@ -30,6 +30,17 @@ public class SMTune
     // FGCHANGES
     // note data
     private List<SMChart>   mCharts = new ArrayList<>();
+
+    // utility functions
+    public SMChart getChart(String diff)
+    {
+        for (SMChart ch : mCharts)
+            if (ch.getNotesDifficulty().equals(diff))
+                return ch;
+        return null;
+    }
+    
+    // getters and setters
     
     public String getTitle()
     {

@@ -10,6 +10,7 @@ public class MIDITune
     private float              mMSPerTick;
     private List<MIDINote>     mNotes;
     private List<MIDINotation> mNotation;
+    private List<MIDITrack>    mTrackInfos = new ArrayList<>();
     private long               mGranularity;
     private int                mTracks;
     private int                mPulsesPerQuarter;
@@ -198,5 +199,15 @@ public class MIDITune
     public void setNotation(List<MIDINotation> notation)
     {
         mNotation = notation;
+    }
+
+    public List<MIDITrack> getTrackInfos()
+    {
+        return mTrackInfos;
+    }
+
+    public void setTrackInfos(List<MIDITrack> trackInfos)
+    {
+        mTrackInfos = trackInfos;
     }
 }

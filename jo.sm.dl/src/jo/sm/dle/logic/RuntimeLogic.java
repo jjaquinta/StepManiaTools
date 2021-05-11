@@ -133,4 +133,18 @@ public class RuntimeLogic
         SongLogic.load(song);
         mRuntime.setSelectedSong(song);
     }
+    
+    public static void zoomOut()
+    {
+        int size = mRuntime.getZoomSize();
+        size -= size/4;
+        mRuntime.setZoomSize(size);
+    }
+    
+    public static void zoomIn()
+    {
+        int size = mRuntime.getZoomSize();
+        size += size/2;
+        mRuntime.setZoomSize(size);
+    }
 }

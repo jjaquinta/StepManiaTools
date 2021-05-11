@@ -14,6 +14,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import jo.sm.dl.data.SMChart;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
@@ -33,6 +34,9 @@ public class DLEFrame extends JFrame
     private JMenuItem   mExit;
     private JMenu       mView;
     private JMenu       mTrack;
+    private JMenu       mChart;
+    private JMenuItem   mZoomIn;
+    private JMenuItem   mZoomOut;
 
     public DLEFrame()
     {
@@ -52,6 +56,9 @@ public class DLEFrame extends JFrame
         mExit = new JMenuItem("Exit");
         mView = new JMenu("View");
         mTrack = new JMenu("Track");
+        mChart = new JMenu("Chart");
+        mZoomIn = new JMenuItem("Zoom In");
+        mZoomOut = new JMenuItem("Zoom Out");
         updateOpenMenu();
     }
 
@@ -75,6 +82,9 @@ public class DLEFrame extends JFrame
         mFile.add(mExit);
         mMenu.add(mView);
         mView.add(mTrack);
+        mView.add(mChart);
+        mView.add(mZoomIn);
+        mView.add(mZoomOut);
         setJMenuBar(mMenu);
     }
 
@@ -90,6 +100,8 @@ public class DLEFrame extends JFrame
         RuntimeLogic.listen("selectedSong", (ov, nv) -> doUpdateSong());
         ComponentUtils.componentResized(this, (ev) -> doResized());
         ListenerUtils.listen(mExit, (ev) -> dispose());
+        ListenerUtils.listen(mZoomIn, (ev)->RuntimeLogic.zoomIn());
+        ListenerUtils.listen(mZoomOut, (ev)->RuntimeLogic.zoomOut());
     }
     
     private void doResized()
@@ -107,6 +119,7 @@ public class DLEFrame extends JFrame
     private void doUpdateSong()
     {
         updateTrackMenu();
+        updateChartMenu();
     }
     
     private void doSong(ActionEvent e)
@@ -130,6 +143,12 @@ public class DLEFrame extends JFrame
     {
         int track = IntegerUtils.parseInt(e.getActionCommand());
         SongLogic.toggleTrack(track);
+    }
+    
+    private void doChart(ActionEvent e)
+    {
+        SongLogic.selectChart(e.getActionCommand());
+        updateChartMenuSelection();
     }
 
     private void doFrameShut()
@@ -166,9 +185,41 @@ public class DLEFrame extends JFrame
         for (int track = 0; track < numTracks; track++)
         {
             JCheckBoxMenuItem trackMenu = new JCheckBoxMenuItem("Track "+(track+1), song.getTracks().contains(track));
+            trackMenu.setIcon(ScorePanel.getTrackSwatch(track));
             mTrack.add(trackMenu);
             trackMenu.setActionCommand(String.valueOf(track));
             ListenerUtils.listen(trackMenu, (e) -> doTrack(e));
+        }
+    }
+    
+    private void updateChartMenu()
+    {
+        mChart.removeAll();
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        for (SMChart chart : song.getProject().getTune().getCharts())
+        {
+            JCheckBoxMenuItem chartMenu = new JCheckBoxMenuItem(chart.getNotesDifficulty(), chart.getNotesDifficulty().equals(song.getSelectedChart()));
+            mChart.add(chartMenu);
+            chartMenu.setActionCommand(chart.getNotesDifficulty());
+            ListenerUtils.listen(chartMenu, (e) -> doChart(e));
+        }
+    }
+    
+    private void updateChartMenuSelection()
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        for (int i = 0; i < mChart.getItemCount(); i++)
+        {
+            JMenuItem comp = mChart.getItem(i);
+            if (comp instanceof JCheckBoxMenuItem)
+            {
+                JCheckBoxMenuItem menu = (JCheckBoxMenuItem)comp;
+                menu.setSelected(menu.getActionCommand().equals(song.getSelectedChart()));
+            }
         }
     }
 }

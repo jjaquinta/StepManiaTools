@@ -23,6 +23,7 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
 import jo.sm.dl.data.MIDINote;
+import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.PatInst;
@@ -76,6 +77,12 @@ public class MIDILogic
         System.out.println("qpm="+quartersPerMinute+", bpm="+bpm);
         Track[] tracks = sequence.getTracks();
         tune.setTracks(tracks.length);
+        for (int i = 0; i < tracks.length; i++)
+        {
+            MIDITrack t = new MIDITrack();
+            t.setTrack(i);
+            tune.getTrackInfos().add(t);
+        }
         //System.out.println(tracks.length+" tracks");
         for (int i = 0; i < tracks.length; i++)
         {
@@ -112,6 +119,8 @@ public class MIDILogic
                             on.setDuration(event.getTick() - on.getTick());
                         }
                         onNotes.put(pitch, note);
+                        MIDITrack t = tune.getTrackInfos().get(note.getTrack());
+                        t.add(note);
                     }
                     else if (smsg.getCommand() == 0x80)
                     {   // NOTE OFF

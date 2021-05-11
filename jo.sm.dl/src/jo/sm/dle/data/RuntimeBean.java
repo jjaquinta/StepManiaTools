@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import jo.util.beans.PCSBean;
+import jo.util.utils.obj.IntegerUtils;
 
 public class RuntimeBean extends PCSBean
 {
@@ -19,6 +20,20 @@ public class RuntimeBean extends PCSBean
     private SongBean            mSelectedSong;
     private String              mError;
 
+    // pseudo getters and setters
+    public void setZoomSize(int zoom)
+    {
+        mSettings.put("zoomSize", String.valueOf(zoom));
+        fireMonotonicPropertyChange("zoomSize");
+    }
+    
+    public int getZoomSize()
+    {
+        return IntegerUtils.parseInt(mSettings.getProperty("zoomSize", "48"));
+    }
+    
+    // getters and setters
+    
     public String[] getArgs()
     {
         return mArgs;

@@ -3,6 +3,7 @@ package jo.sm.dle.cmd.ui;
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
@@ -13,6 +14,7 @@ public class DLEPanel extends JPanel
     private SongBean    mSong;
 
     private ScorePanel  mScore;
+    private TracksPanel mTracks;
     
     public DLEPanel()
     {
@@ -24,12 +26,14 @@ public class DLEPanel extends JPanel
     private void initInstantiate()
     {
         mScore = new ScorePanel();
+        mTracks = new TracksPanel();
     }
 
     private void initLayout()
     {
         setLayout(new BorderLayout());
-        add("Center", mScore);
+        add("Center", new JScrollPane(mScore));
+        add("West", mTracks);
     }
 
     private void initLink()
@@ -41,5 +45,6 @@ public class DLEPanel extends JPanel
     {
         mSong = song;
         mScore.setSong(mSong);
+        mTracks.setSong(mSong);
     }
 }

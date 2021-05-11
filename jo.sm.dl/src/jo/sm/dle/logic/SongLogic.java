@@ -3,6 +3,7 @@ package jo.sm.dle.logic;
 import java.io.File;
 import java.util.Properties;
 
+import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.logic.NotationLogic;
 import jo.sm.dl.logic.ProjectLogic;
@@ -51,6 +52,7 @@ public class SongLogic
         if (song.getTracks().size() == 0)
             for (int i = proj.getMIDI().getTracks() - 1; i >= 0; i--)
                 song.getTracks().add(i);
+        song.setSelectedChart(null);
     }
 
     public static void toggleTrack(int track)
@@ -61,5 +63,18 @@ public class SongLogic
         else
             song.getTracks().add(track);
         song.fireMonotonicPropertyChange("tracks");
+    }
+
+    public static void selectChart(String chart)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        song.setSelectedChart(chart);
+        song.fireMonotonicPropertyChange("selectedChart");
+    }
+
+    public static void selectTrack(MIDITrack track)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        song.setSelectedTrack(track);
     }
 }

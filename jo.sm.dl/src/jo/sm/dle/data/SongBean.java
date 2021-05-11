@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.SMProject;
 import jo.util.beans.PCSBean;
 
@@ -18,6 +19,8 @@ public class SongBean extends PCSBean
     private File         mOutSettingsFile;
     private SMProject    mProject;
     private Set<Integer> mTracks = new HashSet<>();
+    private String       mSelectedChart;
+    private MIDITrack    mSelectedTrack;
 
     public Properties getInSettings()
     {
@@ -98,6 +101,30 @@ public class SongBean extends PCSBean
     {
         queuePropertyChange("tracks", mTracks, tracks);
         mTracks = tracks;
+        firePropertyChange();
+    }
+
+    public String getSelectedChart()
+    {
+        return mSelectedChart;
+    }
+
+    public void setSelectedChart(String selectedChart)
+    {
+        queuePropertyChange("selectedChart", mSelectedChart, selectedChart);
+        mSelectedChart = selectedChart;
+        firePropertyChange();
+    }
+
+    public MIDITrack getSelectedTrack()
+    {
+        return mSelectedTrack;
+    }
+
+    public void setSelectedTrack(MIDITrack selectedTrack)
+    {
+        queuePropertyChange("selectedTrack", mSelectedTrack, selectedTrack);
+        mSelectedTrack = selectedTrack;
         firePropertyChange();
     }
 }
