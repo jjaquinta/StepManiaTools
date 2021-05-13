@@ -1,30 +1,46 @@
 package jo.sm.dl.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import jo.sm.dl.data.MIDINotation;
 import jo.sm.dl.data.MIDINote;
+import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.MIDITune;
 import jo.util.utils.obj.StringUtils;
 
 public class NotationLogic
 {
-    private static final String NOTE_WHOLE = StringUtils.uniStr(0x1d15D);
-    private static final String NOTE_HALF = StringUtils.uniStr(0x1d15E);
-    private static final String NOTE_QUARTER = StringUtils.uniStr(0x1d15F);
-    private static final String NOTE_EIGTH = StringUtils.uniStr(0x1d160);
-    private static final String NOTE_SIXTEENTH = StringUtils.uniStr(0x1d161);
-    private static final String NOTE_THIRTYSECOND = StringUtils.uniStr(0x1d162);
-    private static final String NOTE_SIXTYFORTH = StringUtils.uniStr(0x1d163);
+    public static final String NOTE_WHOLE = StringUtils.uniStr(0x1d15D);
+    public static final String NOTE_HALF = StringUtils.uniStr(0x1d15E);
+    public static final String NOTE_QUARTER = StringUtils.uniStr(0x1d15F);
+    public static final String NOTE_EIGTH = StringUtils.uniStr(0x1d160);
+    public static final String NOTE_SIXTEENTH = StringUtils.uniStr(0x1d161);
+    public static final String NOTE_THIRTYSECOND = StringUtils.uniStr(0x1d162);
+    public static final String NOTE_SIXTYFORTH = StringUtils.uniStr(0x1d163);
 
     public static List<MIDINotation> makeNotation(MIDITune tune)
     {
+        if (tune.getNotation().size() == tune.getNotes().size())
+            return tune.getNotation();
+        for (MIDITrack track : tune.getTrackInfos())
+        {
+            List<MIDINotation> ret = makeNotation(tune, track.getNotes());
+            track.setNotation(ret);
+            tune.getNotation().addAll(ret);
+        }
+        sortNotations(tune.getNotation());
+        return tune.getNotation();
+    }
+
+    public static List<MIDINotation> makeNotation(MIDITune tune, Collection<MIDINote> notes)
+    {
         List<MIDINotation> notations = new ArrayList<MIDINotation>();
         double ppq = tune.getPulsesPerQuarter();
-        for (MIDINote note : tune.getNotes())
+        for (MIDINote note : notes)
         {
             if (note.getDuration() == 0L)
                 continue;
@@ -40,6 +56,12 @@ public class NotationLogic
             notation.setDots((int)ldata[2]);
             notations.add(notation);
         }
+        sortNotations(notations);
+        return notations;
+    }
+
+    public static void sortNotations(List<MIDINotation> notations)
+    {
         Collections.sort(notations, new Comparator<MIDINotation>() {
             @Override
             public int compare(MIDINotation o1, MIDINotation o2)
@@ -47,7 +69,6 @@ public class NotationLogic
                 return (int)Math.signum(o1.getMeasure() - o2.getMeasure());
             }
         });
-        return notations;
     }
     
     private static Object[] findLData(double len)

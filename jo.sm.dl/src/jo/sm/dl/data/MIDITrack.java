@@ -6,28 +6,30 @@ import java.util.List;
 
 public class MIDITrack
 {
-    private int            mTrack;
-    private int            mBank;
-    private int            mProgram;
-    private int            mLowPitch;
-    private int            mHighPitch;
-    private List<MIDINote> mNotes = new ArrayList<>();
+    private int                mTrack;
+    private int                mBank;
+    private int                mProgram;
+    private int                mLowPitch;
+    private int                mHighPitch;
+    private List<MIDINote>     mNotes    = new ArrayList<>();
+    private List<MIDINotation> mNotation = new ArrayList<>();
 
     // utilities
 
     @Override
     public String toString()
     {
-        return "Track "+(mTrack+1)+" ("+MIDINote.getInstrument(mProgram)+")";
+        return "Track " + (mTrack + 1) + " (" + MIDINote.getInstrument(mProgram)
+                + ")";
     }
-    
+
     public long getVoice()
     {
         long v = ((long)getTrack() << 32) | ((long)getBank() << 16)
                 | ((long)getProgram() << 0);
         return v;
     }
-    
+
     public void add(MIDINote note)
     {
         if (mNotes.size() == 0)
@@ -104,5 +106,15 @@ public class MIDITrack
     public void setHighPitch(int highPitch)
     {
         mHighPitch = highPitch;
+    }
+
+    public List<MIDINotation> getNotation()
+    {
+        return mNotation;
+    }
+
+    public void setNotation(List<MIDINotation> notation)
+    {
+        mNotation = notation;
     }
 }

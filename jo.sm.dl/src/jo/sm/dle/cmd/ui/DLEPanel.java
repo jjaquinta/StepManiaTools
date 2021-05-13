@@ -1,7 +1,6 @@
 package jo.sm.dle.cmd.ui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import javax.swing.JPanel;
