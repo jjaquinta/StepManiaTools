@@ -31,7 +31,10 @@ public class DLEFrame extends JFrame
     private JMenuBar    mMenu;
     private JMenu       mFile;
     private JMenu       mOpen;
+    private JMenuItem   mSave;
     private JMenuItem   mExit;
+    private JMenu       mEdit;
+    private JMenuItem   mRecalc;
     private JMenu       mView;
     private JMenu       mTrack;
     private JMenu       mChart;
@@ -53,7 +56,10 @@ public class DLEFrame extends JFrame
         mMenu = new JMenuBar();
         mFile = new JMenu("File");
         mOpen = new JMenu("Open");
+        mSave = new JMenuItem("Save");
         mExit = new JMenuItem("Exit");
+        mEdit = new JMenu("Edit");
+        mRecalc = new JMenuItem("Recalc");
         mView = new JMenu("View");
         mTrack = new JMenu("Track");
         mChart = new JMenu("Chart");
@@ -79,7 +85,10 @@ public class DLEFrame extends JFrame
         
         mMenu.add(mFile);
         mFile.add(mOpen);
+        mFile.add(mSave);
         mFile.add(mExit);
+        mMenu.add(mEdit);
+        mEdit.add(mRecalc);
         mMenu.add(mView);
         mView.add(mTrack);
         mView.add(mChart);
@@ -102,6 +111,8 @@ public class DLEFrame extends JFrame
         ListenerUtils.listen(mExit, (ev) -> dispose());
         ListenerUtils.listen(mZoomIn, (ev)->RuntimeLogic.zoomIn());
         ListenerUtils.listen(mZoomOut, (ev)->RuntimeLogic.zoomOut());
+        ListenerUtils.listen(mRecalc, (ev) -> SongLogic.recalc());
+        ListenerUtils.listen(mSave, (ev) -> SongLogic.save());
     }
     
     private void doResized()

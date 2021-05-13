@@ -9,8 +9,15 @@ public class PatDef
     private List<PatInst> mInstances = new ArrayList<>();
     private long         mBeat;
     private int          mUsed;
+    private boolean      mMelody;
 
     // utilties
+    @Override
+    public String toString()
+    {
+        return "Pattern "+hashCode();
+    }
+    
     public void used()
     {
         mUsed++;
@@ -52,6 +59,8 @@ public class PatDef
         float score = getQLen(q);
         score *= Math.log10(getInstances().size());
         score *= getNormalizedVolume();
+        if (mMelody)
+            score *= 5;
         return (int)score;
     }
     
@@ -90,5 +99,15 @@ public class PatDef
     public void setUsed(int used)
     {
         mUsed = used;
+    }
+
+    public boolean isMelody()
+    {
+        return mMelody;
+    }
+
+    public void setMelody(boolean melody)
+    {
+        mMelody = melody;
     }
 }

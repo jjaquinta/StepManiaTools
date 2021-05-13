@@ -1,6 +1,8 @@
 package jo.sm.dle.cmd.ui;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -13,8 +15,9 @@ public class DLEPanel extends JPanel
 {
     private SongBean    mSong;
 
-    private ScorePanel  mScore;
-    private TracksPanel mTracks;
+    private ScorePanel    mScore;
+    private TracksPanel   mTracks;
+    private PatternsPanel mPatterns;
     
     public DLEPanel()
     {
@@ -27,13 +30,19 @@ public class DLEPanel extends JPanel
     {
         mScore = new ScorePanel();
         mTracks = new TracksPanel();
+        mPatterns = new PatternsPanel();
     }
 
     private void initLayout()
     {
+        JPanel west = new JPanel();
+        west.setLayout(new GridLayout(2, 1));
+        west.add(mTracks);
+        west.add(mPatterns);
+        
         setLayout(new BorderLayout());
         add("Center", new JScrollPane(mScore));
-        add("West", mTracks);
+        add("West", west);
     }
 
     private void initLink()
@@ -46,5 +55,6 @@ public class DLEPanel extends JPanel
         mSong = song;
         mScore.setSong(mSong);
         mTracks.setSong(mSong);
+        mPatterns.setSong(mSong);
     }
 }

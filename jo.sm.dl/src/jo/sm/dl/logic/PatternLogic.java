@@ -13,6 +13,7 @@ import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.PatInst;
 import jo.sm.dl.data.PatNote;
 import jo.sm.dl.data.SMProject;
+import jo.util.utils.obj.IntegerUtils;
 
 public class PatternLogic
 {
@@ -21,6 +22,7 @@ public class PatternLogic
     
     public static void findPatterns(SMProject proj)
     {
+        int melodyTrack = IntegerUtils.parseInt(proj.getProps().getProperty("melodyTrack", "-1"));
         // sort notes by voices
         MIDINote firstNote = null;
         MIDINote lastNote = null;
@@ -48,6 +50,7 @@ public class PatternLogic
         for (Long v : voices.keySet())
         {
             List<MIDINote> voice = voices.get(v);
+            boolean melody = (voice.get(0).getTrack() == melodyTrack);
             for (int i = 0; i < voice.size() - MIN_PAT; i++)
             {
                 if ((voice.get(i).getTick()%q) != 0)
@@ -68,6 +71,7 @@ public class PatternLogic
                 if (best != null)
                 {
                     calcLCD(best);
+                    best.setMelody(melody);
                     proj.getPatterns().add(best);
                 }
             }
@@ -83,7 +87,7 @@ public class PatternLogic
         for (int i = 0; i < Math.min(5, proj.getPatterns().size()); i++)
         {
             PatDef def = proj.getPatterns().get(i);
-            System.out.println("  len="+def.getNotes().size()+"/"+def.getQLen(q)+", insts="+def.getInstances().size()+", beat="+def.getBeat()+", score="+def.getScore(q));
+            System.out.println("  len="+def.getNotes().size()+"/"+def.getQLen(q)+", insts="+def.getInstances().size()+", beat="+def.getBeat()+", score="+def.getScore(q)+", melody="+def.isMelody());
             System.out.print("    ticks=");
             for (int j = 0; j < def.getNotes().size(); j++)
                 System.out.print(" "+def.getNotes().get(j).getDeltaTick());

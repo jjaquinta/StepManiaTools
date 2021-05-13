@@ -17,6 +17,7 @@ import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.data.SMTune;
+import jo.util.utils.io.FileUtils;
 
 public class ProjectLogic
 {
@@ -123,15 +124,23 @@ public class ProjectLogic
                 SMIOLogic.writeSSC(proj.getTune(), ssc);
             else
                 ssc.delete();
-            if (proj.isFlag(SMProject.ENERGY_GRAPH))
+            if (proj.getProps().containsKey("background"))
+            {
+                String bg = proj.getProps().getProperty("background");
+                proj.getTune().setBackground(bg);
+                FileUtils.copy(new File(proj.getInput().getParentFile(), bg), new File(output, bg));
+            }
+            else if (proj.isFlag(SMProject.ENERGY_GRAPH))
             {
                 File eg = new File(output, "energy_graph.png");
                 MIDILogic.writeEnergyGraph(proj, 4, eg);
+                proj.getTune().setBackground(eg.getName());
             }
-            if (proj.isFlag(SMProject.NOTE_GRAPH))
+            else if (proj.isFlag(SMProject.NOTE_GRAPH))
             {
                 File ng = new File(output, "note_graph.png");
                 MIDILogic.writeNoteGraph(proj, 4, ng);
+                proj.getTune().setBackground(ng.getName());
             }
         }
         catch (IOException e)

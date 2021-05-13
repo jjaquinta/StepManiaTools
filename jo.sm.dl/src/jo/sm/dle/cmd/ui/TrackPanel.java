@@ -9,6 +9,7 @@ import javax.swing.JTextField;
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dle.data.SongBean;
+import jo.sm.dle.logic.SongLogic;
 import jo.util.ui.swing.TableLayout;
 import jo.util.ui.swing.utils.ListenerUtils;
 import jo.util.utils.PCSBeanUtils;
@@ -21,6 +22,7 @@ public class TrackPanel extends JComponent
     private JTextField     mNumber;
     private JTextField     mBank;
     private JTextField     mProgram;
+    private JCheckBox      mMelody;
     private JTextField     mLowPitch;
     private JTextField     mHighPitch;
     private JTextField     mNotes;
@@ -51,6 +53,7 @@ public class TrackPanel extends JComponent
         mNotes.setEditable(false);
         mSwatch = new JLabel();
         mDisplay = new JCheckBox("Display");
+        mMelody = new JCheckBox("Melody");
         mDisplayOnly = new JButton("Show Only This");
     }
 
@@ -60,6 +63,7 @@ public class TrackPanel extends JComponent
         add("1,+", new JLabel("Number:"));add("+,. fill=h", mNumber);
         add("1,+", new JLabel("Bank:"));add("+,. fill=h", mBank);
         add("1,+", new JLabel("Program:"));add("+,. fill=h", mProgram);
+        add("1,+", new JLabel(""));add("+,. fill=h", mMelody);
         add("1,+", new JLabel("LowPitch:"));add("+,. fill=h", mLowPitch);
         add("1,+", new JLabel("HighPitch:"));add("+,. fill=h", mHighPitch);
         add("1,+", new JLabel("Notes:"));add("+,. fill=h", mNotes);
@@ -72,6 +76,15 @@ public class TrackPanel extends JComponent
     {
         ListenerUtils.listen(mDisplayOnly, (ev) -> doDisplayOnly());
         ListenerUtils.listen(mDisplay, (ev) -> doDisplay());
+        ListenerUtils.listen(mMelody, (ev) -> doMelody());
+    }
+    
+    private void doMelody()
+    {
+        if (mMelody.isSelected())
+            SongLogic.setMelody(mTrack.getTrack());
+        else
+            SongLogic.setMelody(-1);
     }
     
     private void doDisplayOnly()
@@ -95,6 +108,7 @@ public class TrackPanel extends JComponent
             mNotes.setText("");
             mSwatch.setIcon(null);
             mDisplay.setSelected(false);
+            mMelody.setSelected(false);
         }
         else
         {
@@ -106,6 +120,7 @@ public class TrackPanel extends JComponent
             mNotes.setText("#"+mTrack.getNotes().size());
             mSwatch.setIcon(ScorePanel.getTrackSwatch(mTrack.getTrack()));
             mDisplay.setSelected(mSong.getTracks().contains(mTrack.getTrack()));
+            mMelody.setSelected(mSong.getMelodyTrack() == mTrack.getTrack());
         }
     }
     
