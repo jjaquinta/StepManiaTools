@@ -20,7 +20,10 @@ public class MIDITrack
     public String toString()
     {
         return "Track " + (mTrack + 1) + " (" + MIDINote.getInstrument(mProgram)
-                + ")";
+                + ")"
+                + " "+MIDINote.NOTES[mLowPitch]+"->"+MIDINote.NOTES[mHighPitch]
+                + " x"+mNotes.size()
+                ;
     }
 
     public long getVoice()

@@ -9,7 +9,7 @@ public class MIDITune
 {
     private float              mMSPerTick;
     private List<MIDINote>     mNotes;
-    private List<MIDINotation> mNotation;
+    private List<MIDINotation> mNotation = new ArrayList<>();
     private List<MIDITrack>    mTrackInfos = new ArrayList<>();
     private long               mGranularity;
     private int                mTracks;
