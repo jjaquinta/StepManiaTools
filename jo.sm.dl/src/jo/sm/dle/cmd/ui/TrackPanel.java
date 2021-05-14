@@ -8,6 +8,7 @@ import javax.swing.JTextField;
 
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
+import jo.sm.dle.cmd.ui.score.OldScorePanel;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.SongLogic;
 import jo.util.ui.swing.TableLayout;
@@ -93,6 +94,8 @@ public class TrackPanel extends JComponent
     
     private void doDisplay()
     {
+        if (mTrack != null)
+            SongLogic.setTrack(mTrack.getTrack(), mDisplay.isSelected());
     }
     
     private void doNewTrack()
@@ -118,7 +121,7 @@ public class TrackPanel extends JComponent
             mLowPitch.setText(MIDINote.NOTES[mTrack.getLowPitch()]);
             mHighPitch.setText(MIDINote.NOTES[mTrack.getHighPitch()]);
             mNotes.setText("#"+mTrack.getNotes().size());
-            mSwatch.setIcon(ScorePanel.getTrackSwatch(mTrack.getTrack()));
+            mSwatch.setIcon(OldScorePanel.getTrackSwatch(mTrack.getTrack()));
             mDisplay.setSelected(mSong.getTracks().contains(mTrack.getTrack()));
             mMelody.setSelected(mSong.getMelodyTrack() == mTrack.getTrack());
         }

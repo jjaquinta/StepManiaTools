@@ -86,6 +86,16 @@ public class SongLogic
             song.getTracks().add(track);
         song.fireMonotonicPropertyChange("tracks");
     }
+    
+    public static void setTrack(int track, boolean set)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (!set)
+            song.getTracks().remove(track);
+        else
+            song.getTracks().add(track);
+        song.fireMonotonicPropertyChange("tracks");
+    }
 
     public static void selectChart(String chart)
     {

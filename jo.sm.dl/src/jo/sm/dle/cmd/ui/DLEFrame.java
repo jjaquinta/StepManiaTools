@@ -15,6 +15,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import jo.sm.dl.data.SMChart;
+import jo.sm.dle.cmd.ui.score.OldScorePanel;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
@@ -196,7 +197,7 @@ public class DLEFrame extends JFrame
         for (int track = 0; track < numTracks; track++)
         {
             JCheckBoxMenuItem trackMenu = new JCheckBoxMenuItem("Track "+(track+1), song.getTracks().contains(track));
-            trackMenu.setIcon(ScorePanel.getTrackSwatch(track));
+            trackMenu.setIcon(OldScorePanel.getTrackSwatch(track));
             mTrack.add(trackMenu);
             trackMenu.setActionCommand(String.valueOf(track));
             ListenerUtils.listen(trackMenu, (e) -> doTrack(e));

@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jo.sm.dl.data.MIDINotation;
@@ -25,6 +26,7 @@ public class ScoreLogic
     private static final int                GRANULARITY    = 32;
 
     private static MIDITune                 mTune;
+    private static List<MIDITrack>          mTracks;
     private static Map<MIDINote, Rectangle> mNotePositions = new HashMap<>();
     private static Map<MIDITrack, Integer>  mTrackStaff    = new HashMap<>();
     private static Dimension                mPreferredSize;
@@ -42,9 +44,14 @@ public class ScoreLogic
     private static int                      mLeftMargin;
 
     public static synchronized BufferedImage drawScore(MIDITune tune,
-            int noteHeight, Map<MIDINote, Rectangle> notePositions)
+            int noteHeight, Map<MIDINote, Rectangle> notePositions,
+            List<MIDITrack> tracks)
     {
         mTune = tune;
+        if (tracks == null)
+            mTracks = mTune.getTrackInfos();
+        else
+            mTracks = tracks;
         mNoteHeight = noteHeight;
         mNotePositions = notePositions;
         indexTune();
@@ -70,9 +77,9 @@ public class ScoreLogic
         if (mTune == null)
             return;
         mY = mNoteHeight * 4;
-        for (int i = 0; i < mTune.getTracks(); i++)
+        for (int i = 0; i < mTracks.size(); i++)
         {
-            MIDITrack track = mTune.getTrackInfos().get(i);
+            MIDITrack track = mTracks.get(i);
             paintTrack(track);
         }
     }
@@ -191,7 +198,7 @@ public class ScoreLogic
         mTrackStaff.clear();
         NotationLogic.makeNotation(mTune);
         int stavesHigh = 0;
-        for (MIDITrack t : mTune.getTrackInfos())
+        for (MIDITrack t : mTracks)
         {
             if (t.getLowPitch() > 51)
             {
@@ -209,7 +216,7 @@ public class ScoreLogic
                 stavesHigh += 5;
             }
         }
-        stavesHigh += mTune.getTracks() + 1;
+        stavesHigh += mTracks.size() + 1;
         mPreferredSize = new Dimension();
         long ticks = mTune.getLengthInTicks();
         long ppq = mTune.getPulsesPerQuarter();

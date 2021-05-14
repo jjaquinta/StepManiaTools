@@ -14,7 +14,7 @@ public class DLEPanel extends JPanel
 {
     private SongBean    mSong;
 
-    private ScoreCanvas    mScore;
+    private ClientPanel    mScore;
     private TracksPanel   mTracks;
     private PatternsPanel mPatterns;
     
@@ -27,7 +27,7 @@ public class DLEPanel extends JPanel
 
     private void initInstantiate()
     {
-        mScore = new ScoreCanvas();
+        mScore = new ClientPanel();
         mTracks = new TracksPanel();
         mPatterns = new PatternsPanel();
     }
@@ -52,7 +52,7 @@ public class DLEPanel extends JPanel
     private void doNewSong(SongBean song)
     {
         mSong = song;
-        mScore.setTune(mSong.getProject().getMIDI());
+        mScore.setSong(mSong);
         mTracks.setSong(mSong);
         mPatterns.setSong(mSong);
         //invalidate();

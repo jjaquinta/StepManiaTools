@@ -1,4 +1,4 @@
-package jo.sm.dle.cmd.ui;
+package jo.sm.dle.cmd.ui.score;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,7 +23,7 @@ import jo.util.ui.swing.logic.FontUtils;
 import jo.util.utils.PCSBeanUtils;
 import jo.util.utils.obj.StringUtils;
 
-public class ScorePanel extends JComponent
+public class OldScorePanel extends JComponent
 {
     private SongBean    mSong;
     private MIDITune    mTune;
@@ -46,7 +46,7 @@ public class ScorePanel extends JComponent
     private Font        mNoteFont;
     private Font        mTextFont;
     
-    public ScorePanel()
+    public OldScorePanel()
     {
         initInstantiate();
         initLink();
@@ -195,7 +195,7 @@ public class ScorePanel extends JComponent
     {
         BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
         Graphics g = img.getGraphics();
-        g.setColor(ScorePanel.getTrackColor(track));
+        g.setColor(OldScorePanel.getTrackColor(track));
         g.fillRect(0, 0, 16, 16);
         g.dispose();
         return new ImageIcon(img);
