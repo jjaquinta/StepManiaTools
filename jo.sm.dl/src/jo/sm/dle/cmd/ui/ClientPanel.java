@@ -1,16 +1,19 @@
 package jo.sm.dle.cmd.ui;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JComponent;
 
+import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dle.cmd.ui.score.ScoreCanvas;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
+import jo.util.ui.swing.utils.MouseUtils;
 import jo.util.utils.PCSBeanUtils;
 
 public class ClientPanel extends JComponent
@@ -41,6 +44,7 @@ public class ClientPanel extends JComponent
     private void initLink()
     {
         RuntimeLogic.listen("zoomSize", (ov,nv)->updateZoomSize());
+        MouseUtils.mousePressed(mCanvas, (ev) -> doMousePressed(ev));
     }
 
     public void updateZoomSize()
@@ -58,9 +62,21 @@ public class ClientPanel extends JComponent
         for (Integer i : trackNums)
             tracks.add(mSong.getProject().getMIDI().getTrackInfos().get(i));
         mCanvas.setTracks(tracks);
-        getParent().invalidate();
+        invalidate();
     }
     
+    private void doMousePressed(MouseEvent ev)
+    {
+        if (ev.getButton() == MouseEvent.BUTTON1)
+        {
+            List<Object> features = mCanvas.getFeatureAt(ev.getX(), ev.getY());
+            for (Object feature : features)
+                if (feature instanceof MIDINote)
+                {
+                    mCanvas.setCaretTo(feature);
+                }
+        }
+    }
 
     public SongBean getSong()
     {

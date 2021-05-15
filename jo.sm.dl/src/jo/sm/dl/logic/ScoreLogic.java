@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import jo.sm.dl.data.MIDINotation;
-import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.MIDITune;
 import jo.util.ui.swing.logic.FontUtils;
@@ -27,7 +26,7 @@ public class ScoreLogic
 
     private static MIDITune                 mTune;
     private static List<MIDITrack>          mTracks;
-    private static Map<MIDINote, Rectangle> mNotePositions = new HashMap<>();
+    private static Map<Rectangle,Object>    mFeaturePositions = new HashMap<>();
     private static Map<MIDITrack, Integer>  mTrackStaff    = new HashMap<>();
     private static Dimension                mPreferredSize;
     private static int                      mNoteHeight    = 8;
@@ -44,7 +43,7 @@ public class ScoreLogic
     private static int                      mLeftMargin;
 
     public static synchronized BufferedImage drawScore(MIDITune tune,
-            int noteHeight, Map<MIDINote, Rectangle> notePositions,
+            int noteHeight, Map<Rectangle,Object> notePositions,
             List<MIDITrack> tracks)
     {
         mTune = tune;
@@ -53,7 +52,7 @@ public class ScoreLogic
         else
             mTracks = tracks;
         mNoteHeight = noteHeight;
-        mNotePositions = notePositions;
+        mFeaturePositions = notePositions;
         indexTune();
         BufferedImage img = new BufferedImage(mPreferredSize.width,
                 mPreferredSize.height, BufferedImage.TYPE_INT_ARGB);
@@ -115,19 +114,23 @@ public class ScoreLogic
         mG.setFont(mTextFont);
         mG.drawString(track.toString()+", type="+staffType, staffLeft - mNoteWidth * 4, mY - mNoteHeight);
         mG.setFont(mClefFont);
+        int clefLeft = staffLeft - mNoteWidth * 4;
         if (staffType == TREBLE)
         {
-            mG.drawString(TREBLE_CLEF, staffLeft - mNoteWidth * 4, mY + mStaffHeight);
+            mG.drawString(TREBLE_CLEF, clefLeft, mY + mStaffHeight);
+            mFeaturePositions.put(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
         }
         else if (staffType == BASS)
         {
-            mG.drawString(BASS_CLEF, staffLeft - mNoteWidth * 4, mY + mStaffHeight);
+            mG.drawString(BASS_CLEF, clefLeft, mY + mStaffHeight);
+            mFeaturePositions.put(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
         }
         else if (staffType == (TREBLE | BASS))
         {
-            mG.drawString(TREBLE_CLEF, staffLeft - mNoteWidth * 4, mY + mStaffHeight);
-            mG.drawString(BASS_CLEF, staffLeft - mNoteWidth * 4,
-                    mY + mStaffHeight * 3);
+            mG.drawString(TREBLE_CLEF, clefLeft, mY + mStaffHeight);
+            mG.drawString(BASS_CLEF, clefLeft, mY + mStaffHeight * 3);
+            mFeaturePositions.put(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
+            mFeaturePositions.put(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
         }
         mG.setFont(mTextFont);
         for (MIDINotation note : track.getNotation())
@@ -160,35 +163,35 @@ public class ScoreLogic
             drawNoteSymbol(x, y, true, true, 3);
         if (n.getSharps() > 0)
             for (int i = 0; i < n.getSharps(); i++)
-                mG.drawString(NOTE_SHARP, mX + x - mNoteWidth * i, y);
+                mG.drawString(NOTE_SHARP, x - mNoteWidth * i, y);
         if (n.getFlats() > 0)
             for (int i = 0; i < n.getFlats(); i++)
-                mG.drawString(NOTE_FLAT, mX + x - mNoteWidth * i, y);
+                mG.drawString(NOTE_FLAT, x - mNoteWidth * i, y);
         if (n.getDots() > 0)
             for (int i = 0; i < n.getDots(); i++)
-                mG.drawString(NOTE_DOT, mX + x + mNoteWidth * (i + 1), y);
-        if (mNotePositions != null)
-            mNotePositions.put(n.getNote(), new Rectangle(mX + x,
-                    mY - mNoteHeight / 2, mNoteWidth, mNoteHeight));
+                mG.drawString(NOTE_DOT, x + mNoteWidth * (i + 1), y);
+        if (mFeaturePositions != null)
+            mFeaturePositions.put(new Rectangle(x,
+                    y - mNoteHeight / 2, mNoteWidth, mNoteHeight), n.getNote());
         //mG.drawString(MIDINote.NOTES[n.getNote().getPitch()]+"/"+n.getYAdjust(), mX + x, y + mNoteWidth);
     }
 
     private static void drawNoteSymbol(int x, int y, boolean filled, boolean staff, int brevets)
     {
         if (filled)
-            mG.fillOval(mX + x, y - mNoteHeight / 2, mNoteWidth,
+            mG.fillOval(x, y - mNoteHeight / 2, mNoteWidth,
                     mNoteHeight);
         else
-            mG.drawOval(mX + x, y - mNoteHeight / 2, mNoteWidth,
+            mG.drawOval(x, y - mNoteHeight / 2, mNoteWidth,
                     mNoteHeight);
         if (staff)
         {
-            mG.drawLine(mX + x + mNoteWidth, y - mStaffHeight,
-                    mX + x + mNoteWidth, y);
+            mG.drawLine(x + mNoteWidth, y - mStaffHeight,
+                    x + mNoteWidth, y);
             for (int i = 0; i < brevets; i++)
-                mG.drawLine(mX + x + mNoteWidth,
+                mG.drawLine(x + mNoteWidth,
                         y - mStaffHeight + (mNoteHeight / 2 * i),
-                        mX + x + mNoteWidth * 2,
+                        x + mNoteWidth * 2,
                         y - mStaffHeight - (mNoteHeight / 2 * i));
         }
     }
