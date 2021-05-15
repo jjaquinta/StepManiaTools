@@ -1,4 +1,4 @@
-package jo.sm.dle.cmd.ui.score;
+package jo.sm.dle.ui.score;
 
 import java.awt.Color;
 import java.awt.Dimension;

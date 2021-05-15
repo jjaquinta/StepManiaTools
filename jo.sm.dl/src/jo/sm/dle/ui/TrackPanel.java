@@ -1,4 +1,4 @@
-package jo.sm.dle.cmd.ui;
+package jo.sm.dle.ui;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -9,9 +9,9 @@ import javax.swing.JTextField;
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.logic.MIDILogic;
-import jo.sm.dle.cmd.ui.score.OldScorePanel;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.SongLogic;
+import jo.sm.dle.ui.score.OldScorePanel;
 import jo.util.ui.swing.TableLayout;
 import jo.util.ui.swing.utils.ListenerUtils;
 import jo.util.utils.PCSBeanUtils;

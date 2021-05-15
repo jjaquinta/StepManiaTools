@@ -1,4 +1,4 @@
-package jo.sm.dle.cmd.ui;
+package jo.sm.dle.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,9 +14,9 @@ import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PlayEvent;
 import jo.sm.dl.logic.PlayLogic;
-import jo.sm.dle.cmd.ui.score.ScoreCanvas;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
+import jo.sm.dle.ui.score.ScoreCanvas;
 import jo.util.ui.swing.utils.MouseUtils;
 import jo.util.utils.PCSBeanUtils;
 

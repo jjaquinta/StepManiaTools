@@ -1,4 +1,4 @@
-package jo.sm.dle.cmd.ui;
+package jo.sm.dle.ui;
 
 import java.awt.BorderLayout;
 

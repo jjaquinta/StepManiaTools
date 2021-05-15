@@ -1,7 +1,7 @@
 package jo.sm.dle.cmd;
 
-import jo.sm.dle.cmd.ui.DLEFrame;
 import jo.sm.dle.logic.RuntimeLogic;
+import jo.sm.dle.ui.DLEFrame;
 
 public class DancingLlamaEditor
 {
