@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public class SMProject
 {
@@ -23,7 +22,7 @@ public class SMProject
     public static final String DIFF_CHALLENGE = "Challenge";
 
     
-    private Properties mProps;
+    private JProperties mProps;
     private Map<String,Integer> mDifficulties = new HashMap<String, Integer>();
     private File     mInput;
     private File     mOutput;
@@ -99,12 +98,12 @@ public class SMProject
         mDifficulties = difficulties;
     }
 
-    public Properties getProps()
+    public JProperties getProps()
     {
         return mProps;
     }
 
-    public void setProps(Properties props)
+    public void setProps(JProperties props)
     {
         mProps = props;
     }

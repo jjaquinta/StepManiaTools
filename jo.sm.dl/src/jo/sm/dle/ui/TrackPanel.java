@@ -83,10 +83,7 @@ public class TrackPanel extends JComponent
     
     private void doMelody()
     {
-        if (mMelody.isSelected())
-            SongLogic.setMelody(mTrack.getTrack());
-        else
-            SongLogic.setMelody(-1);
+        SongLogic.setMelody(mTrack.getTrack(), mMelody.isSelected());
     }
     
     private void doDisplayOnly()
@@ -124,7 +121,7 @@ public class TrackPanel extends JComponent
             mNotes.setText("#"+mTrack.getNotes().size());
             mSwatch.setIcon(OldScorePanel.getTrackSwatch(mTrack.getTrack()));
             mDisplay.setSelected(mSong.getTracks().contains(mTrack.getTrack()));
-            mMelody.setSelected(mSong.getMelodyTrack() == mTrack.getTrack());
+            mMelody.setSelected(mSong.getMelodyTracks().contains(mTrack.getTrack()));
         }
     }
     

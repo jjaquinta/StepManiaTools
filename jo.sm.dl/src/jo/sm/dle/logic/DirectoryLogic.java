@@ -1,8 +1,8 @@
 package jo.sm.dle.logic;
 
 import java.io.File;
-import java.util.Properties;
 
+import jo.sm.dl.data.JProperties;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.RuntimeBean;
 
@@ -19,7 +19,7 @@ public class DirectoryLogic
             inDir = new File(rt.getBaseDir(), inName);
         }
         dir.setInDir(inDir);
-        Properties indirProps = RuntimeLogic.newProperties(rt.getSettings());
+        JProperties indirProps = RuntimeLogic.newProperties(rt.getSettings());
         File inProps = new File(inDir, "dl.properties");
         if (!RuntimeLogic.readProperties(indirProps, inProps))
             return;
@@ -33,7 +33,7 @@ public class DirectoryLogic
         else
             outDir = new File(indirProps.getProperty("out"));
         dir.setOutDir(outDir);
-        Properties outdirProps = RuntimeLogic.newProperties(indirProps);
+        JProperties outdirProps = RuntimeLogic.newProperties(indirProps);
         File outProps = new File(outDir, "dl.properties");
         RuntimeLogic.readProperties(outdirProps, outProps);
         dir.setOutSettings(outdirProps);

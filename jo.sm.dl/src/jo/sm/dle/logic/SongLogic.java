@@ -3,9 +3,10 @@ package jo.sm.dle.logic;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 
+import jo.sm.dl.data.JProperties;
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PatDef;
@@ -33,7 +34,7 @@ public class SongLogic
         song.setDir(dir);
         song.setMidiFile(fin);
         song.setName(name);
-        Properties songProps = RuntimeLogic.newProperties(dir.getOutSettings());
+        JProperties songProps = RuntimeLogic.newProperties(dir.getOutSettings());
         song.setInSettings(songProps);
         songProps.setProperty("title", name.substring(0, name.length() - 4));
         File s1Props = new File(dir.getInDir(), name.substring(0, name.length() - 4)+".properties");
@@ -61,19 +62,25 @@ public class SongLogic
         proj.getMIDI().setNotation(NotationLogic.makeNotation(proj.getMIDI()));
         if (song.getTracks().size() == 0)
         {
-            if (song.getInSettings().containsKey("activeTracks"))
-            {
-                for (StringTokenizer st = new StringTokenizer(song.getInSettings().getProperty("activeTracks"), ","); st.hasMoreTokens(); )
-                    song.getTracks().add(Integer.parseInt(st.nextToken()));
-            }
-            else
+            if (!propToSet(song, "activeTracks", song.getTracks()))
             {
                 for (MIDITrack t : proj.getMIDI().getTrackInfos())
                     if (t.getNotes().size() > 0)
                         song.getTracks().add(t.getTrack());
             }
+            propToSet(song, "melodyTracks", song.getMelodyTracks());
         }
         song.setSelectedChart(null);
+    }
+    
+    private static boolean propToSet(SongBean song, String propName, Set<Integer> tracks)
+    {
+        tracks.clear();
+        if (!song.getInSettings().containsKey(propName))
+            return false;
+        for (StringTokenizer st = new StringTokenizer(song.getInSettings().getProperty(propName), ","); st.hasMoreTokens(); )
+            tracks.add(Integer.parseInt(st.nextToken()));
+        return true;
     }
     
     public static void recalc()
@@ -89,10 +96,8 @@ public class SongLogic
         if (song == null)
             return;
         song.getInSettings().put("activeTracks", StringUtils.fromStringArray(song.getTracks().toArray(), ","));
-        Properties only = new Properties();
-        MapUtils.copy(only, song.getInSettings());
-        only.keySet().removeAll(song.getDir().getInSettings().keySet());
-        MapUtils.save(only, song.getInSettingsFile());
+        song.getInSettings().put("melodyTracks", StringUtils.fromStringArray(song.getMelodyTracks().toArray(), ","));
+        MapUtils.save(song.getInSettings(), song.getInSettingsFile());
     }
     
     public static void toggleTrack(int track)
@@ -128,10 +133,14 @@ public class SongLogic
         song.setSelectedTrack(track);
     }
 
-    public static void setMelody(int track)
+    public static void setMelody(int track, boolean set)
     {
         SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        song.setMelodyTrack(track);
+        if (set)
+            song.getMelodyTracks().add(track);
+        else
+            song.getMelodyTracks().remove(track);
+        song.fireMonotonicPropertyChange("melodyTracks");
     }
 
     public static void selectPattern(PatDef pattern)

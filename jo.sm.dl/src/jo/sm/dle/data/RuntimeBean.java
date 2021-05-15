@@ -3,8 +3,8 @@ package jo.sm.dle.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
+import jo.sm.dl.data.JProperties;
 import jo.util.beans.PCSBean;
 import jo.util.utils.obj.IntegerUtils;
 
@@ -13,7 +13,7 @@ public class RuntimeBean extends PCSBean
     private String[]            mArgs;
     private File                mBaseDir;
     private File                mPropsFile;
-    private Properties          mSettings;
+    private JProperties          mSettings;
     private List<DirectoryBean> mDirectories = new ArrayList<>();
     
     private DirectoryBean       mSelectedDirectory;
@@ -54,12 +54,12 @@ public class RuntimeBean extends PCSBean
         mBaseDir = baseDir;
     }
 
-    public Properties getSettings()
+    public JProperties getSettings()
     {
         return mSettings;
     }
 
-    public void setSettings(Properties settings)
+    public void setSettings(JProperties settings)
     {
         mSettings = settings;
     }

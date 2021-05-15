@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.function.BiConsumer;
 
+import jo.sm.dl.data.JProperties;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.RuntimeBean;
 import jo.sm.dle.data.SongBean;
@@ -25,7 +25,7 @@ public class RuntimeLogic
     public static void init(String[] args)
     {
         mRuntime.setArgs(args);        
-        mRuntime.setSettings(new Properties());
+        mRuntime.setSettings(new JProperties());
         parseArgs();
         parseFiles();
     }
@@ -75,15 +75,13 @@ public class RuntimeLogic
             }
     }   
     
-    public static Properties newProperties(Properties oldProperties)
+    public static JProperties newProperties(JProperties oldProperties)
     {
-        Properties newProps = new Properties();
-        for (Object key : oldProperties.keySet())
-            newProps.put(key, oldProperties.get(key));
+        JProperties newProps = new JProperties(oldProperties);
         return newProps;
     }
 
-    public static boolean readProperties(Properties props, File file)
+    public static boolean readProperties(JProperties props, File file)
     {
         if (file.exists())
         {
@@ -102,12 +100,12 @@ public class RuntimeLogic
         return true;
     }
 
-    public static boolean writeProperties(Properties props, File file)
+    public static boolean writeProperties(JProperties props, File file)
     {
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
-            props.store(fos, "Overall Properties");
+            props.store(fos, "Overall JProperties");
             fos.close();
         }
         catch (IOException e)

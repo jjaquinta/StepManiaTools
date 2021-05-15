@@ -3,23 +3,24 @@ package jo.sm.dle.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+
+import jo.sm.dl.data.JProperties;
 
 public class DirectoryBean
 {
-    private Properties     mInSettings;
-    private Properties     mOutSettings;
+    private JProperties     mInSettings;
+    private JProperties     mOutSettings;
     private String         mName;
     private File           mInDir;
     private File           mOutDir;
     private List<SongBean> mSongs = new ArrayList<>();
 
-    public Properties getInSettings()
+    public JProperties getInSettings()
     {
         return mInSettings;
     }
 
-    public void setInSettings(Properties settings)
+    public void setInSettings(JProperties settings)
     {
         mInSettings = settings;
     }
@@ -54,12 +55,12 @@ public class DirectoryBean
         mOutDir = outDir;
     }
 
-    public Properties getOutSettings()
+    public JProperties getOutSettings()
     {
         return mOutSettings;
     }
 
-    public void setOutSettings(Properties outSettings)
+    public void setOutSettings(JProperties outSettings)
     {
         mOutSettings = outSettings;
     }

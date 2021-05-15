@@ -3,9 +3,9 @@ package jo.sm.dl.cmd;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
+import jo.sm.dl.data.JProperties;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.logic.ProjectLogic;
 import jo.util.utils.obj.BooleanUtils;
@@ -15,7 +15,7 @@ public class DancingLlama
 {
     private String[] mArgs;
     private File     mBaseDir;
-    private Properties mSettings;
+    private JProperties mSettings;
     
     public DancingLlama(String[] argv)
     {
@@ -35,7 +35,7 @@ public class DancingLlama
                 {
                     inDir = new File(mBaseDir, inName);
                 }
-                Properties indirProps = newProperties(mSettings);
+                JProperties indirProps = newProperties(mSettings);
                 File inProps = new File(inDir, "dl.properties");
                 if (inProps.exists())
                 {
@@ -52,7 +52,7 @@ public class DancingLlama
                 else
                     outDir = new File(indirProps.getProperty("out"));
                 outDir.mkdirs();
-                Properties outdirProps = newProperties(indirProps);
+                JProperties outdirProps = newProperties(indirProps);
                 File outProps = new File(outDir, "dl.properties");
                 if (outProps.exists())
                 {
@@ -69,7 +69,7 @@ public class DancingLlama
                     if (indirProps.containsKey("filter") && (name.indexOf(indirProps.getProperty("filter")) < 0))
                         continue;
                     System.out.println("\n"+name);
-                    Properties songProps = newProperties(outdirProps);
+                    JProperties songProps = newProperties(outdirProps);
                     songProps.setProperty("title", name.substring(0, name.length() - 4));
                     File s1Props = new File(inDir, name.substring(0, name.length() - 4)+".properties");
                     if (s1Props.exists())
@@ -108,7 +108,7 @@ public class DancingLlama
     
     private void parseArgs()
     {
-        mSettings = new Properties();
+        mSettings = new JProperties();
         for (int i = 0; i < mArgs.length; i++)
             if (mArgs[i].startsWith("--props"))
             {
@@ -137,11 +137,9 @@ public class DancingLlama
             }
     }
 
-    private Properties newProperties(Properties oldProperties)
+    private JProperties newProperties(JProperties oldProperties)
     {
-        Properties newProps = new Properties();
-        for (Object key : oldProperties.keySet())
-            newProps.put(key, oldProperties.get(key));
+        JProperties newProps = new JProperties(oldProperties);
         return newProps;
     }
     

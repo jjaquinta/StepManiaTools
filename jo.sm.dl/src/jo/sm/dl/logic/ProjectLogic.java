@@ -7,12 +7,12 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 import javax.imageio.ImageIO;
 
 import jo.audio.util.svc.mp3.MIDItoMP3;
 import jo.audio.util.svc.mp3.MIDItoOGG;
+import jo.sm.dl.data.JProperties;
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.SMProject;
@@ -21,7 +21,7 @@ import jo.util.utils.io.FileUtils;
 
 public class ProjectLogic
 {
-    public static SMProject newInstance(Properties props)
+    public static SMProject newInstance(JProperties props)
     {
         DifficultyLogic.init(props);
         SMProject proj = new SMProject();

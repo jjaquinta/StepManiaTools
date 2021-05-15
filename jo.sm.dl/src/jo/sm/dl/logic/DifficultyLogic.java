@@ -2,15 +2,15 @@ package jo.sm.dl.logic;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import jo.sm.dl.data.DiffProfile;
+import jo.sm.dl.data.JProperties;
 
 public class DifficultyLogic
 {
     private static Map<Integer, DiffProfile> mProfiles = new HashMap<>();
     
-    public static void init(Properties props)
+    public static void init(JProperties props)
     {
         addDefaults();
     }

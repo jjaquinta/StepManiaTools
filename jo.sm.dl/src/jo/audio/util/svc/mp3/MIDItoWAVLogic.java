@@ -85,10 +85,10 @@ public class MIDItoWAVLogic {
             long len = (long) (stream.getFormat().getFrameRate() * (total + 4)); 
             stream = new AudioInputStream(stream, stream.getFormat(), len); 
  
-            long bytesWritten = AudioSystem.write(stream, AudioFileFormat.Type.WAVE, outStream);
-            int frameSize = format.getFrameSize();
-            float frameRate = format.getFrameRate();
-            float durationInSeconds = (bytesWritten / (frameSize * frameRate));
+            /*long bytesWritten =*/ AudioSystem.write(stream, AudioFileFormat.Type.WAVE, outStream);
+            //int frameSize = format.getFrameSize();
+            //float frameRate = format.getFrameRate();
+            //float durationInSeconds = (bytesWritten / (frameSize * frameRate));
             
             synth.close(); 
         } catch (Exception e) { 

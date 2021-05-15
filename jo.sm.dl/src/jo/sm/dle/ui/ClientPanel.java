@@ -16,6 +16,7 @@ import jo.sm.dl.data.PlayEvent;
 import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
+import jo.sm.dle.logic.SongLogic;
 import jo.sm.dle.ui.score.ScoreCanvas;
 import jo.util.ui.swing.utils.MouseUtils;
 import jo.util.utils.PCSBeanUtils;
@@ -91,6 +92,10 @@ public class ClientPanel extends JComponent
                 {
                     mCanvas.setCaretTo(feature);
                     updateScroller();
+                }
+                else if (feature instanceof MIDITrack)
+                {
+                    SongLogic.selectTrack((MIDITrack)feature);
                 }
         }
     }

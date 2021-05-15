@@ -7,13 +7,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.PatInst;
 import jo.sm.dl.data.PatNote;
 import jo.sm.dl.data.SMProject;
-import jo.util.utils.obj.IntegerUtils;
 
 public class PatternLogic
 {
@@ -22,7 +22,7 @@ public class PatternLogic
     
     public static void findPatterns(SMProject proj)
     {
-        int melodyTrack = IntegerUtils.parseInt(proj.getProps().getProperty("melodyTrack", "-1"));
+        Set<Integer> melodyTracks = proj.getProps().getAsIntSet("melodyTrack");
         // sort notes by voices
         MIDINote firstNote = null;
         MIDINote lastNote = null;
@@ -50,7 +50,7 @@ public class PatternLogic
         for (Long v : voices.keySet())
         {
             List<MIDINote> voice = voices.get(v);
-            boolean melody = (voice.get(0).getTrack() == melodyTrack);
+            boolean melody = melodyTracks.contains(voice.get(0).getTrack());
             for (int i = 0; i < voice.size() - MIN_PAT; i++)
             {
                 if ((voice.get(i).getTick()%q) != 0)

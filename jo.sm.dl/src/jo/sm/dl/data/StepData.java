@@ -2,20 +2,19 @@ package jo.sm.dl.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 public class StepData
 {
-    private Properties  mRawProps = new Properties();
+    private JProperties  mRawProps = new JProperties();
     private List<String> mRawNotes = new ArrayList<>();
     private float       mBPM;
     private List<StepNotesData> mNotes = new ArrayList<>();
     
-    public Properties getRawProps()
+    public JProperties getRawProps()
     {
         return mRawProps;
     }
-    public void setRawProps(Properties rawProps)
+    public void setRawProps(JProperties rawProps)
     {
         mRawProps = rawProps;
     }

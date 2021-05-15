@@ -2,9 +2,9 @@ package jo.sm.dle.data;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
+import jo.sm.dl.data.JProperties;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.SMProject;
@@ -13,8 +13,8 @@ import jo.util.beans.PCSBean;
 public class SongBean extends PCSBean
 {
     private DirectoryBean mDir;
-    private Properties    mInSettings;
-    private Properties    mOutSettings;
+    private JProperties    mInSettings;
+    private JProperties    mOutSettings;
     private String        mName;
     private File          mMidiFile;
     private File          mOutDir;
@@ -22,6 +22,7 @@ public class SongBean extends PCSBean
     private File          mOutSettingsFile;
     private SMProject     mProject;
     private Set<Integer>  mTracks = new HashSet<>();
+    private Set<Integer>  mMelodyTracks = new HashSet<>();
     private String        mSelectedChart;
     private MIDITrack     mSelectedTrack;
     private PatDef        mSelectedPattern;
@@ -31,24 +32,15 @@ public class SongBean extends PCSBean
     }
 
     // utilities
-    public int getMelodyTrack()
-    {
-        return Integer.parseInt(mInSettings.getProperty("melodyTrack", "-1"));
-    }
-
-    public void setMelodyTrack(int track)
-    {
-        mInSettings.setProperty("melodyTrack", String.valueOf(track));
-    }
 
     // getters and setters
 
-    public Properties getInSettings()
+    public JProperties getInSettings()
     {
         return mInSettings;
     }
 
-    public void setInSettings(Properties settings)
+    public void setInSettings(JProperties settings)
     {
         mInSettings = settings;
     }
@@ -63,12 +55,12 @@ public class SongBean extends PCSBean
         mName = name;
     }
 
-    public Properties getOutSettings()
+    public JProperties getOutSettings()
     {
         return mOutSettings;
     }
 
-    public void setOutSettings(Properties outSettings)
+    public void setOutSettings(JProperties outSettings)
     {
         mOutSettings = outSettings;
     }
@@ -177,5 +169,17 @@ public class SongBean extends PCSBean
     public void setSelectedPattern(PatDef selectedPattern)
     {
         mSelectedPattern = selectedPattern;
+    }
+
+    public Set<Integer> getMelodyTracks()
+    {
+        return mMelodyTracks;
+    }
+
+    public void setMelodyTracks(Set<Integer> melodyTracks)
+    {
+        queuePropertyChange("melodyTracks", mMelodyTracks, melodyTracks);
+        mMelodyTracks = melodyTracks;
+        firePropertyChange();
     }
 }
