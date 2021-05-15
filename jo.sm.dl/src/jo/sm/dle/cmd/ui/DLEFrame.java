@@ -13,8 +13,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 import jo.sm.dl.data.SMChart;
+import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dle.cmd.ui.score.OldScorePanel;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
@@ -41,6 +43,11 @@ public class DLEFrame extends JFrame
     private JMenu       mChart;
     private JMenuItem   mZoomIn;
     private JMenuItem   mZoomOut;
+    private JMenu       mPlay;
+    private JMenuItem   mPlayTrack;
+    private JMenuItem   mPlayAll;
+    private JMenuItem   mPlayFromCaret;
+    private JMenuItem   mStop;
 
     public DLEFrame()
     {
@@ -66,6 +73,11 @@ public class DLEFrame extends JFrame
         mChart = new JMenu("Chart");
         mZoomIn = new JMenuItem("Zoom In");
         mZoomOut = new JMenuItem("Zoom Out");
+        mPlay = new JMenu("Play");
+        mPlayAll = new JMenuItem("All");
+        mPlayTrack = new JMenuItem("Track");
+        mPlayFromCaret = new JMenuItem("From Caret");
+        mStop = new JMenuItem("Stop");
         updateOpenMenu();
     }
 
@@ -95,6 +107,12 @@ public class DLEFrame extends JFrame
         mView.add(mChart);
         mView.add(mZoomIn);
         mView.add(mZoomOut);
+        mMenu.add(mPlay);
+        mPlay.add(mPlayAll);
+        mPlay.add(mPlayTrack);
+        mPlay.add(mPlayFromCaret);
+        mPlay.add(new JSeparator());
+        mPlay.add(mStop);
         setJMenuBar(mMenu);
     }
 
@@ -114,6 +132,10 @@ public class DLEFrame extends JFrame
         ListenerUtils.listen(mZoomOut, (ev)->RuntimeLogic.zoomOut());
         ListenerUtils.listen(mRecalc, (ev) -> SongLogic.recalc());
         ListenerUtils.listen(mSave, (ev) -> SongLogic.save());
+        ListenerUtils.listen(mPlayAll, (ev) -> SongLogic.doPlayAll());
+        ListenerUtils.listen(mPlayTrack, (ev) -> SongLogic.doPlayTrack());
+        ListenerUtils.listen(mPlayFromCaret, (ev) -> SongLogic.doPlayFromCaret());
+        ListenerUtils.listen(mStop, (ev) -> PlayLogic.stop());
     }
     
     private void doResized()

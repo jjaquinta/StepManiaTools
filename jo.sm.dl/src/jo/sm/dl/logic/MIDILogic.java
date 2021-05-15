@@ -54,6 +54,15 @@ public class MIDILogic
         return null;
     }
     
+    public static String getInstrumentName(int bank, int program)
+    {
+        Instrument i = getInstrument(bank, program);
+        if (i == null)
+            return program+"?"+bank;
+        else
+            return i.getName();
+    }
+    
     public static MIDITune getNotes(File midiFile) throws Exception
     {
         MIDITune tune = new MIDITune();

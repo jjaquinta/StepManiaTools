@@ -8,6 +8,7 @@ import javax.swing.JTextField;
 
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
+import jo.sm.dl.logic.MIDILogic;
 import jo.sm.dle.cmd.ui.score.OldScorePanel;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.SongLogic;
@@ -117,7 +118,7 @@ public class TrackPanel extends JComponent
         {
             mNumber.setText("Track #"+(mTrack.getTrack()+1));
             mBank.setText(String.valueOf(mTrack.getBank()));
-            mProgram.setText(MIDINote.getInstrument(mTrack.getProgram()));
+            mProgram.setText(MIDILogic.getInstrumentName(mTrack.getBank(), mTrack.getProgram()));
             mLowPitch.setText(MIDINote.NOTES[mTrack.getLowPitch()]);
             mHighPitch.setText(MIDINote.NOTES[mTrack.getHighPitch()]);
             mNotes.setText("#"+mTrack.getNotes().size());

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import java.util.List;
 
+import jo.sm.dl.logic.MIDILogic;
+
 public class MIDITrack
 {
     private int                mTrack;
@@ -19,7 +21,7 @@ public class MIDITrack
     @Override
     public String toString()
     {
-        return "Track " + (mTrack + 1) + " (" + MIDINote.getInstrument(mProgram)
+        return "Track " + (mTrack + 1) + " (" + MIDILogic.getInstrumentName(mBank, mProgram)
                 + ")"
                 + " "+MIDINote.NOTES[mLowPitch]+"->"+MIDINote.NOTES[mHighPitch]
                 + " x"+mNotes.size()

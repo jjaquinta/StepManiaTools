@@ -1,13 +1,17 @@
 package jo.sm.dle.logic;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.logic.NotationLogic;
+import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dl.logic.ProjectLogic;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
@@ -134,5 +138,37 @@ public class SongLogic
     {
         SongBean song = RuntimeLogic.getInstance().getSelectedSong();
         song.setSelectedPattern(pattern);
+    }
+    
+    public static void doPlayAll()
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        List<MIDINote> notes = new ArrayList<>();
+        for (Integer t : song.getTracks())
+            notes.addAll(song.getProject().getMIDI().getTrackInfos().get(t).getNotes());
+        PlayLogic.play(song.getProject().getMIDI().getMSPerTick(), notes);
+    }
+    
+    public static void doPlayTrack()
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        if (song.getSelectedTrack() == null)
+            return;
+        List<MIDINote> notes = new ArrayList<>();
+        notes.addAll(song.getSelectedTrack().getNotes());
+        PlayLogic.play(song.getProject().getMIDI().getMSPerTick(), notes);
+    }
+    
+    public static void doPlayFromCaret()
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        List<MIDINote> notes = new ArrayList<>();
+        PlayLogic.play(song.getProject().getMIDI().getMSPerTick(), notes);
     }
 }
