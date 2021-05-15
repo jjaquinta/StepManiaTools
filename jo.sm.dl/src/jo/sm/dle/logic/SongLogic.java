@@ -2,6 +2,7 @@ package jo.sm.dle.logic;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PatDef;
@@ -12,6 +13,7 @@ import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
 import jo.util.utils.MapUtils;
 import jo.util.utils.obj.BooleanUtils;
+import jo.util.utils.obj.StringUtils;
 
 public class SongLogic
 {
@@ -54,8 +56,19 @@ public class SongLogic
         song.setProject(proj);
         proj.getMIDI().setNotation(NotationLogic.makeNotation(proj.getMIDI()));
         if (song.getTracks().size() == 0)
-            for (int i = proj.getMIDI().getTracks() - 1; i >= 0; i--)
-                song.getTracks().add(i);
+        {
+            if (song.getInSettings().containsKey("activeTracks"))
+            {
+                for (StringTokenizer st = new StringTokenizer(song.getInSettings().getProperty("activeTracks"), ","); st.hasMoreTokens(); )
+                    song.getTracks().add(Integer.parseInt(st.nextToken()));
+            }
+            else
+            {
+                for (MIDITrack t : proj.getMIDI().getTrackInfos())
+                    if (t.getNotes().size() > 0)
+                        song.getTracks().add(t.getTrack());
+            }
+        }
         song.setSelectedChart(null);
     }
     
@@ -71,6 +84,7 @@ public class SongLogic
         SongBean song = RuntimeLogic.getInstance().getSelectedSong();
         if (song == null)
             return;
+        song.getInSettings().put("activeTracks", StringUtils.fromStringArray(song.getTracks().toArray(), ","));
         Properties only = new Properties();
         MapUtils.copy(only, song.getInSettings());
         only.keySet().removeAll(song.getDir().getInSettings().keySet());

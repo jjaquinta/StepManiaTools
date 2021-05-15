@@ -75,5 +75,6 @@ public class ClientPanel extends JComponent
         mCanvas.setTune(mSong.getProject().getMIDI());
         repaint();
         PCSBeanUtils.listen(mSong, "tracks", (ov,nv)->updateTracks());
+        updateTracks();
     }
 }
