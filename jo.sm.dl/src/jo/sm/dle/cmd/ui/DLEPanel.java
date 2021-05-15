@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
@@ -40,7 +39,7 @@ public class DLEPanel extends JPanel
         west.add(mPatterns);
         
         setLayout(new BorderLayout());
-        add("Center", new JScrollPane(mScore));
+        add("Center", mScore);
         add("West", west);
     }
 

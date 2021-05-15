@@ -1,15 +1,19 @@
 package jo.sm.dle.cmd.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
+import jo.sm.dl.data.PlayEvent;
+import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dle.cmd.ui.score.ScoreCanvas;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
@@ -20,6 +24,7 @@ public class ClientPanel extends JComponent
 {
     private SongBean    mSong;
  
+    private JScrollPane mScroller;
     private ScoreCanvas mCanvas;
     
     public ClientPanel()
@@ -27,31 +32,32 @@ public class ClientPanel extends JComponent
         initInstantiate();
         initLink();
         initLayout();
+        updateZoomSize();
     }
 
     private void initInstantiate()
     {
         mCanvas = new ScoreCanvas();
-        updateZoomSize();
+        mScroller = new JScrollPane(mCanvas);
     }
 
     private void initLayout()
     {
         setLayout(new BorderLayout());
-        add("Center", mCanvas);
+        add("Center", mScroller);
     }
 
     private void initLink()
     {
         RuntimeLogic.listen("zoomSize", (ov,nv)->updateZoomSize());
         MouseUtils.mousePressed(mCanvas, (ev) -> doMousePressed(ev));
+        PlayLogic.listen((ev) -> doPlay(ev));
     }
 
     public void updateZoomSize()
     {
         mCanvas.setNoteHeight(RuntimeLogic.getInstance().getZoomSize());
-        if (getParent() != null)
-            getParent().invalidate();
+        mScroller.invalidate();
     }
 
     public void updateTracks()
@@ -62,7 +68,17 @@ public class ClientPanel extends JComponent
         for (Integer i : trackNums)
             tracks.add(mSong.getProject().getMIDI().getTrackInfos().get(i));
         mCanvas.setTracks(tracks);
-        invalidate();
+        mScroller.invalidate();
+    }
+    
+    private void updateScroller()
+    {
+        int caret = mCanvas.getCaret();
+        Dimension size = mScroller.getViewport().getExtentSize();
+        int at = mScroller.getHorizontalScrollBar().getValue();
+        if ((caret > at) && (caret < at + size.width))
+            return;
+        mScroller.getHorizontalScrollBar().setValue(caret - size.width/2);
     }
     
     private void doMousePressed(MouseEvent ev)
@@ -74,7 +90,17 @@ public class ClientPanel extends JComponent
                 if (feature instanceof MIDINote)
                 {
                     mCanvas.setCaretTo(feature);
+                    updateScroller();
                 }
+        }
+    }
+    
+    private void doPlay(PlayEvent ev)
+    {
+        if (ev.getAction() == PlayEvent.ON)
+        {
+            mCanvas.setCaretTo(ev.getNote());
+            updateScroller();
         }
     }
 

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
@@ -13,12 +14,15 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Synthesizer;
 
 import jo.sm.dl.data.MIDINote;
+import jo.sm.dl.data.PlayEvent;
 import jo.util.logic.ThreadLogic;
 
 public class PlayLogic
 {
     private static Thread   mPlayer = null;
     private static boolean  mStop = false;
+    
+    private static final List<IPlayListener> mListeners = new ArrayList<>();
     
     public static void play(final double msPerTick, final List<MIDINote> notes)
     {
@@ -56,7 +60,7 @@ public class PlayLogic
             //Instrument[] instr = midiSynth.getDefaultSoundbank().getInstruments();
             MidiChannel[] mChannels = midiSynth.getChannels();
             
-            List<long[]> directives = new ArrayList<>();
+            List<Object[]> directives = new ArrayList<>();
             Map<Integer,Integer> trackToChannel = new HashMap<>();
             long first = (long)(notes.get(0).getTick()*msPerTick);
             for (MIDINote note : notes)
@@ -67,51 +71,51 @@ public class PlayLogic
                     int channel = trackToChannel.size();
                     Instrument i = MIDILogic.getInstrument(note.getBank(), note.getProgram());
                     midiSynth.loadInstrument(i);
-                    System.out.println("Assigning "+i.getName()+" to channel "+channel+" for track "+track);
+                    //System.out.println("Assigning "+i.getName()+" to channel "+channel+" for track "+track);
                     mChannels[channel].programChange(note.getBank(), note.getProgram());
                     trackToChannel.put(track, channel);
                 }
                 int channel = trackToChannel.get(track);
                 long on = (long)(msPerTick*note.getTick()) - first;
                 long off = (long)(msPerTick*(note.getTick()+note.getDuration())) - first;
-                directives.add(new long[] { on, 1, channel, note.getPitch(), note.getVelocity() });
-                directives.add(new long[] { off, 0, channel, note.getPitch() });
+                directives.add(new Object[] { on, PlayEvent.ON, channel, note });
+                directives.add(new Object[] { off, PlayEvent.OFF, channel, note });
             }
-            Collections.sort(directives, new Comparator<long[]>() {
+            Collections.sort(directives, new Comparator<Object[]>() {
                 @Override
-                public int compare(long[] o1, long[] o2)
+                public int compare(Object[] o1, Object[] o2)
                 {
-                    return (int)Math.signum(o1[0] - o2[0]);
+                    return (int)Math.signum((long)o1[0] - (long)o2[0]);
                 }
             });
-            System.out.println(directives.size()+" directives");
+            //System.out.println(directives.size()+" directives");
             long start = System.currentTimeMillis();
             while ((directives.size() > 0) && !mStop)
             {
-                long[] directive = directives.get(0);
+                Object[] directive = directives.get(0);
                 long now = System.currentTimeMillis() - start;
-                if (directive[0] > now)
+                if ((long)(directive[0]) > now)
                 {
-                    System.out.println("Waiting "+(directive[0] - now));
-                    try { Thread.sleep(directive[0] - now); // wait time in milliseconds to control duration
+                    //System.out.println("Waiting "+(directive[0] - now));
+                    try { Thread.sleep((long)directive[0] - now); // wait time in milliseconds to control duration
                     } catch( InterruptedException e ) {
                     }
                     continue;
                 }
-                if (directive[1] == 1)
+                int action = (Integer)directive[1];
+                if (action == PlayEvent.ON)
                 {
                     int channel = (int)directive[2];
-                    int pitch = (int)directive[3];
-                    int velocity = (int)directive[4];
-                    mChannels[channel].noteOn(pitch, velocity);                     
-                    System.out.println("On "+pitch+", v="+velocity);
+                    MIDINote note = (MIDINote)directive[3];
+                    mChannels[channel].noteOn(note.getPitch(), note.getVelocity());                     
+                    firePlayEvent(action, note);
                 }
-                else if (directive[1] == 0)
+                else if (action == PlayEvent.OFF)
                 {
                     int channel = (int)directive[2];
-                    int pitch = (int)directive[3];
-                    mChannels[channel].noteOff(pitch);                     
-                    System.out.println("Off "+pitch);
+                    MIDINote note = (MIDINote)directive[3];
+                    mChannels[channel].noteOff(note.getPitch());                     
+                    firePlayEvent(action, note);
                 }
                 directives.remove(0);
             }
@@ -124,5 +128,47 @@ public class PlayLogic
             
         }
         mPlayer = null;
+    }
+    
+    public static void listen(final Consumer<PlayEvent> ev)
+    {
+        addPlayListener(new IPlayListener() {
+            @Override
+            public void event(PlayEvent e)
+            {
+                ev.accept(e);
+            }
+        });
+    }
+
+    
+    public static void addPlayListener(IPlayListener l)
+    {
+        synchronized (mListeners)
+        {
+            mListeners.add(l);
+        }
+    }
+    
+    public static void removePlayListener(IPlayListener l)
+    {
+        synchronized (mListeners)
+        {
+            mListeners.remove(l);
+        }
+    }
+    
+    private static void firePlayEvent(int action, MIDINote note)
+    {
+        IPlayListener[] listeners;
+        synchronized (mListeners)
+        {
+            listeners = mListeners.toArray(new IPlayListener[0]);
+        }
+        PlayEvent ev = new PlayEvent();
+        ev.setAction(action);
+        ev.setNote(note);
+        for (IPlayListener l : listeners)
+            l.event(ev);
     }
 }
