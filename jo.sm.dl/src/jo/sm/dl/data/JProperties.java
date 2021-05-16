@@ -35,10 +35,11 @@ public class JProperties extends Properties
     public String getProperty(String key, String defaultValue)
     {
         String ret = super.getProperty(key);
-        if ((ret == null) && (mParent != null))
-            ret = mParent.getProperty(key, defaultValue);
-        else
-            ret = defaultValue;
+        if (ret == null) 
+            if (mParent != null)
+                ret = mParent.getProperty(key, defaultValue);
+            else
+                ret = defaultValue;
         return ret;
     }
     
@@ -59,5 +60,10 @@ public class JProperties extends Properties
             for (StringTokenizer st = new StringTokenizer(prop, ","); st.hasMoreTokens(); )
                 ret.add(IntegerUtils.parseInt(st.nextElement()));
         return ret;
+    }
+    
+    public int getAsInt(String key, String def)
+    {
+        return IntegerUtils.parseInt(getProperty(key, def));
     }
 }

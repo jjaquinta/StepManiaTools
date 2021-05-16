@@ -6,7 +6,6 @@ import java.util.List;
 
 import jo.sm.dl.data.JProperties;
 import jo.util.beans.PCSBean;
-import jo.util.utils.obj.IntegerUtils;
 
 public class RuntimeBean extends PCSBean
 {
@@ -29,7 +28,7 @@ public class RuntimeBean extends PCSBean
     
     public int getZoomSize()
     {
-        return IntegerUtils.parseInt(mSettings.getProperty("zoomSize", "48"));
+        return mSettings.getAsInt("zoomSize", "48");
     }
     
     // getters and setters

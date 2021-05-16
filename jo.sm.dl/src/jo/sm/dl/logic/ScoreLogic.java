@@ -14,6 +14,7 @@ import java.util.Map;
 import jo.sm.dl.data.MIDINotation;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.MIDITune;
+import jo.sm.dl.data.ScoreDrawData;
 import jo.util.ui.swing.logic.FontUtils;
 import jo.util.utils.obj.StringUtils;
 
@@ -24,9 +25,9 @@ public class ScoreLogic
 
     private static final int                GRANULARITY    = 32;
 
+    private static ScoreDrawData            mData;
     private static MIDITune                 mTune;
     private static List<MIDITrack>          mTracks;
-    private static Map<Rectangle,Object>    mFeaturePositions = new HashMap<>();
     private static Map<MIDITrack, Integer>  mTrackStaff    = new HashMap<>();
     private static Dimension                mPreferredSize;
     private static int                      mNoteHeight    = 8;
@@ -42,23 +43,24 @@ public class ScoreLogic
     private static Font                     mTextFont;
     private static int                      mLeftMargin;
 
-    public static synchronized BufferedImage drawScore(MIDITune tune,
-            int noteHeight, Map<Rectangle,Object> notePositions,
-            List<MIDITrack> tracks)
+    public static synchronized BufferedImage drawScore(ScoreDrawData data)
     {
-        mTune = tune;
-        if (tracks == null)
-            mTracks = mTune.getTrackInfos();
-        else
-            mTracks = tracks;
-        mNoteHeight = noteHeight;
-        mFeaturePositions = notePositions;
+        mData = data;
+        mTune = mData.getTune();
+        if (mData.getTracks().size() == 0)
+            mData.getTracks().addAll(mTune.getTrackInfos());
+        mTracks = mData.getTracks();
+        mNoteHeight = mData.getNoteHeight();
+        mData.getFeaturePositions().clear();
+        mData.getPositionFeatures().clear();
         indexTune();
         BufferedImage img = new BufferedImage(mPreferredSize.width,
                 mPreferredSize.height, BufferedImage.TYPE_INT_ARGB);
         mG = (Graphics2D)img.getGraphics();
         paint(mG);
         mG.dispose();
+        mData.setImage(img);
+        mData.setMeasureWidth(mMeasureWidth);
         return img;
     }
 
@@ -81,6 +83,7 @@ public class ScoreLogic
             MIDITrack track = mTracks.get(i);
             paintTrack(track);
         }
+        mData.addFeaturePosition(new Rectangle(mLeftMargin, mNoteHeight*4, mMeasures*mMeasureWidth, mY - mNoteHeight*8), mTune);
     }
 
     private static void paintTrack(MIDITrack track)
@@ -98,11 +101,15 @@ public class ScoreLogic
         for (int i = 0; i < 5; i++)
             mG.drawLine(staffLeft, staffTop + i * mNoteHeight,
                     staffRight, staffTop + i * mNoteHeight);
+        mData.addFeaturePosition(new Rectangle(staffLeft, staffTop, staffRight, staffTop + 4*mNoteHeight), track);
         if (staffType == (TREBLE | BASS))
+        {
             for (int i = 0; i < 5; i++)
                 mG.drawLine(staffLeft, staffBot - i * mNoteHeight,
                         staffRight,
                         staffBot - i * mNoteHeight);
+            mData.addFeaturePosition(new Rectangle(staffLeft, staffBot - 4 * mNoteHeight, staffRight, staffBot), track);
+        }
         for (int i = 0; i <= mMeasures; i++)
             mG.drawLine(staffLeft + mMeasureWidth * i, staffTop,
                     staffLeft + mMeasureWidth * i, staffBot);
@@ -118,19 +125,19 @@ public class ScoreLogic
         if (staffType == TREBLE)
         {
             mG.drawString(TREBLE_CLEF, clefLeft, mY + mStaffHeight);
-            mFeaturePositions.put(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
+            mData.addFeaturePosition(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
         }
         else if (staffType == BASS)
         {
             mG.drawString(BASS_CLEF, clefLeft, mY + mStaffHeight);
-            mFeaturePositions.put(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
+            mData.addFeaturePosition(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
         }
         else if (staffType == (TREBLE | BASS))
         {
             mG.drawString(TREBLE_CLEF, clefLeft, mY + mStaffHeight);
             mG.drawString(BASS_CLEF, clefLeft, mY + mStaffHeight * 3);
-            mFeaturePositions.put(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
-            mFeaturePositions.put(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
+            mData.addFeaturePosition(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
+            mData.addFeaturePosition(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
         }
         mG.setFont(mTextFont);
         for (MIDINotation note : track.getNotation())
@@ -170,9 +177,7 @@ public class ScoreLogic
         if (n.getDots() > 0)
             for (int i = 0; i < n.getDots(); i++)
                 mG.drawString(NOTE_DOT, x + mNoteWidth * (i + 1), y);
-        if (mFeaturePositions != null)
-            mFeaturePositions.put(new Rectangle(x,
-                    y - mNoteHeight / 2, mNoteWidth, mNoteHeight), n.getNote());
+        mData.addFeaturePosition(new Rectangle(x, y - mNoteHeight / 2, mNoteWidth, mNoteHeight), n.getNote());
         //mG.drawString(MIDINote.NOTES[n.getNote().getPitch()]+"/"+n.getYAdjust(), mX + x, y + mNoteWidth);
     }
 
