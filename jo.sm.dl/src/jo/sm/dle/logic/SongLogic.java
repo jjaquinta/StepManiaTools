@@ -180,4 +180,97 @@ public class SongLogic
         List<MIDINote> notes = new ArrayList<>();
         PlayLogic.play(song.getProject().getMIDI().getMSPerTick(), notes);
     }
+    
+    public static void addToSelection(MIDINote... notes)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        for (MIDINote note : notes)
+            song.getSelectedNotes().add(note);
+        song.fireMonotonicPropertyChange("selectedNotes");
+    }
+    
+    public static void toggleSelection(MIDINote... notes)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        for (MIDINote note : notes)
+            if (song.getSelectedNotes().contains(note))
+                song.getSelectedNotes().remove(note);
+            else
+                song.getSelectedNotes().add(note);
+        song.fireMonotonicPropertyChange("selectedNotes");
+    }
+    
+    public static void setSelection(MIDINote... notes)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        song.getSelectedNotes().clear();
+        for (MIDINote note : notes)
+            song.getSelectedNotes().add(note);
+        song.fireMonotonicPropertyChange("selectedNotes");
+    }
+    
+    public static void removeFromSelection(MIDINote... notes)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        for (MIDINote note : notes)
+            song.getSelectedNotes().remove(note);
+        song.fireMonotonicPropertyChange("selectedNotes");
+    }
+    
+    public static void clearSelection()
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        song.getSelectedNotes().clear();
+        song.fireMonotonicPropertyChange("selectedNotes");
+    }
+    
+    public static void addToHighlights(MIDINote... notes)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        for (MIDINote note : notes)
+            song.getNoteHighlights().add(note);
+        song.fireMonotonicPropertyChange("noteHighlights");
+    }
+    
+    public static void setHighlights(MIDINote... notes)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        song.getNoteHighlights().clear();
+        for (MIDINote note : notes)
+            song.getNoteHighlights().add(note);
+        song.fireMonotonicPropertyChange("noteHighlights");
+    }
+    
+    public static void removeFromHighlights(MIDINote... notes)
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        for (MIDINote note : notes)
+            song.getNoteHighlights().remove(note);
+        song.fireMonotonicPropertyChange("noteHighlights");
+    }
+    
+    public static void clearHighlights()
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        song.getNoteHighlights().clear();
+        song.fireMonotonicPropertyChange("noteHighlights");
+    }
 }

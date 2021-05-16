@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jo.sm.dl.data.JProperties;
+import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PatDef;
 import jo.sm.dl.data.SMProject;
@@ -26,6 +27,8 @@ public class SongBean extends PCSBean
     private String        mSelectedChart;
     private MIDITrack     mSelectedTrack;
     private PatDef        mSelectedPattern;
+    private Set<MIDINote> mSelectedNotes = new HashSet<>();
+    private Set<MIDINote> mNotesHighlights = new HashSet<>();
     
     public SongBean()
     {        
@@ -180,6 +183,30 @@ public class SongBean extends PCSBean
     {
         queuePropertyChange("melodyTracks", mMelodyTracks, melodyTracks);
         mMelodyTracks = melodyTracks;
+        firePropertyChange();
+    }
+
+    public Set<MIDINote> getSelectedNotes()
+    {
+        return mSelectedNotes;
+    }
+
+    public void setSelectedNotes(Set<MIDINote> selected)
+    {
+        queuePropertyChange("selectedNotes", mSelectedNotes, selected);
+        mSelectedNotes = selected;
+        firePropertyChange();
+    }
+
+    public Set<MIDINote> getNoteHighlights()
+    {
+        return mNotesHighlights;
+    }
+
+    public void setNoteHighlights(Set<MIDINote> highlights)
+    {
+        queuePropertyChange("noteHighlights", mNotesHighlights, highlights);
+        mNotesHighlights = highlights;
         firePropertyChange();
     }
 }

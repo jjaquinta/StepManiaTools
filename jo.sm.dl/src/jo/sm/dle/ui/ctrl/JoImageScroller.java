@@ -11,10 +11,10 @@ import javax.swing.JScrollBar;
 
 public class JoImageScroller extends JComponent implements AdjustmentListener
 {
-    private Image       mImage;
-    private JScrollBar  mScroller;
-    private int         mX;
-    private int         mY;
+    private Image      mImage;
+    private JScrollBar mScroller;
+    protected int      mX;
+    protected int      mY;
 
     @Override
     public Dimension getPreferredSize()
@@ -22,11 +22,13 @@ public class JoImageScroller extends JComponent implements AdjustmentListener
         if ((mScroller == null) || (mImage == null))
             return super.getPreferredSize();
         if (mScroller.getOrientation() == JScrollBar.HORIZONTAL)
-            return new Dimension(mScroller.getSize().width, mImage.getHeight(null));
+            return new Dimension(mScroller.getSize().width,
+                    mImage.getHeight(null));
         else
-            return new Dimension(mImage.getWidth(null), mScroller.getSize().height);
+            return new Dimension(mImage.getWidth(null),
+                    mScroller.getSize().height);
     }
-    
+
     @Override
     public void adjustmentValueChanged(AdjustmentEvent e)
     {
@@ -45,25 +47,28 @@ public class JoImageScroller extends JComponent implements AdjustmentListener
         }
         repaint();
     }
-    
+
     @Override
     public void paint(Graphics g)
     {
         g.drawImage(mImage, mX, mY, null);
     }
-    
+
     public Image getImage()
     {
         return mImage;
     }
+
     public void setImage(Image image)
     {
         mImage = image;
     }
+
     public JScrollBar getScroller()
     {
         return mScroller;
     }
+
     public void setScroller(JScrollBar scroller)
     {
         if (mScroller != null)
@@ -73,5 +78,5 @@ public class JoImageScroller extends JComponent implements AdjustmentListener
             mScroller.addAdjustmentListener(this);
         adjustmentValueChanged(null);
     }
-    
+
 }

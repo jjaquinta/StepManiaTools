@@ -155,19 +155,19 @@ public class ScoreLogic
         else
             y = mY - (n.getYAdjust() - 10) * mNoteHeight / 2;
         if (NotationLogic.NOTE_WHOLE.equals(n.getSymbol()))
-            drawNoteSymbol(x, y, false, false, 0);
+            drawNoteSymbol(n, x, y, false, false, 0);
         else if (NotationLogic.NOTE_HALF.equals(n.getSymbol()))
-            drawNoteSymbol(x, y, false, true, 0);
+            drawNoteSymbol(n, x, y, false, true, 0);
         else if (NotationLogic.NOTE_QUARTER.equals(n.getSymbol()))
-            drawNoteSymbol(x, y, true, true, 0);
+            drawNoteSymbol(n, x, y, true, true, 0);
         else if (NotationLogic.NOTE_EIGTH.equals(n.getSymbol()))
-            drawNoteSymbol(x, y, true, true, 1);
+            drawNoteSymbol(n, x, y, true, true, 1);
         else if (NotationLogic.NOTE_SIXTEENTH.equals(n.getSymbol()))
-            drawNoteSymbol(x, y, true, true, 1);
+            drawNoteSymbol(n, x, y, true, true, 1);
         else if (NotationLogic.NOTE_THIRTYSECOND.equals(n.getSymbol()))
-            drawNoteSymbol(x, y, true, true, 2);
+            drawNoteSymbol(n, x, y, true, true, 2);
         else if (NotationLogic.NOTE_SIXTYFORTH.equals(n.getSymbol()))
-            drawNoteSymbol(x, y, true, true, 3);
+            drawNoteSymbol(n, x, y, true, true, 3);
         if (n.getSharps() > 0)
             for (int i = 0; i < n.getSharps(); i++)
                 mG.drawString(NOTE_SHARP, x - mNoteWidth * i, y);
@@ -181,8 +181,15 @@ public class ScoreLogic
         //mG.drawString(MIDINote.NOTES[n.getNote().getPitch()]+"/"+n.getYAdjust(), mX + x, y + mNoteWidth);
     }
 
-    private static void drawNoteSymbol(int x, int y, boolean filled, boolean staff, int brevets)
+    private static void drawNoteSymbol(MIDINotation n, int x, int y, boolean filled, boolean staff, int brevets)
     {
+        if (mData.getHighlights().contains(n.getNote()))
+        {
+            mG.setColor(mData.getHighlightColor());
+            mG.fillRect(x-1, y - mNoteHeight / 2-1, mNoteWidth+2,
+                    mNoteHeight+2);
+            mG.setColor(Color.black);
+        }
         if (filled)
             mG.fillOval(x, y - mNoteHeight / 2, mNoteWidth,
                     mNoteHeight);
@@ -198,6 +205,13 @@ public class ScoreLogic
                         y - mStaffHeight + (mNoteHeight / 2 * i),
                         x + mNoteWidth * 2,
                         y - mStaffHeight - (mNoteHeight / 2 * i));
+        }
+        if (mData.getSelected().contains(n.getNote()))
+        {
+            mG.setColor(mData.getSelectedColor());
+            mG.drawRect(x-1, y - mNoteHeight / 2-1, mNoteWidth+2,
+                    mNoteHeight+2);
+            mG.setColor(Color.black);
         }
     }
     
