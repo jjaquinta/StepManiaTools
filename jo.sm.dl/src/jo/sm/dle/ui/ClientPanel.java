@@ -16,6 +16,7 @@ import jo.sm.dl.data.PlayEvent;
 import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
+import jo.sm.dle.logic.SelectionLogic;
 import jo.sm.dle.logic.SongLogic;
 import jo.sm.dle.ui.score.ArrowPanel;
 import jo.sm.dle.ui.score.ScoreCanvas;
@@ -78,6 +79,9 @@ public class ClientPanel extends JComponent
         mCanvas.getData().setHighlights(mSong.getNoteHighlights());
         mCanvas.setTracks(tracks);
         updateArrows();
+        if (mSong.getSelectedNotes().size() > 0)
+            mCanvas.setCaretTo(mSong.getSelectedNotes().iterator().next());
+        updateScroller();
         mScroller.invalidate();
     }
     
@@ -100,8 +104,6 @@ public class ClientPanel extends JComponent
             for (Object feature : features)
                 if (feature instanceof MIDINote)
                 {
-                    mCanvas.setCaretTo(feature);
-                    updateScroller();
                     notes.add((MIDINote)feature);
                 }
                 else if (feature instanceof MIDITrack)
@@ -110,9 +112,9 @@ public class ClientPanel extends JComponent
                 }
             if (notes.size() > 0)
                 if (ev.isControlDown())
-                    SongLogic.toggleSelection(notes.toArray(new MIDINote[0]));
+                    SelectionLogic.toggleSelection(notes.toArray(new MIDINote[0]));
                 else
-                    SongLogic.setSelection(notes.toArray(new MIDINote[0]));
+                    SelectionLogic.setSelection(notes.toArray(new MIDINote[0]));
         }
     }
     
@@ -122,7 +124,12 @@ public class ClientPanel extends JComponent
         {
             mCanvas.setCaretTo(ev.getNote());
             updateScroller();
+            //SongLogic.addToHighlights(ev.getNote());
         }
+        else if (ev.getAction() == PlayEvent.OFF)
+            ;//SongLogic.removeFromHighlights(ev.getNote());
+        else if ((ev.getAction() == PlayEvent.START) || (ev.getAction() == PlayEvent.STOP))
+            ;//SongLogic.clearHighlights();
     }
 
     public SongBean getSong()
@@ -145,5 +152,6 @@ public class ClientPanel extends JComponent
     public void updateArrows()
     {
         mArrows.makeArrowImage(mCanvas.getData());
+        mArrows.repaint();
     }
 }

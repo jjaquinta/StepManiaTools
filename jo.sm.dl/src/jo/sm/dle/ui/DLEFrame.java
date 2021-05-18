@@ -5,6 +5,11 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -38,6 +43,8 @@ public class DLEFrame extends JFrame
     private JMenu      mFile;
     private JMenu      mOpen;
     private JMenuItem  mSave;
+    private JMenuItem  mExport;
+    private JMenuItem  mSteps;
     private JMenuItem  mExit;
     private JMenu      mEdit;
     private JMenuItem  mRecalc;
@@ -68,6 +75,8 @@ public class DLEFrame extends JFrame
         mFile = new JMenu("File");
         mOpen = new JMenu("Open");
         mSave = new JMenuItem("Save");
+        mExport = new JMenuItem("Export");
+        mSteps = new JMenuItem("Steps");
         mExit = new JMenuItem("Exit");
         mEdit = new JMenu("Edit");
         mRecalc = new JMenuItem("Recalc");
@@ -107,6 +116,8 @@ public class DLEFrame extends JFrame
         mMenu.add(mFile);
         mFile.add(mOpen);
         mFile.add(mSave);
+        mFile.add(mExport);
+        mFile.add(mSteps);
         mFile.add(mExit);
         mMenu.add(mEdit);
         mEdit.add(mRecalc);
@@ -135,6 +146,8 @@ public class DLEFrame extends JFrame
         RuntimeLogic.listen("error", (ov, nv) -> doUpdateStatus());
         RuntimeLogic.listen("selectedSong", (ov, nv) -> doUpdateSong());
         ComponentUtils.componentResized(this, (ev) -> doResized());
+        ListenerUtils.listen(mExport, (ev) -> System.out.println("TODO"));
+        ListenerUtils.listen(mSteps, (ev) -> SongLogic.recalc());
         ListenerUtils.listen(mExit, (ev) -> dispose());
         ListenerUtils.listen(mZoomIn, (ev) -> RuntimeLogic.zoomIn());
         ListenerUtils.listen(mZoomOut, (ev) -> RuntimeLogic.zoomOut());
@@ -210,14 +223,52 @@ public class DLEFrame extends JFrame
         {
             JMenu dirMenu = new JMenu(dir.getName());
             mOpen.add(dirMenu);
-            for (SongBean song : dir.getSongs())
+            if (dir.getSongs().size() < 24)
+                addSongsToMenu(dir.getName(), dir.getSongs(), dirMenu);
+            else
             {
-                JMenuItem songMenu = new JMenuItem(song.getName());
-                dirMenu.add(songMenu);
-                songMenu.setActionCommand(dir.getName() + "$" + song.getName());
-                ListenerUtils.listen(songMenu, (e) -> doSong(e));
+                Map<String,List<SongBean>> songs = new HashMap<>();
+                for (SongBean song : dir.getSongs())
+                {
+                    String index = song.getName().substring(0, 1).toUpperCase();
+                    List<SongBean> ss = songs.get(index);
+                    if (ss == null)
+                    {
+                        ss = new ArrayList<>();
+                        songs.put(index, ss);
+                    }
+                    ss.add(song);
+                }
+                String[] indicies = songs.keySet().toArray(new String[0]);
+                Arrays.sort(indicies);
+                for (String i : indicies)
+                {
+                    List<SongBean> ss = songs.get(i);
+                    if (ss.size() == 1)
+                        addSongToMenu(dir.getName(), dirMenu, ss.get(0));
+                    else
+                    {
+                        JMenu sMenu = new JMenu(i);
+                        dirMenu.add(sMenu);
+                        addSongsToMenu(dir.getName(), ss, sMenu);
+                    }
+                }
             }
         }
+    }
+
+    public void addSongsToMenu(String dirName, List<SongBean> songs, JMenu dirMenu)
+    {
+        for (SongBean song : songs)
+            addSongToMenu(dirName, dirMenu, song);
+    }
+
+    public void addSongToMenu(String dirName, JMenu dirMenu, SongBean song)
+    {
+        JMenuItem songMenu = new JMenuItem(song.getName());
+        dirMenu.add(songMenu);
+        songMenu.setActionCommand(dirName + "$" + song.getName());
+        ListenerUtils.listen(songMenu, (e) -> doSong(e));
     }
 
     private void updateTrackMenu()

@@ -11,6 +11,7 @@ public class SMChart
     private int             mNotesMeter;
     private float[]         mGrooveMeter = new float[5];
     private List<SMMeasure> mMeasures = new ArrayList<>();
+    private List<SMBeat>    mAllBeats;
 
     // utilities
     public List<SMBeat> getBeats(long startTick, long endTick)
@@ -27,6 +28,18 @@ public class SMChart
         return beats;
     }
 
+    public List<SMBeat> getAllBeats()
+    {
+        if (mAllBeats == null)
+        {
+            mAllBeats = new ArrayList<>();
+            for (SMMeasure m : mMeasures)
+                for (SMBeat b : m.getBeats())
+                    if (b.isAnySteps())
+                        mAllBeats.add(b);
+        }
+        return mAllBeats;
+    }
     
     // getters and setters
     public String getNotesChartType()

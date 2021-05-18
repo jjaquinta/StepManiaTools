@@ -10,6 +10,8 @@ import jo.sm.dl.data.JProperties;
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PatDef;
+import jo.sm.dl.data.SMBeat;
+import jo.sm.dl.data.SMChart;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.logic.NotationLogic;
 import jo.sm.dl.logic.PlayLogic;
@@ -180,97 +182,69 @@ public class SongLogic
         List<MIDINote> notes = new ArrayList<>();
         PlayLogic.play(song.getProject().getMIDI().getMSPerTick(), notes);
     }
-    
-    public static void addToSelection(MIDINote... notes)
+
+    public static void nextBeat()
+    {
+        SMBeat next = getNextBeat();
+        if (next != null)
+        {
+            SMBeat beat = RuntimeLogic.getInstance().getSelectedSong().getSelectedBeats().iterator().next();
+            SelectionLogic.toggleBeats(beat, next);
+            SelectionLogic.toggleSelection(beat.getNote(), next.getNote());
+        }
+    }
+
+    public static SMBeat getNextBeat()
     {
         SongBean song = RuntimeLogic.getInstance().getSelectedSong();
         if (song == null)
-            return;
-        for (MIDINote note : notes)
-            song.getSelectedNotes().add(note);
-        song.fireMonotonicPropertyChange("selectedNotes");
+            return null;
+        if (song.getSelectedBeats().size() == 0)
+            return null;
+        SMBeat beat = song.getSelectedBeats().iterator().next();
+        for (SMChart chart : song.getProject().getTune().getCharts())
+        {
+            int idx = chart.getAllBeats().indexOf(beat);
+            if (idx >= 0)
+                if (idx + 1 < chart.getAllBeats().size())
+                    return chart.getAllBeats().get(idx + 1);
+                else
+                    return null;
+        }
+        return null;
     }
-    
-    public static void toggleSelection(MIDINote... notes)
+
+    public static void previousBeat()
+    {
+        SMBeat prev = getPrevBeat();
+        if (prev != null)
+        {
+            SMBeat beat = RuntimeLogic.getInstance().getSelectedSong().getSelectedBeats().iterator().next();
+            SelectionLogic.toggleBeats(beat, prev);
+            SelectionLogic.toggleSelection(beat.getNote(), prev.getNote());
+        }
+    }
+
+    public static SMBeat getPrevBeat()
     {
         SongBean song = RuntimeLogic.getInstance().getSelectedSong();
         if (song == null)
-            return;
-        for (MIDINote note : notes)
-            if (song.getSelectedNotes().contains(note))
-                song.getSelectedNotes().remove(note);
-            else
-                song.getSelectedNotes().add(note);
-        song.fireMonotonicPropertyChange("selectedNotes");
+            return null;
+        if (song.getSelectedBeats().size() == 0)
+            return null;
+        SMBeat beat = song.getSelectedBeats().iterator().next();
+        for (SMChart chart : song.getProject().getTune().getCharts())
+        {
+            int idx = chart.getAllBeats().indexOf(beat);
+            if (idx >= 0)
+            {
+                if (idx > 0)
+                    return chart.getAllBeats().get(idx - 1);
+                else
+                    return null;
+            }
+        }
+        return null;
     }
     
-    public static void setSelection(MIDINote... notes)
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song == null)
-            return;
-        song.getSelectedNotes().clear();
-        for (MIDINote note : notes)
-            song.getSelectedNotes().add(note);
-        song.fireMonotonicPropertyChange("selectedNotes");
-    }
-    
-    public static void removeFromSelection(MIDINote... notes)
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song == null)
-            return;
-        for (MIDINote note : notes)
-            song.getSelectedNotes().remove(note);
-        song.fireMonotonicPropertyChange("selectedNotes");
-    }
-    
-    public static void clearSelection()
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song == null)
-            return;
-        song.getSelectedNotes().clear();
-        song.fireMonotonicPropertyChange("selectedNotes");
-    }
-    
-    public static void addToHighlights(MIDINote... notes)
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song == null)
-            return;
-        for (MIDINote note : notes)
-            song.getNoteHighlights().add(note);
-        song.fireMonotonicPropertyChange("noteHighlights");
-    }
-    
-    public static void setHighlights(MIDINote... notes)
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song == null)
-            return;
-        song.getNoteHighlights().clear();
-        for (MIDINote note : notes)
-            song.getNoteHighlights().add(note);
-        song.fireMonotonicPropertyChange("noteHighlights");
-    }
-    
-    public static void removeFromHighlights(MIDINote... notes)
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song == null)
-            return;
-        for (MIDINote note : notes)
-            song.getNoteHighlights().remove(note);
-        song.fireMonotonicPropertyChange("noteHighlights");
-    }
-    
-    public static void clearHighlights()
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song == null)
-            return;
-        song.getNoteHighlights().clear();
-        song.fireMonotonicPropertyChange("noteHighlights");
-    }
 }

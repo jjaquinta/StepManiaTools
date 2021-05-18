@@ -8,6 +8,7 @@ import jo.sm.dl.data.JProperties;
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PatDef;
+import jo.sm.dl.data.SMBeat;
 import jo.sm.dl.data.SMProject;
 import jo.util.beans.PCSBean;
 
@@ -29,6 +30,7 @@ public class SongBean extends PCSBean
     private PatDef        mSelectedPattern;
     private Set<MIDINote> mSelectedNotes = new HashSet<>();
     private Set<MIDINote> mNotesHighlights = new HashSet<>();
+    private Set<SMBeat>   mSelectedBeats = new HashSet<>();
     
     public SongBean()
     {        
@@ -207,6 +209,18 @@ public class SongBean extends PCSBean
     {
         queuePropertyChange("noteHighlights", mNotesHighlights, highlights);
         mNotesHighlights = highlights;
+        firePropertyChange();
+    }
+
+    public Set<SMBeat> getSelectedBeats()
+    {
+        return mSelectedBeats;
+    }
+
+    public void setSelectedBeats(Set<SMBeat> selectedBeats)
+    {
+        queuePropertyChange("selectedBeats", mSelectedBeats, selectedBeats);
+        mSelectedBeats = selectedBeats;
         firePropertyChange();
     }
 }

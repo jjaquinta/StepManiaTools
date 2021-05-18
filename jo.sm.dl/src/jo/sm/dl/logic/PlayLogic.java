@@ -89,36 +89,9 @@ public class PlayLogic
                 }
             });
             //System.out.println(directives.size()+" directives");
-            long start = System.currentTimeMillis();
-            while ((directives.size() > 0) && !mStop)
-            {
-                Object[] directive = directives.get(0);
-                long now = System.currentTimeMillis() - start;
-                if ((long)(directive[0]) > now)
-                {
-                    //System.out.println("Waiting "+(directive[0] - now));
-                    try { Thread.sleep((long)directive[0] - now); // wait time in milliseconds to control duration
-                    } catch( InterruptedException e ) {
-                    }
-                    continue;
-                }
-                int action = (Integer)directive[1];
-                if (action == PlayEvent.ON)
-                {
-                    int channel = (int)directive[2];
-                    MIDINote note = (MIDINote)directive[3];
-                    mChannels[channel].noteOn(note.getPitch(), note.getVelocity());                     
-                    firePlayEvent(action, note);
-                }
-                else if (action == PlayEvent.OFF)
-                {
-                    int channel = (int)directive[2];
-                    MIDINote note = (MIDINote)directive[3];
-                    mChannels[channel].noteOff(note.getPitch());                     
-                    firePlayEvent(action, note);
-                }
-                directives.remove(0);
-            }
+            firePlayEvent(PlayEvent.START, null);
+            playTheSong(mChannels, directives);
+            firePlayEvent(PlayEvent.STOP, null);
             for (int i = 0; i < trackToChannel.size(); i++)
                 mChannels[i].allNotesOff();
             midiSynth.close();
@@ -128,6 +101,41 @@ public class PlayLogic
             
         }
         mPlayer = null;
+    }
+
+    public static void playTheSong(MidiChannel[] mChannels,
+            List<Object[]> directives)
+    {
+        long start = System.currentTimeMillis();
+        while ((directives.size() > 0) && !mStop)
+        {
+            Object[] directive = directives.get(0);
+            long now = System.currentTimeMillis() - start;
+            if ((long)(directive[0]) > now)
+            {
+                //System.out.println("Waiting "+(directive[0] - now));
+                try { Thread.sleep((long)directive[0] - now); // wait time in milliseconds to control duration
+                } catch( InterruptedException e ) {
+                }
+                continue;
+            }
+            int action = (Integer)directive[1];
+            if (action == PlayEvent.ON)
+            {
+                int channel = (int)directive[2];
+                MIDINote note = (MIDINote)directive[3];
+                mChannels[channel].noteOn(note.getPitch(), note.getVelocity());                     
+                firePlayEvent(action, note);
+            }
+            else if (action == PlayEvent.OFF)
+            {
+                int channel = (int)directive[2];
+                MIDINote note = (MIDINote)directive[3];
+                mChannels[channel].noteOff(note.getPitch());                     
+                firePlayEvent(action, note);
+            }
+            directives.remove(0);
+        }
     }
     
     public static void listen(final Consumer<PlayEvent> ev)
