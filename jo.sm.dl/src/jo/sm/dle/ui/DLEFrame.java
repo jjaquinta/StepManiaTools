@@ -22,13 +22,13 @@ import javax.swing.JSeparator;
 
 import jo.sm.dl.data.SMChart;
 import jo.sm.dl.logic.PlayLogic;
+import jo.sm.dle.actions.AutoTrackAction;
 import jo.sm.dle.actions.PlayAction;
 import jo.sm.dle.actions.StopAction;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
 import jo.sm.dle.logic.SongLogic;
-import jo.sm.dle.ui.score.OldScorePanel;
 import jo.util.ui.swing.utils.ComponentUtils;
 import jo.util.ui.swing.utils.ListenerUtils;
 import jo.util.utils.obj.IntegerUtils;
@@ -47,9 +47,9 @@ public class DLEFrame extends JFrame
     private JMenuItem  mSteps;
     private JMenuItem  mExit;
     private JMenu      mEdit;
+    private JMenuItem  mAutoTrack;
     private JMenuItem  mRecalc;
     private JMenu      mView;
-    private JMenu      mTrack;
     private JMenu      mChart;
     private JMenuItem  mZoomIn;
     private JMenuItem  mZoomOut;
@@ -79,9 +79,9 @@ public class DLEFrame extends JFrame
         mSteps = new JMenuItem("Steps");
         mExit = new JMenuItem("Exit");
         mEdit = new JMenu("Edit");
+        mAutoTrack = new JMenuItem(new AutoTrackAction());
         mRecalc = new JMenuItem("Recalc");
         mView = new JMenu("View");
-        mTrack = new JMenu("Track");
         mChart = new JMenu("Chart");
         mZoomIn = new JMenuItem("Zoom In");
         mZoomOut = new JMenuItem("Zoom Out");
@@ -121,8 +121,8 @@ public class DLEFrame extends JFrame
         mFile.add(mExit);
         mMenu.add(mEdit);
         mEdit.add(mRecalc);
+        mEdit.add(mAutoTrack);
         mMenu.add(mView);
-        mView.add(mTrack);
         mView.add(mChart);
         mView.add(mZoomIn);
         mView.add(mZoomOut);
@@ -176,7 +176,6 @@ public class DLEFrame extends JFrame
 
     private void doUpdateSong()
     {
-        updateTrackMenu();
         updateChartMenu();
     }
 
@@ -195,12 +194,6 @@ public class DLEFrame extends JFrame
                         RuntimeLogic.select(song);
                         return;
                     }
-    }
-
-    private void doTrack(ActionEvent e)
-    {
-        int track = IntegerUtils.parseInt(e.getActionCommand());
-        SongLogic.toggleTrack(track);
     }
 
     private void doChart(ActionEvent e)
@@ -269,24 +262,6 @@ public class DLEFrame extends JFrame
         dirMenu.add(songMenu);
         songMenu.setActionCommand(dirName + "$" + song.getName());
         ListenerUtils.listen(songMenu, (e) -> doSong(e));
-    }
-
-    private void updateTrackMenu()
-    {
-        mTrack.removeAll();
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song == null)
-            return;
-        int numTracks = song.getProject().getMIDI().getTracks();
-        for (int track = 0; track < numTracks; track++)
-        {
-            JCheckBoxMenuItem trackMenu = new JCheckBoxMenuItem(
-                    "Track " + (track + 1), song.getTracks().contains(track));
-            trackMenu.setIcon(OldScorePanel.getTrackSwatch(track));
-            mTrack.add(trackMenu);
-            trackMenu.setActionCommand(String.valueOf(track));
-            ListenerUtils.listen(trackMenu, (e) -> doTrack(e));
-        }
     }
 
     private void updateChartMenu()

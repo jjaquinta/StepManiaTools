@@ -7,9 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import jo.sm.dl.data.MIDINotation;
 import jo.sm.dl.data.MIDITrack;
@@ -20,15 +18,11 @@ import jo.util.utils.obj.StringUtils;
 
 public class ScoreLogic
 {
-    private static final int                TREBLE         = 1;
-    private static final int                BASS           = 2;
-
     private static final int                GRANULARITY    = 32;
 
     private static ScoreDrawData            mData;
     private static MIDITune                 mTune;
     private static List<MIDITrack>          mTracks;
-    private static Map<MIDITrack, Integer>  mTrackStaff    = new HashMap<>();
     private static Dimension                mPreferredSize;
     private static int                      mNoteHeight    = 8;
 
@@ -89,10 +83,10 @@ public class ScoreLogic
     private static void paintTrack(MIDITrack track)
     {
         mX = mLeftMargin;
-        int staffType = mTrackStaff.get(track);
+        int staffType = track.getClef();
         int staffTop = mY;
         int staffBot = staffTop + mStaffHeight;
-        if (staffType == (TREBLE | BASS))
+        if (staffType == (MIDITrack.TREBLE_CLEF | MIDITrack.BASS_CLEF))
             staffBot += mStaffHeight * 2;
         int staffLeft = mX;
         int staffRight = mX + mMeasures*mMeasureWidth;
@@ -102,7 +96,7 @@ public class ScoreLogic
             mG.drawLine(staffLeft, staffTop + i * mNoteHeight,
                     staffRight, staffTop + i * mNoteHeight);
         mData.addFeaturePosition(new Rectangle(staffLeft, staffTop, staffRight, staffTop + 4*mNoteHeight), track);
-        if (staffType == (TREBLE | BASS))
+        if (staffType == (MIDITrack.TREBLE_CLEF | MIDITrack.BASS_CLEF))
         {
             for (int i = 0; i < 5; i++)
                 mG.drawLine(staffLeft, staffBot - i * mNoteHeight,
@@ -122,17 +116,17 @@ public class ScoreLogic
         mG.drawString(track.toString()+", type="+staffType, staffLeft - mNoteWidth * 4, mY - mNoteHeight);
         mG.setFont(mClefFont);
         int clefLeft = staffLeft - mNoteWidth * 4;
-        if (staffType == TREBLE)
+        if (staffType == MIDITrack.TREBLE_CLEF)
         {
             mG.drawString(TREBLE_CLEF, clefLeft, mY + mStaffHeight);
             mData.addFeaturePosition(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
         }
-        else if (staffType == BASS)
+        else if (staffType == MIDITrack.BASS_CLEF)
         {
             mG.drawString(BASS_CLEF, clefLeft, mY + mStaffHeight);
             mData.addFeaturePosition(new Rectangle(clefLeft, mY, mNoteWidth*4, mStaffHeight), track);
         }
-        else if (staffType == (TREBLE | BASS))
+        else if (staffType == (MIDITrack.TREBLE_CLEF | MIDITrack.BASS_CLEF))
         {
             mG.drawString(TREBLE_CLEF, clefLeft, mY + mStaffHeight);
             mG.drawString(BASS_CLEF, clefLeft, mY + mStaffHeight * 3);
@@ -150,7 +144,7 @@ public class ScoreLogic
         double m = n.getMeasure();
         int x = mX + (int)(m * GRANULARITY * mNoteWidth);
         int y;
-        if (staffType == BASS)
+        if (staffType == MIDITrack.BASS_CLEF)
             y = mY - (n.getYAdjust() + 2) * mNoteHeight / 2;
         else
             y = mY - (n.getYAdjust() - 10) * mNoteHeight / 2;
@@ -217,26 +211,16 @@ public class ScoreLogic
     
     private static void indexTune()
     {
-        mTrackStaff.clear();
         NotationLogic.makeNotation(mTune);
         int stavesHigh = 0;
         for (MIDITrack t : mTracks)
         {
-            if (t.getLowPitch() > 51)
-            {
-                mTrackStaff.put(t, TREBLE);
+            if (t.getClef() == MIDITrack.TREBLE_CLEF)
                 stavesHigh += 3;
-            }
-            else if (t.getHighPitch() < 69)
-            {
-                mTrackStaff.put(t, BASS);
+            else if (t.getClef() == MIDITrack.BASS_CLEF)
                 stavesHigh += 3;
-            }
             else
-            {
-                mTrackStaff.put(t, BASS | TREBLE);
                 stavesHigh += 5;
-            }
         }
         stavesHigh += mTracks.size() + 1;
         mPreferredSize = new Dimension();

@@ -3,6 +3,7 @@ package jo.sm.dle.ui.score;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -11,7 +12,6 @@ import java.util.Map;
 
 import jo.sm.dl.data.SMBeat;
 import jo.sm.dl.data.SMChart;
-import jo.sm.dl.data.SMMeasure;
 import jo.sm.dl.data.ScoreDrawData;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
@@ -27,6 +27,7 @@ public class ArrowPanel extends JoImageScroller
     
     //private static final String ARROWS = "\u25c0\u1405\u1403\u1401";
     private static final Color ARROW_COLOR = Color.yellow;
+    private static final Color MINE_COLOR = Color.red;
     private static final Color ARROW_BACK = Color.darkGray;
     private static final Color ARROW_SELECT = Color.blue;
     
@@ -59,6 +60,7 @@ public class ArrowPanel extends JoImageScroller
         Graphics g = img.getGraphics();
         g.setFont(FontUtils.getFont("Dialog", 8, Font.BOLD));
         int ppq = song.getProject().getMIDI().getPulsesPerQuarter();
+        int[] startx = new int[4];
         for (SMBeat beat : chart.getAllBeats())
         {
             double m = beat.getTick()/4.0/ppq;
@@ -70,15 +72,14 @@ public class ArrowPanel extends JoImageScroller
             for (int i = 0; i < notes.length; i++)
                 if (notes[i] != '0')
                 {
-                    g.setColor(ARROW_COLOR);
-                    if (i == 0)
-                        g.fillPolygon(new int[] { x, x + 8, x + 8 }, new int[] { i*8 + 4, i*8, i*8 + 8}, 3);
-                    else if (i == 1)
-                        g.fillPolygon(new int[] { x + 8, x, x }, new int[] { i*8 + 4, i*8, i*8 + 8}, 3);
-                    else if (i == 2)
-                        g.fillPolygon(new int[] { x, x + 4, x + 8 }, new int[] { i*8 + 8, i*8, i*8 + 8}, 3);
-                    else if (i == 3)
-                        g.fillPolygon(new int[] { x, x + 4, x + 8}, new int[] { i*8, i*8 + 8, i*8}, 3);
+                    if (notes[i] == SMBeat.NOTE_NORMAL)
+                        drawNormal(g, i, x, i*8);
+                    else if (notes[i] == SMBeat.NOTE_HOLD_HEAD)
+                        startx[i] = x;
+                    else if (notes[i] == SMBeat.NOTE_HOLD_RELEASE)
+                        drawHold(g, i, startx[i], x, i*8);
+                    else if (notes[i] == SMBeat.NOTE_MINE)
+                        drawMine(g, x, i*8);
                     any = true;
                 }
             if (any)
@@ -92,6 +93,40 @@ public class ArrowPanel extends JoImageScroller
             }
         }
         setImage(img);
+    }
+
+    public void drawNormal(Graphics g, int shape, int x, int y)
+    {
+        g.setColor(ARROW_COLOR);
+        g.fillPolygon(getShape(shape, x, y));
+    }
+
+    public void drawHold(Graphics g, int shape, int x1, int x2, int y)
+    {
+        g.setColor(ARROW_COLOR);
+        g.fillPolygon(getShape(shape, x1, y));
+        for (int x = x1 + 8; x < x2; x += 8)
+            g.drawPolygon(getShape(shape, x, y));
+        g.fillPolygon(getShape(shape, x2, y));
+    }
+    
+    private Polygon getShape(int shape, int x, int y)
+    {
+        if (shape == 0)
+            return new Polygon(new int[] { x, x + 8, x + 8 }, new int[] { y + 4, y, y + 8}, 3);
+        else if (shape == 1)
+            return new Polygon(new int[] { x + 8, x, x }, new int[] { y + 4, y, y + 8}, 3);
+        else if (shape == 2)
+            return new Polygon(new int[] { x, x + 4, x + 8 }, new int[] { y + 8, y, y + 8}, 3);
+        else if (shape == 3)
+            return new Polygon(new int[] { x, x + 4, x + 8}, new int[] { y, y + 8, y}, 3);
+        throw new IllegalArgumentException();
+    }
+
+    public void drawMine(Graphics g, int x, int y)
+    {
+        g.setColor(MINE_COLOR);
+        g.fillOval(x, y, 8, 8);
     }
     
     private void add(SMBeat beat, Rectangle r)

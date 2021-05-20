@@ -215,4 +215,155 @@ public class NotationLogic
             { 109, 28, 1, 0 },
             
     };
+
+    public static void autoTrack(MIDITune midi)
+    {
+        int ppq = midi.getPulsesPerQuarter();
+        for (MIDITrack track : midi.getTrackInfos())
+        {
+            double simNotes = autoTrack(track, ppq);
+            System.out.println("Track "+track.getTrack()+", simNotes="+simNotes+" clef="+track.getClef()+" ->"+track.getType());
+        }
+    }
+    
+    //private static final long GRAN = 32;
+
+    public static double autoTrack(MIDITrack track, int ppq)
+    {
+        if (track.getType() != MIDITrack.UNKNOWN)
+            return 0;
+        if (track.getNotes().size() == 0)
+        {
+            track.setType(MIDITrack.IGNORE);
+            return 0;
+        }
+        else if (track.getNotes().size() < 10)
+        {
+            track.setType(MIDITrack.INCIDENTAL);
+            return 0;
+        }
+        double simNotes = calcSimNotes(track, ppq);
+        if (simNotes >= 3)
+            track.setType(MIDITrack.RHYTHYM);
+        else if (track.getClef() == MIDITrack.BASS_CLEF)
+            track.setType(MIDITrack.BASS);
+        else if (track.getClef() == MIDITrack.TREBLE_CLEF)
+            track.setType(MIDITrack.MELODY);
+        else
+            track.setType(MIDITrack.HARMONY);
+        return simNotes;
+    }
+
+    public static double calcSimNotes(MIDITrack track, int pp4)
+    {
+        int pp32 = pp4/8;
+        int numChords = 0;
+        int nonChords = 0;
+        int sizeChords = 0;
+        for (int i = 0; i < track.getNotes().size();)
+        {
+            MIDINote n = track.getNotes().get(i);
+            int size = 1;
+            while (i + size < track.getNotes().size())
+            {
+                MIDINote n2 = track.getNotes().get(i + size);
+                if (n2.getTick() > n.getTick() + pp32)
+                    break;
+                size++;
+            }
+            if (size == 1)
+                nonChords++;
+            else
+            {
+                numChords++;
+                sizeChords += size;
+            }
+            i += size;
+        }
+        double avgChord = sizeChords/(double)numChords;
+        //System.out.println("non-chords: "+nonChords+", chords="+numChords+", sizeChords="+sizeChords+", avgChord="+avgChord);
+        if (numChords < nonChords)
+            return 1;
+        else if (avgChord < 2)
+            return 1;
+        else
+            return avgChord;
+    }
+
+    /*
+    public static double calcSimNotesQuarters(MIDITrack track, int ppq)
+    {
+        MIDINote first = track.getNotes().get(0);
+        MIDINote last = track.getNotes().get(track.getNotes().size()-1);
+        long firstTick = first.getTick();
+        long lastTick = last.getTick() + last.getDuration();
+        int[] counts = new int[(int)((lastTick - firstTick)/ppq)+2];
+        for (MIDINote n : track.getNotes())
+        {
+            long startTick = n.getTick();
+            long endTick = n.getTick() + n.getDuration();
+            int startq = (int)Math.floor(((double)startTick - firstTick)/ppq);
+            int endq = (int)Math.ceil(((double)endTick - firstTick)/ppq);
+            if (track.getTrack() == 1)
+                System.out.println("Note: "+MIDINote.NOTES[n.getPitch()]+" from "+startTick+" to "+endTick+" or "+startq+" to "+endq);
+            for (int q = startq; q <= endq; q++)
+                try
+                {
+                    counts[q]++;
+                }
+                catch (ArrayIndexOutOfBoundsException e)
+                {
+                    e.printStackTrace();
+                }
+        }
+        int totalq = 0;
+        int qs = 0;
+        for (int q = 0; q < counts.length; q++)
+            if (counts[q] > 1)
+            {
+                totalq += counts[q];
+                qs++;
+                if (track.getTrack() == 1)
+                    System.out.println("Q#"+q+" total "+counts[q]);
+            }
+        return totalq/(double)qs;
+    }
+
+    public static double calcSimNotesOverlaps(MIDITrack track, int ppq)
+    {
+        int notes = 0;
+        int overlaps = 0;
+        for (int i = 0; i < track.getNotes().size(); i++)
+        {
+            int o = getOverlaps(track.getNotes(), i, ppq);
+            overlaps += o;
+            notes++;
+        }
+        double simNotes = ((double)overlaps)/notes;
+        return simNotes;
+    }
+
+    private static int getOverlaps(List<MIDINote> notes, int idx, int ppq)
+    {
+        MIDINote note = notes.get(idx);
+        int count = 0;
+        // go backwards
+        for (int i = idx - 1; i >= 0; i--)
+        {
+            MIDINote n = notes.get(i);
+            if (n.getTick() + n.getDuration() < note.getTick())
+                break;
+            count++;
+        }
+        // go forwards
+        for (int i = idx + 1; i < notes.size(); i++)
+        {
+            MIDINote n = notes.get(i);
+            if (note.getTick() + note.getDuration() < n.getTick())
+                break;
+            count++;
+        }
+        return count;
+    }
+    */
 }

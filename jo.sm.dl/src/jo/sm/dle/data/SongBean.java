@@ -1,7 +1,9 @@
 package jo.sm.dle.data;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jo.sm.dl.data.JProperties;
@@ -23,8 +25,6 @@ public class SongBean extends PCSBean
     private File          mInSettingsFile;
     private File          mOutSettingsFile;
     private SMProject     mProject;
-    private Set<Integer>  mTracks = new HashSet<>();
-    private Set<Integer>  mMelodyTracks = new HashSet<>();
     private String        mSelectedChart;
     private MIDITrack     mSelectedTrack;
     private PatDef        mSelectedPattern;
@@ -37,6 +37,15 @@ public class SongBean extends PCSBean
     }
 
     // utilities
+    
+    public List<MIDITrack> getTracks()
+    {
+        List<MIDITrack> tracks = new ArrayList<>();
+        for (MIDITrack track : getProject().getMIDI().getTrackInfos())
+            if (track.getType() != MIDITrack.IGNORE)
+                tracks.add(track);
+        return tracks;
+    }
 
     // getters and setters
 
@@ -110,18 +119,6 @@ public class SongBean extends PCSBean
         mProject = project;
     }
 
-    public Set<Integer> getTracks()
-    {
-        return mTracks;
-    }
-
-    public void setTracks(Set<Integer> tracks)
-    {
-        queuePropertyChange("tracks", mTracks, tracks);
-        mTracks = tracks;
-        firePropertyChange();
-    }
-
     public String getSelectedChart()
     {
         return mSelectedChart;
@@ -174,18 +171,6 @@ public class SongBean extends PCSBean
     public void setSelectedPattern(PatDef selectedPattern)
     {
         mSelectedPattern = selectedPattern;
-    }
-
-    public Set<Integer> getMelodyTracks()
-    {
-        return mMelodyTracks;
-    }
-
-    public void setMelodyTracks(Set<Integer> melodyTracks)
-    {
-        queuePropertyChange("melodyTracks", mMelodyTracks, melodyTracks);
-        mMelodyTracks = melodyTracks;
-        firePropertyChange();
     }
 
     public Set<MIDINote> getSelectedNotes()

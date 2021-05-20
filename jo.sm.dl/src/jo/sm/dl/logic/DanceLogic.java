@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import jo.sm.dl.data.DiffProfile;
 import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.PatDef;
@@ -20,6 +19,7 @@ import jo.sm.dl.data.SMChart;
 import jo.sm.dl.data.SMMeasure;
 import jo.sm.dl.data.SMProject;
 import jo.sm.dl.data.SMTune;
+import jo.sm.dl.data.gen.DiffProfile;
 
 public class DanceLogic
 {

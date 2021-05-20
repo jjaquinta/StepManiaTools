@@ -3,8 +3,6 @@ package jo.sm.dle.logic;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 import jo.sm.dl.data.JProperties;
 import jo.sm.dl.data.MIDINote;
@@ -20,7 +18,6 @@ import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
 import jo.util.utils.MapUtils;
 import jo.util.utils.obj.BooleanUtils;
-import jo.util.utils.obj.StringUtils;
 
 public class SongLogic
 {
@@ -59,30 +56,12 @@ public class SongLogic
     {
         SMProject proj = ProjectLogic.newInstance(song.getInSettings());
         ProjectLogic.load(proj, song.getMidiFile());
-        ProjectLogic.dance(proj);
         song.setProject(proj);
         proj.getMIDI().setNotation(NotationLogic.makeNotation(proj.getMIDI()));
-        if (song.getTracks().size() == 0)
-        {
-            if (!propToSet(song, "activeTracks", song.getTracks()))
-            {
-                for (MIDITrack t : proj.getMIDI().getTrackInfos())
-                    if (t.getNotes().size() > 0)
-                        song.getTracks().add(t.getTrack());
-            }
-            propToSet(song, "melodyTracks", song.getMelodyTracks());
-        }
+        for (MIDITrack t : proj.getMIDI().getTrackInfos())
+            t.setType(song.getInSettings().getAsInt("track."+t.getTrack()+".type", "0"));
+        ProjectLogic.dance(proj);
         song.setSelectedChart(null);
-    }
-    
-    private static boolean propToSet(SongBean song, String propName, Set<Integer> tracks)
-    {
-        tracks.clear();
-        if (!song.getInSettings().containsKey(propName))
-            return false;
-        for (StringTokenizer st = new StringTokenizer(song.getInSettings().getProperty(propName), ","); st.hasMoreTokens(); )
-            tracks.add(Integer.parseInt(st.nextToken()));
-        return true;
     }
     
     public static void recalc()
@@ -97,28 +76,17 @@ public class SongLogic
         SongBean song = RuntimeLogic.getInstance().getSelectedSong();
         if (song == null)
             return;
-        song.getInSettings().put("activeTracks", StringUtils.fromStringArray(song.getTracks().toArray(), ","));
-        song.getInSettings().put("melodyTracks", StringUtils.fromStringArray(song.getMelodyTracks().toArray(), ","));
         MapUtils.save(song.getInSettings(), song.getInSettingsFile());
     }
     
-    public static void toggleTrack(int track)
+    public static void setTrackType(int track, int type)
     {
         SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (song.getTracks().contains(track))
-            song.getTracks().remove(track);
-        else
-            song.getTracks().add(track);
-        song.fireMonotonicPropertyChange("tracks");
-    }
-    
-    public static void setTrack(int track, boolean set)
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (!set)
-            song.getTracks().remove(track);
-        else
-            song.getTracks().add(track);
+        MIDITrack t = song.getProject().getMIDI().getTrackInfos().get(track);
+        if (t.getType() == type)
+            return;
+        t.setType(type);
+        song.getInSettings().put("track."+t.getTrack()+".type", String.valueOf(type));
         song.fireMonotonicPropertyChange("tracks");
     }
 
@@ -135,16 +103,6 @@ public class SongLogic
         song.setSelectedTrack(track);
     }
 
-    public static void setMelody(int track, boolean set)
-    {
-        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
-        if (set)
-            song.getMelodyTracks().add(track);
-        else
-            song.getMelodyTracks().remove(track);
-        song.fireMonotonicPropertyChange("melodyTracks");
-    }
-
     public static void selectPattern(PatDef pattern)
     {
         SongBean song = RuntimeLogic.getInstance().getSelectedSong();
@@ -157,8 +115,8 @@ public class SongLogic
         if (song == null)
             return;
         List<MIDINote> notes = new ArrayList<>();
-        for (Integer t : song.getTracks())
-            notes.addAll(song.getProject().getMIDI().getTrackInfos().get(t).getNotes());
+        for (MIDITrack t : song.getTracks())
+            notes.addAll(t.getNotes());
         PlayLogic.play(song.getProject().getMIDI().getMSPerTick(), notes);
     }
     
@@ -245,6 +203,18 @@ public class SongLogic
             }
         }
         return null;
+    }
+
+    public static void autoTrack()
+    {
+        SongBean song = RuntimeLogic.getInstance().getSelectedSong();
+        if (song == null)
+            return;
+        NotationLogic.autoTrack(song.getProject().getMIDI());
+        for (MIDITrack t : song.getProject().getMIDI().getTrackInfos())
+            song.getInSettings().put("track."+t.getTrack()+".type", String.valueOf(t.getType()));
+        song.fireMonotonicPropertyChange("tracks");
+        song.fireMonotonicPropertyChange("selectedTrack");        
     }
     
 }

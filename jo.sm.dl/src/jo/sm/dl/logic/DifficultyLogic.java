@@ -3,8 +3,8 @@ package jo.sm.dl.logic;
 import java.util.HashMap;
 import java.util.Map;
 
-import jo.sm.dl.data.DiffProfile;
 import jo.sm.dl.data.JProperties;
+import jo.sm.dl.data.gen.DiffProfile;
 
 public class DifficultyLogic
 {

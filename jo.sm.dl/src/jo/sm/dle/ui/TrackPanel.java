@@ -1,7 +1,6 @@
 package jo.sm.dle.ui;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -11,27 +10,23 @@ import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.logic.MIDILogic;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.SongLogic;
-import jo.sm.dle.ui.score.OldScorePanel;
 import jo.util.ui.swing.TableLayout;
 import jo.util.ui.swing.utils.ListenerUtils;
 import jo.util.utils.PCSBeanUtils;
 
 public class TrackPanel extends JComponent
 {
-    private SongBean    mSong;
-    private MIDITrack   mTrack;
-    
-    private JTextField     mNumber;
-    private JTextField     mBank;
-    private JTextField     mProgram;
-    private JCheckBox      mMelody;
-    private JTextField     mLowPitch;
-    private JTextField     mHighPitch;
-    private JTextField     mNotes;
-    private JLabel         mSwatch;
-    private JCheckBox      mDisplay;
-    private JButton        mDisplayOnly;
-    
+    private SongBean          mSong;
+    private MIDITrack         mTrack;
+
+    private JTextField        mNumber;
+    private JTextField        mBank;
+    private JTextField        mProgram;
+    private JComboBox<String> mType;
+    private JTextField        mLowPitch;
+    private JTextField        mHighPitch;
+    private JTextField        mNotes;
+
     public TrackPanel()
     {
         initInstantiate();
@@ -53,49 +48,43 @@ public class TrackPanel extends JComponent
         mHighPitch.setEditable(false);
         mNotes = new JTextField();
         mNotes.setEditable(false);
-        mSwatch = new JLabel();
-        mDisplay = new JCheckBox("Display");
-        mMelody = new JCheckBox("Melody");
-        mDisplayOnly = new JButton("Show Only This");
+        mType = new JComboBox<>(new String[] { "Ignore", "Unknown", "Melody", "Rhythm", "Bass", "Harmony", "Incidental" });
     }
 
     private void initLayout()
     {
         setLayout(new TableLayout());
-        add("1,+", new JLabel("Number:"));add("+,. fill=h", mNumber);
-        add("1,+", new JLabel("Bank:"));add("+,. fill=h", mBank);
-        add("1,+", new JLabel("Program:"));add("+,. fill=h", mProgram);
-        add("1,+", new JLabel(""));add("+,. fill=h", mMelody);
-        add("1,+", new JLabel("LowPitch:"));add("+,. fill=h", mLowPitch);
-        add("1,+", new JLabel("HighPitch:"));add("+,. fill=h", mHighPitch);
-        add("1,+", new JLabel("Notes:"));add("+,. fill=h", mNotes);
-        add("1,+", new JLabel("Swatch:"));add("+,. fill=h", mSwatch);
-        add("1,+", new JLabel(""));add("+,. fill=h", mDisplay);
-        add("1,+ 2x1 fill=h", mDisplayOnly);
+        add("1,+", new JLabel("Number:"));
+        add("+,. fill=h", mNumber);
+        add("1,+", new JLabel("Bank:"));
+        add("+,. fill=h", mBank);
+        add("1,+", new JLabel("Program:"));
+        add("+,. fill=h", mProgram);
+        add("1,+", new JLabel("Type"));
+        add("+,. fill=h", mType);
+        add("1,+", new JLabel("LowPitch:"));
+        add("+,. fill=h", mLowPitch);
+        add("1,+", new JLabel("HighPitch:"));
+        add("+,. fill=h", mHighPitch);
+        add("1,+", new JLabel("Notes:"));
+        add("+,. fill=h", mNotes);
     }
 
     private void initLink()
     {
-        ListenerUtils.listen(mDisplayOnly, (ev) -> doDisplayOnly());
-        ListenerUtils.listen(mDisplay, (ev) -> doDisplay());
-        ListenerUtils.listen(mMelody, (ev) -> doMelody());
+        ListenerUtils.listen(mType, (ev) -> doType());
     }
-    
-    private void doMelody()
+
+    private void doType()
     {
-        SongLogic.setMelody(mTrack.getTrack(), mMelody.isSelected());
+        if (mTrack == null)
+            return;
+        int idx = mType.getSelectedIndex();
+        if (idx >= 0)
+            idx--;
+        SongLogic.setTrackType(mTrack.getTrack(), idx);
     }
-    
-    private void doDisplayOnly()
-    {
-    }
-    
-    private void doDisplay()
-    {
-        if (mTrack != null)
-            SongLogic.setTrack(mTrack.getTrack(), mDisplay.isSelected());
-    }
-    
+
     private void doNewTrack()
     {
         mTrack = mSong.getSelectedTrack();
@@ -107,34 +96,18 @@ public class TrackPanel extends JComponent
             mLowPitch.setText("");
             mHighPitch.setText("");
             mNotes.setText("");
-            mSwatch.setIcon(null);
-            mDisplay.setSelected(false);
-            mMelody.setSelected(false);
+            mType.setSelectedIndex(-1);
         }
         else
         {
-            mNumber.setText("Track #"+(mTrack.getTrack()+1));
+            mNumber.setText("Track #" + (mTrack.getTrack() + 1));
             mBank.setText(String.valueOf(mTrack.getBank()));
-            mProgram.setText(MIDILogic.getInstrumentName(mTrack.getBank(), mTrack.getProgram()));
+            mProgram.setText(MIDILogic.getInstrumentName(mTrack.getBank(),
+                    mTrack.getProgram()));
             mLowPitch.setText(MIDINote.NOTES[mTrack.getLowPitch()]);
             mHighPitch.setText(MIDINote.NOTES[mTrack.getHighPitch()]);
-            mNotes.setText("#"+mTrack.getNotes().size());
-            mSwatch.setIcon(OldScorePanel.getTrackSwatch(mTrack.getTrack()));
-            mDisplay.setSelected(mSong.getTracks().contains(mTrack.getTrack()));
-            mMelody.setSelected(mSong.getMelodyTracks().contains(mTrack.getTrack()));
-        }
-    }
-    
-    private void doNewTrackDisplay()
-    {
-        mTrack = mSong.getSelectedTrack();
-        if (mTrack == null)
-        {
-            mDisplay.setSelected(false);
-        }
-        else
-        {
-            mDisplay.setSelected(mSong.getTracks().contains(mTrack.getTrack()));
+            mNotes.setText("#" + mTrack.getNotes().size());
+            mType.setSelectedIndex(mTrack.getType() + 1);
         }
     }
 
@@ -148,8 +121,7 @@ public class TrackPanel extends JComponent
         if (mSong != null)
             PCSBeanUtils.unlisten(mSong, "selectedTrack,tracks");
         mSong = song;
-        PCSBeanUtils.listen(mSong, "selectedTrack", (ov,nv)->doNewTrack());
-        PCSBeanUtils.listen(mSong, "tracks", (ov,nv)->doNewTrackDisplay());
+        PCSBeanUtils.listen(mSong, "selectedTrack,tracks", (ov, nv) -> doNewTrack());
         doNewTrack();
     }
 }

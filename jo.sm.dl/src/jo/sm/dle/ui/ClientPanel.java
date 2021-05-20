@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -70,11 +69,7 @@ public class ClientPanel extends JComponent
 
     public void updateTracks()
     {
-        List<MIDITrack> tracks = new ArrayList<>();
-        Integer[] trackNums = mSong.getTracks().toArray(new Integer[0]);
-        Arrays.sort(trackNums);
-        for (Integer i : trackNums)
-            tracks.add(mSong.getProject().getMIDI().getTrackInfos().get(i));
+        List<MIDITrack> tracks = mSong.getTracks();
         mCanvas.getData().setSelected(mSong.getSelectedNotes());
         mCanvas.getData().setHighlights(mSong.getNoteHighlights());
         mCanvas.setTracks(tracks);
