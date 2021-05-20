@@ -5,17 +5,10 @@ import java.util.List;
 
 public class DanceProfile
 {
-    private String              mStrategy;
+    private String              mDanceStrategy;
+    private String              mPatternStrategy;
     private List<ChartProfile>  mCharts = new ArrayList<>();
     
-    public String getStrategy()
-    {
-        return mStrategy;
-    }
-    public void setStrategy(String strategy)
-    {
-        mStrategy = strategy;
-    }
     public List<ChartProfile> getCharts()
     {
         return mCharts;
@@ -23,6 +16,22 @@ public class DanceProfile
     public void setCharts(List<ChartProfile> charts)
     {
         mCharts = charts;
+    }
+    public String getDanceStrategy()
+    {
+        return mDanceStrategy;
+    }
+    public void setDanceStrategy(String danceStrategy)
+    {
+        mDanceStrategy = danceStrategy;
+    }
+    public String getPatternStrategy()
+    {
+        return mPatternStrategy;
+    }
+    public void setPatternStrategy(String patternStrategy)
+    {
+        mPatternStrategy = patternStrategy;
     }
 
 }

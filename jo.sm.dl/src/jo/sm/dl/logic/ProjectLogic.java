@@ -7,12 +7,14 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 import jo.audio.util.svc.mp3.MIDItoMP3;
 import jo.audio.util.svc.mp3.MIDItoOGG;
 import jo.sm.dl.data.JProperties;
+import jo.sm.dl.data.gen.DanceProfile;
 import jo.sm.dl.data.midi.MIDINote;
 import jo.sm.dl.data.midi.MIDITune;
 import jo.sm.dl.data.sm.SMProject;
@@ -21,6 +23,8 @@ import jo.util.utils.io.FileUtils;
 
 public class ProjectLogic
 {
+    private static Random RND = new Random();
+
     public static SMProject newInstance(JProperties props)
     {
         DifficultyLogic.init(props);
@@ -65,11 +69,11 @@ public class ProjectLogic
         return true;
     }
     
-    public static boolean dance(SMProject proj)
+    public static boolean dance(SMProject proj, DanceProfile prof)
     {
-        PatternLogic.findPatterns(proj);
+        PatternLogic.findPatterns(proj, prof);
         proj.setTune(new SMTune());
-        DanceLogic.dance(proj);
+        DanceLogic.dance(proj, prof);
         return true;
     }
     
@@ -184,15 +188,15 @@ public class ProjectLogic
         Graphics g = img.getGraphics();
         Color fg;
         Color bg;
-        if (DanceLogic.RND.nextBoolean())
+        if (RND.nextBoolean())
         {
-            fg = METALS[DanceLogic.RND.nextInt(METALS.length)];
-            bg = COLORS[DanceLogic.RND.nextInt(COLORS.length)];
+            fg = METALS[RND.nextInt(METALS.length)];
+            bg = COLORS[RND.nextInt(COLORS.length)];
         }
         else
         {
-            bg = METALS[DanceLogic.RND.nextInt(METALS.length)];
-            fg = COLORS[DanceLogic.RND.nextInt(COLORS.length)];
+            bg = METALS[RND.nextInt(METALS.length)];
+            fg = COLORS[RND.nextInt(COLORS.length)];
         }
         g.setColor(bg);
         g.fillRect(0, 0, img.getWidth(), img.getHeight());

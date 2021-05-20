@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jo.sm.dl.data.JProperties;
+import jo.sm.dl.data.gen.DanceProfile;
 import jo.sm.dl.data.midi.MIDINote;
 import jo.sm.dl.data.midi.MIDITrack;
 import jo.sm.dl.data.sm.SMBeat;
@@ -60,7 +61,9 @@ public class SongLogic
         proj.getMIDI().setNotation(NotationLogic.makeNotation(proj.getMIDI()));
         for (MIDITrack t : proj.getMIDI().getTrackInfos())
             t.setType(song.getInSettings().getAsInt("track."+t.getTrack()+".type", "0"));
-        ProjectLogic.dance(proj);
+        DanceProfile prof = new DanceProfile();
+        // TODO populate prof from song
+        ProjectLogic.dance(proj, prof);
         song.setSelectedChart(null);
     }
     
