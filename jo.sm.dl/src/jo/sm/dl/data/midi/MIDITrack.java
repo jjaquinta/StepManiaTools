@@ -1,4 +1,4 @@
-package jo.sm.dl.data;
+package jo.sm.dl.data.midi;
 
 import java.util.ArrayList;
 

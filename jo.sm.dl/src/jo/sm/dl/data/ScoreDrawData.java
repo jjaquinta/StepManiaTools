@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITrack;
+import jo.sm.dl.data.midi.MIDITune;
+
 public class ScoreDrawData
 {
     // inputs

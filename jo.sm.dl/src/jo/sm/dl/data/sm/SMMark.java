@@ -1,4 +1,4 @@
-package jo.sm.dl.data;
+package jo.sm.dl.data.sm;
 
 public class SMMark
 {

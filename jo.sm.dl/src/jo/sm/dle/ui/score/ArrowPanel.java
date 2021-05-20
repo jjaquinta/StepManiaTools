@@ -10,9 +10,9 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-import jo.sm.dl.data.SMBeat;
-import jo.sm.dl.data.SMChart;
 import jo.sm.dl.data.ScoreDrawData;
+import jo.sm.dl.data.sm.SMBeat;
+import jo.sm.dl.data.sm.SMChart;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
 import jo.sm.dle.logic.SelectionLogic;

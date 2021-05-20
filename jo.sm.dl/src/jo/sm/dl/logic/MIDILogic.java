@@ -22,15 +22,15 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.MIDITrack;
-import jo.sm.dl.data.MIDITune;
-import jo.sm.dl.data.PatDef;
-import jo.sm.dl.data.PatInst;
-import jo.sm.dl.data.SMBeat;
-import jo.sm.dl.data.SMMark;
-import jo.sm.dl.data.SMMeasure;
-import jo.sm.dl.data.SMProject;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITrack;
+import jo.sm.dl.data.midi.MIDITune;
+import jo.sm.dl.data.sm.SMBeat;
+import jo.sm.dl.data.sm.SMMark;
+import jo.sm.dl.data.sm.SMMeasure;
+import jo.sm.dl.data.sm.SMProject;
+import jo.sm.dl.data.sm.pat.PatDef;
+import jo.sm.dl.data.sm.pat.PatInst;
 import jo.util.utils.obj.ByteUtils;
 
 public class MIDILogic

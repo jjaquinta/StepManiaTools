@@ -6,10 +6,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import jo.sm.dl.data.MIDINotation;
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.MIDITrack;
-import jo.sm.dl.data.MIDITune;
+import jo.sm.dl.data.midi.MIDINotation;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITrack;
+import jo.sm.dl.data.midi.MIDITune;
 import jo.util.utils.obj.StringUtils;
 
 public class NotationLogic

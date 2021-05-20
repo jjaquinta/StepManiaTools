@@ -1,7 +1,7 @@
 package jo.sm.dle.logic;
 
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.MIDITune;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITune;
 import jo.sm.dle.data.NoteData;
 import jo.util.utils.obj.StringUtils;
 

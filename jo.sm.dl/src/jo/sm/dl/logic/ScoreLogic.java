@@ -9,10 +9,10 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import jo.sm.dl.data.MIDINotation;
-import jo.sm.dl.data.MIDITrack;
-import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.ScoreDrawData;
+import jo.sm.dl.data.midi.MIDINotation;
+import jo.sm.dl.data.midi.MIDITrack;
+import jo.sm.dl.data.midi.MIDITune;
 import jo.util.ui.swing.logic.FontUtils;
 import jo.util.utils.obj.StringUtils;
 

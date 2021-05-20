@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Set;
 
 import jo.sm.dl.data.JProperties;
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.MIDITrack;
-import jo.sm.dl.data.PatDef;
-import jo.sm.dl.data.SMBeat;
-import jo.sm.dl.data.SMProject;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITrack;
+import jo.sm.dl.data.sm.SMBeat;
+import jo.sm.dl.data.sm.SMProject;
+import jo.sm.dl.data.sm.pat.PatDef;
 import jo.util.beans.PCSBean;
 
 public class SongBean extends PCSBean

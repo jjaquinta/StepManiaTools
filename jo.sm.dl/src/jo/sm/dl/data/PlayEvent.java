@@ -1,5 +1,7 @@
 package jo.sm.dl.data;
 
+import jo.sm.dl.data.midi.MIDINote;
+
 public class PlayEvent
 {
     public static int   ON = 1;

@@ -8,9 +8,9 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import jo.sm.dl.data.MIDITrack;
-import jo.sm.dl.data.MIDITune;
 import jo.sm.dl.data.ScoreDrawData;
+import jo.sm.dl.data.midi.MIDITrack;
+import jo.sm.dl.data.midi.MIDITune;
 import jo.sm.dl.logic.ScoreLogic;
 
 public class ScoreCanvas extends JComponent

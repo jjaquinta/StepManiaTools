@@ -1,4 +1,6 @@
-package jo.sm.dl.data;
+package jo.sm.dl.data.sm;
+
+import jo.sm.dl.data.midi.MIDINote;
 
 public class SMBeat implements Comparable<SMBeat>
 {

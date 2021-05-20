@@ -7,7 +7,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import jo.sm.dl.data.PatDef;
+import jo.sm.dl.data.sm.pat.PatDef;
 import jo.sm.dle.data.SongBean;
 import jo.util.ui.swing.TableLayout;
 import jo.util.utils.PCSBeanUtils;

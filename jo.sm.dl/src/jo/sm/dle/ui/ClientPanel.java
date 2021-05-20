@@ -9,9 +9,9 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.MIDITrack;
 import jo.sm.dl.data.PlayEvent;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITrack;
 import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;

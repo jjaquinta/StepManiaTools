@@ -13,10 +13,10 @@ import javax.imageio.ImageIO;
 import jo.audio.util.svc.mp3.MIDItoMP3;
 import jo.audio.util.svc.mp3.MIDItoOGG;
 import jo.sm.dl.data.JProperties;
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.MIDITune;
-import jo.sm.dl.data.SMProject;
-import jo.sm.dl.data.SMTune;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITune;
+import jo.sm.dl.data.sm.SMProject;
+import jo.sm.dl.data.sm.SMTune;
 import jo.util.utils.io.FileUtils;
 
 public class ProjectLogic

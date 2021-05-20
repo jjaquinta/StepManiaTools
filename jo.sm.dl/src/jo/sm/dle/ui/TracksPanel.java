@@ -6,7 +6,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
-import jo.sm.dl.data.MIDITrack;
+import jo.sm.dl.data.midi.MIDITrack;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.SongLogic;
 import jo.util.ui.swing.utils.ListenerUtils;

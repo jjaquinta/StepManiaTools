@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.PatDef;
-import jo.sm.dl.data.PatInst;
-import jo.sm.dl.data.PatNote;
-import jo.sm.dl.data.SMProject;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.sm.SMProject;
+import jo.sm.dl.data.sm.pat.PatDef;
+import jo.sm.dl.data.sm.pat.PatInst;
+import jo.sm.dl.data.sm.pat.PatNote;
 
 public class PatternLogic
 {

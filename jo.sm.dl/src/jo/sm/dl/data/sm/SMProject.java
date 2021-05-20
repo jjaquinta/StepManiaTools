@@ -1,10 +1,14 @@
-package jo.sm.dl.data;
+package jo.sm.dl.data.sm;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import jo.sm.dl.data.JProperties;
+import jo.sm.dl.data.midi.MIDITune;
+import jo.sm.dl.data.sm.pat.PatDef;
 
 public class SMProject
 {

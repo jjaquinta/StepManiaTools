@@ -1,4 +1,4 @@
-package jo.sm.dl.data;
+package jo.sm.dl.data.sm;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -8,11 +8,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import jo.sm.dl.data.SMBeat;
-import jo.sm.dl.data.SMChart;
-import jo.sm.dl.data.SMMark;
-import jo.sm.dl.data.SMMeasure;
-import jo.sm.dl.data.SMTune;
+import jo.sm.dl.data.sm.SMBeat;
+import jo.sm.dl.data.sm.SMChart;
+import jo.sm.dl.data.sm.SMMark;
+import jo.sm.dl.data.sm.SMMeasure;
+import jo.sm.dl.data.sm.SMTune;
 import jo.util.utils.obj.StringUtils;
 
 public class SMIOLogic

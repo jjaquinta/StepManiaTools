@@ -12,11 +12,11 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
-import jo.sm.dl.data.MIDINotation;
-import jo.sm.dl.data.MIDITune;
-import jo.sm.dl.data.SMBeat;
-import jo.sm.dl.data.SMChart;
-import jo.sm.dl.data.SMMeasure;
+import jo.sm.dl.data.midi.MIDINotation;
+import jo.sm.dl.data.midi.MIDITune;
+import jo.sm.dl.data.sm.SMBeat;
+import jo.sm.dl.data.sm.SMChart;
+import jo.sm.dl.data.sm.SMMeasure;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
 import jo.util.ui.swing.logic.FontUtils;

@@ -1,6 +1,6 @@
 package jo.sm.dle.data;
 
-import jo.sm.dl.data.MIDINote;
+import jo.sm.dl.data.midi.MIDINote;
 
 public class NoteData
 {

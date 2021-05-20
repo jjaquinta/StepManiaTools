@@ -1,7 +1,7 @@
 package jo.sm.dle.logic;
 
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.SMBeat;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.sm.SMBeat;
 import jo.sm.dle.data.SongBean;
 
 public class SelectionLogic

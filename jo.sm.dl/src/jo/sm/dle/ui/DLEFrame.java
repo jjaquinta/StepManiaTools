@@ -20,7 +20,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-import jo.sm.dl.data.SMChart;
+import jo.sm.dl.data.sm.SMChart;
 import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dle.actions.AutoTrackAction;
 import jo.sm.dle.actions.PlayAction;

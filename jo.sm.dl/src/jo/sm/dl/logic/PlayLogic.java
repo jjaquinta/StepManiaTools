@@ -13,8 +13,8 @@ import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Synthesizer;
 
-import jo.sm.dl.data.MIDINote;
 import jo.sm.dl.data.PlayEvent;
+import jo.sm.dl.data.midi.MIDINote;
 import jo.util.logic.ThreadLogic;
 
 public class PlayLogic

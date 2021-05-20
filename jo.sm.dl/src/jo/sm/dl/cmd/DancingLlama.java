@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import jo.sm.dl.data.JProperties;
-import jo.sm.dl.data.SMProject;
+import jo.sm.dl.data.sm.SMProject;
 import jo.sm.dl.logic.ProjectLogic;
 import jo.util.utils.obj.BooleanUtils;
 import jo.util.utils.obj.DoubleUtils;

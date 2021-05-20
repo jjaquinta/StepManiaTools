@@ -1,7 +1,9 @@
-package jo.sm.dl.data;
+package jo.sm.dl.data.sm.pat;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import jo.sm.dl.data.midi.MIDINote;
 
 public class PatInst
 {

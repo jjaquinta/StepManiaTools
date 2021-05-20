@@ -10,16 +10,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import jo.sm.dl.data.MIDINote;
-import jo.sm.dl.data.MIDITune;
-import jo.sm.dl.data.PatDef;
-import jo.sm.dl.data.PatInst;
-import jo.sm.dl.data.SMBeat;
-import jo.sm.dl.data.SMChart;
-import jo.sm.dl.data.SMMeasure;
-import jo.sm.dl.data.SMProject;
-import jo.sm.dl.data.SMTune;
 import jo.sm.dl.data.gen.DiffProfile;
+import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITune;
+import jo.sm.dl.data.sm.SMBeat;
+import jo.sm.dl.data.sm.SMChart;
+import jo.sm.dl.data.sm.SMMeasure;
+import jo.sm.dl.data.sm.SMProject;
+import jo.sm.dl.data.sm.SMTune;
+import jo.sm.dl.data.sm.pat.PatDef;
+import jo.sm.dl.data.sm.pat.PatInst;
 
 public class DanceLogic
 {
