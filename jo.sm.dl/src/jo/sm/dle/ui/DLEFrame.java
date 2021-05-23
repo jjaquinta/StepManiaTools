@@ -24,6 +24,7 @@ import jo.sm.dl.data.sm.SMChart;
 import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dle.actions.AutoTrackAction;
 import jo.sm.dle.actions.PlayAction;
+import jo.sm.dle.actions.PlayTrackAction;
 import jo.sm.dle.actions.StopAction;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
@@ -87,7 +88,7 @@ public class DLEFrame extends JFrame
         mZoomOut = new JMenuItem("Zoom Out");
         mPlay = new JMenu("Play");
         mPlayAll = new JMenuItem(new PlayAction());
-        mPlayTrack = new JMenuItem("Track");
+        mPlayTrack = new JMenuItem(new PlayTrackAction());
         mPlayFromCaret = new JMenuItem("From Caret");
         mStop = new JMenuItem(new StopAction());
         mToolbar = new DLEToolbar();
@@ -153,8 +154,6 @@ public class DLEFrame extends JFrame
         ListenerUtils.listen(mZoomOut, (ev) -> RuntimeLogic.zoomOut());
         ListenerUtils.listen(mRecalc, (ev) -> SongLogic.recalc());
         ListenerUtils.listen(mSave, (ev) -> SongLogic.save());
-        ListenerUtils.listen(mPlayAll, (ev) -> SongLogic.doPlayAll());
-        ListenerUtils.listen(mPlayTrack, (ev) -> SongLogic.doPlayTrack());
         ListenerUtils.listen(mPlayFromCaret,
                 (ev) -> SongLogic.doPlayFromCaret());
         ListenerUtils.listen(mStop, (ev) -> PlayLogic.stop());

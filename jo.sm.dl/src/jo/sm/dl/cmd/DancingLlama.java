@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import jo.sm.dl.data.JProperties;
+import jo.sm.dl.data.gen.DanceProfile;
 import jo.sm.dl.data.sm.SMProject;
 import jo.sm.dl.logic.ProjectLogic;
 import jo.util.utils.obj.BooleanUtils;
@@ -95,7 +96,9 @@ public class DancingLlama
                         songProps.load(fis);
                         fis.close();
                     }
-                    ProjectLogic.dance(proj);
+                    DanceProfile prof = new DanceProfile();
+                    // TODO populate prof from props
+                    ProjectLogic.dance(proj, prof);
                     ProjectLogic.save(proj, fout);
                 }
             }

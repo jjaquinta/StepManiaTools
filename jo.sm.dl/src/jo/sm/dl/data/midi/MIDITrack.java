@@ -6,7 +6,7 @@ import java.util.List;
 
 import jo.sm.dl.logic.MIDILogic;
 
-public class MIDITrack
+public class MIDITrack implements Comparable<MIDITrack>
 {
     public static final int    TREBLE_CLEF = 1;
     public static final int    BASS_CLEF   = 2;
@@ -18,6 +18,10 @@ public class MIDITrack
     public static final int    BASS        = 3;
     public static final int    HARMONY     = 4;
     public static final int    INCIDENTAL  = 5;
+
+    public static final String[] TYPES = {
+            "IGNORE", "UNKNOWN", "MELODY", "RHYTHYM", "BASS", "HARMONY", "INCIDENTAL" 
+    };
 
     private int                mTrack;
     private int                mBank;
@@ -37,6 +41,41 @@ public class MIDITrack
                 + MIDILogic.getInstrumentName(mBank, mProgram) + ")" + " "
                 + MIDINote.NOTES[mLowPitch] + "->" + MIDINote.NOTES[mHighPitch]
                 + " x" + mNotes.size();
+    }
+
+    @Override
+    public int compareTo(MIDITrack o)
+    {
+        if (getType() == o.getType())
+            return getTrack() - o.getTrack();
+        return getTypeSortValue() - o.getTypeSortValue();
+    }
+    
+    public int getTypeSortValue()
+    {
+        switch (getType())
+        {
+            case MELODY:
+                return 0;
+            case HARMONY:
+                return 1;
+            case BASS:
+                return 2;
+            case RHYTHYM:
+                return 3;
+            case INCIDENTAL:
+                return 5;
+            case UNKNOWN:
+                return 10;
+            case IGNORE:
+                return 99;
+        }
+        return 99;
+    }
+    
+    public static String typeToString(int type)
+    {
+        return TYPES[type + 1];
     }
 
     public long getVoice()

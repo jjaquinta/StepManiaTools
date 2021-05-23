@@ -6,6 +6,7 @@ import javax.swing.JComponent;
 import javax.swing.JToolBar;
 
 import jo.sm.dle.actions.PlayAction;
+import jo.sm.dle.actions.PlayTrackAction;
 import jo.sm.dle.actions.StopAction;
 
 public class DLEToolbar extends JComponent
@@ -27,6 +28,7 @@ public class DLEToolbar extends JComponent
     private void initLayout()
     {
         mClient.add(new PlayAction());
+        mClient.add(new PlayTrackAction());
         mClient.add(new StopAction());
         
         setLayout(new BorderLayout());

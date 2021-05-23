@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import jo.sm.dl.data.midi.MIDINotation;
+import jo.sm.dl.data.midi.MIDINote;
 import jo.sm.dle.data.SongBean;
 import jo.sm.dle.logic.RuntimeLogic;
 import jo.util.utils.PCSBeanUtils;
@@ -78,7 +80,14 @@ public class DLEPanel extends JPanel
         if ((mSong == null) || (mSong.getSelectedNotes().size() == 0))
             mNote.setNote(null);
         else
-            mNote.setNote(mSong.getSelectedNotes().iterator().next());
+        {
+            MIDINote n = mSong.getSelectedNotes().iterator().next();
+            MIDINotation nn = mSong.getProject().getMIDI().findNotation(n);
+            if (nn != null)
+                mNote.setNotation(nn);
+            else
+                mNote.setNote(n);
+        }
         if ((mSong == null) || (mSong.getSelectedBeats().size() == 0))
             mBeat.setBeat(null);
         else

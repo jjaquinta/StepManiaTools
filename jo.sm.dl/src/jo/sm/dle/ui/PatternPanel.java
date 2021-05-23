@@ -1,12 +1,12 @@
 package jo.sm.dle.ui;
 
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import jo.sm.dl.data.midi.MIDITrack;
 import jo.sm.dl.data.sm.pat.PatDef;
 import jo.sm.dle.data.SongBean;
 import jo.util.ui.swing.TableLayout;
@@ -19,7 +19,7 @@ public class PatternPanel extends JComponent
     
     private JTextField     mUsed;
     private JTextField     mBeat;
-    private JCheckBox      mMelody;
+    private JTextField     mType;
     private JList<String>  mNotes;
     
     public PatternPanel()
@@ -35,8 +35,8 @@ public class PatternPanel extends JComponent
         mUsed.setEditable(false);
         mBeat = new JTextField();
         mBeat.setEditable(false);
-        mMelody = new JCheckBox("Melody");
-        mMelody.setEnabled(false);
+        mType = new JTextField();
+        mType.setEnabled(false);
         mNotes = new JList<>();
     }
 
@@ -45,7 +45,7 @@ public class PatternPanel extends JComponent
         setLayout(new TableLayout());
         add("1,+", new JLabel("Length:"));add("+,. fill=h", mUsed);
         add("1,+", new JLabel("Beat:"));add("+,. fill=h", mBeat);
-        add("1,+", new JLabel(""));add("+,. fill=h", mMelody);
+        add("1,+", new JLabel("Type:"));add("+,. fill=h", mType);
         add("1,+ 2x3 fill=hv", new JScrollPane(mNotes));
     }
 
@@ -60,13 +60,13 @@ public class PatternPanel extends JComponent
         {
             mUsed.setText("");
             mBeat.setText("");
-            mMelody.setSelected(false);
+            mType.setText("");
         }
         else
         {
             mUsed.setText("Track #"+(mPattern.getNotes().size()));
             mBeat.setText(String.valueOf(mPattern.getBeat()));
-            mMelody.setSelected(mPattern.isMelody());
+            mType.setText(MIDITrack.typeToString(mPattern.getType()));
         }
     }
 

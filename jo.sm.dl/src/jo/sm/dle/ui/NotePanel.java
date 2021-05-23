@@ -4,20 +4,22 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import jo.sm.dl.data.midi.MIDINotation;
 import jo.sm.dl.data.midi.MIDINote;
 import jo.sm.dl.logic.MIDILogic;
 import jo.util.ui.swing.TableLayout;
 
 public class NotePanel extends JComponent
 {
-    private MIDINote   mNote;
+    private MIDINotation mNotation;
+    private MIDINote     mNote;
 
-    private JTextField mPitch;
-    private JTextField mInstrument;
-    private JTextField mLoud;
-    private JTextField mTick;
-    private JTextField mDuration;
-    private JTextField mTrack;
+    private JTextField   mPitch;
+    private JTextField   mInstrument;
+    private JTextField   mLoud;
+    private JTextField   mTick;
+    private JTextField   mDuration;
+    private JTextField   mTrack;
 
     public NotePanel()
     {
@@ -81,7 +83,10 @@ public class NotePanel extends JComponent
             mInstrument.setText(MIDILogic.getInstrumentName(mNote.getBank(),
                     mNote.getProgram()));
             mLoud.setText(String.valueOf(mNote.getLoud()));
-            mTick.setText(String.valueOf(mNote.getTick()));
+            if (mNotation != null)
+                mTick.setText(String.valueOf(mNote.getTick())+" / "+(mNotation.getAlignedStart()%128));
+            else
+                mTick.setText(String.valueOf(mNote.getTick()));
             mDuration.setText(String.valueOf(mNote.getDuration()));
             mTrack.setText(String.valueOf(mNote.getTrack() + 1));
         }
@@ -95,6 +100,18 @@ public class NotePanel extends JComponent
     public void setNote(MIDINote note)
     {
         mNote = note;
+        doNewNote();
+    }
+
+    public MIDINotation getNotation()
+    {
+        return mNotation;
+    }
+
+    public void setNotation(MIDINotation notation)
+    {
+        mNotation = notation;
+        mNote = mNotation.getNote();
         doNewNote();
     }
 }

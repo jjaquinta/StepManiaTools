@@ -57,6 +57,14 @@ public class MIDITune
         return minutes;
     }
 
+    public MIDINotation findNotation(MIDINote n)
+    {
+        for (MIDINotation nn : mNotation)
+            if (nn.getNote() == n)
+                return nn;
+        return null;
+    }
+
     public long minutesToTick(float targetMinutes)
     {
         float minutes = 0;

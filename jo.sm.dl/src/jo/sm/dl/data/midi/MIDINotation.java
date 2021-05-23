@@ -20,6 +20,14 @@ public class MIDINotation
         mNote = note;
     }
     
+    // utilities
+    public int getAlignedStart()
+    {
+        int a = (int)(mMeasure*512 + .5);
+        a -= a%8;
+        return a;
+    }
+    
     // getters and setters
     
     public MIDINote getNote()

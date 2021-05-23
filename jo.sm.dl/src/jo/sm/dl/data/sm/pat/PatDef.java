@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITrack;
 
 public class PatDef
 {
@@ -11,7 +12,7 @@ public class PatDef
     private List<PatInst> mInstances = new ArrayList<>();
     private long         mBeat;
     private int          mUsed;
-    private boolean      mMelody;
+    private int          mType;
 
     // utilties
     @Override
@@ -61,8 +62,18 @@ public class PatDef
         float score = getQLen(q);
         score *= Math.log10(getInstances().size());
         score *= getNormalizedVolume();
-        if (mMelody)
-            score *= 5;
+        switch (mType)
+        {
+            case MIDITrack.IGNORE:
+                score *= 0;
+                break;
+            case MIDITrack.MELODY:
+                score *= 5;
+                break;
+            case MIDITrack.INCIDENTAL:
+                score *= .5;
+                break;
+        }
         return (int)score;
     }
     
@@ -103,13 +114,13 @@ public class PatDef
         mUsed = used;
     }
 
-    public boolean isMelody()
+    public int getType()
     {
-        return mMelody;
+        return mType;
     }
 
-    public void setMelody(boolean melody)
+    public void setType(int type)
     {
-        mMelody = melody;
+        mType = type;
     }
 }

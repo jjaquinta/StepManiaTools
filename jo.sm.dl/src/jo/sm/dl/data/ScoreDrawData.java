@@ -31,6 +31,7 @@ public class ScoreDrawData
     private Map<Rectangle, Object> mFeaturePositions = new HashMap<>();
     private Map<Object, Rectangle> mPositionFeatures = new HashMap<>();
     private int                    mMeasureWidth;
+    private boolean                mColorAlignment = false;
 
     // utilities
 
@@ -172,5 +173,15 @@ public class ScoreDrawData
     public void setSelectedColor(Color selectedColor)
     {
         mSelectedColor = selectedColor;
+    }
+
+    public boolean isColorAlignment()
+    {
+        return mColorAlignment;
+    }
+
+    public void setColorAlignment(boolean colorAlignment)
+    {
+        mColorAlignment = colorAlignment;
     }
 }

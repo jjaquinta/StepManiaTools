@@ -28,6 +28,7 @@ public class ScoreCanvas extends JComponent
 
     private void initInstantiate()
     {
+        mData.setColorAlignment(true);
     }
 
     private void initLayout()

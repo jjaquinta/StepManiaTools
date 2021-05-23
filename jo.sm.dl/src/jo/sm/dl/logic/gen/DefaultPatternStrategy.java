@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import jo.sm.dl.data.gen.DanceProfile;
 import jo.sm.dl.data.midi.MIDINote;
@@ -29,7 +28,6 @@ public class DefaultPatternStrategy implements IPatternStrategy
     @Override
     public void findPatterns(SMProject proj, DanceProfile prof)
     {
-        Set<Integer> melodyTracks = proj.getProps().getAsIntSet("melodyTrack");
         // sort notes by voices
         MIDINote firstNote = null;
         MIDINote lastNote = null;
@@ -57,7 +55,7 @@ public class DefaultPatternStrategy implements IPatternStrategy
         for (Long v : voices.keySet())
         {
             List<MIDINote> voice = voices.get(v);
-            boolean melody = melodyTracks.contains(voice.get(0).getTrack());
+            int type = proj.getMIDI().getTrackInfos().get(voice.get(0).getTrack()).getType();
             for (int i = 0; i < voice.size() - PatternLogic.MIN_INST; i++)
             {
                 if ((voice.get(i).getTick()%q) != 0)
@@ -78,7 +76,7 @@ public class DefaultPatternStrategy implements IPatternStrategy
                 if (best != null)
                 {
                     calcLCD(best);
-                    best.setMelody(melody);
+                    best.setType(type);
                     proj.getPatterns().add(best);
                 }
             }
@@ -94,7 +92,7 @@ public class DefaultPatternStrategy implements IPatternStrategy
         for (int i = 0; i < Math.min(5, proj.getPatterns().size()); i++)
         {
             PatDef def = proj.getPatterns().get(i);
-            System.out.println("  len="+def.getNotes().size()+"/"+def.getQLen(q)+", insts="+def.getInstances().size()+", beat="+def.getBeat()+", score="+def.getScore(q)+", melody="+def.isMelody());
+            System.out.println("  len="+def.getNotes().size()+"/"+def.getQLen(q)+", insts="+def.getInstances().size()+", beat="+def.getBeat()+", score="+def.getScore(q)+", type="+def.getType());
             System.out.print("    ticks=");
             for (int j = 0; j < def.getNotes().size(); j++)
                 System.out.print(" "+def.getNotes().get(j).getDeltaTick());

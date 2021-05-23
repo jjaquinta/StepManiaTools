@@ -60,7 +60,7 @@ public class MIDILogic
         if (i == null)
             return program+"?"+bank;
         else
-            return i.getName();
+            return i.getName().trim();
     }
     
     public static MIDITune getNotes(File midiFile) throws Exception

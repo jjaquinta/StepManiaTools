@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import jo.sm.dl.data.ScoreDrawData;
@@ -43,7 +45,9 @@ public class ScoreLogic
         mTune = mData.getTune();
         if (mData.getTracks().size() == 0)
             mData.getTracks().addAll(mTune.getTrackInfos());
-        mTracks = mData.getTracks();
+        mTracks = new ArrayList<>();
+        mTracks.addAll(mData.getTracks());
+        Collections.sort(mTracks);
         mNoteHeight = mData.getNoteHeight();
         mData.getFeaturePositions().clear();
         mData.getPositionFeatures().clear();
@@ -113,7 +117,7 @@ public class ScoreLogic
                 staffRight - mNoteWidth, staffBot);
 
         mG.setFont(mTextFont);
-        mG.drawString(track.toString()+", type="+staffType, staffLeft - mNoteWidth * 4, mY - mNoteHeight);
+        mG.drawString(track.toString()+", ("+MIDITrack.typeToString(track.getType())+")", staffLeft - mNoteWidth * 4, mY - mNoteHeight);
         mG.setFont(mClefFont);
         int clefLeft = staffLeft - mNoteWidth * 4;
         if (staffType == MIDITrack.TREBLE_CLEF)
@@ -141,6 +145,7 @@ public class ScoreLogic
 
     private static void drawNote(MIDINotation n, int staffType)
     {
+        mG.setColor(getNoteColor(n));
         double m = n.getMeasure();
         int x = mX + (int)(m * GRANULARITY * mNoteWidth);
         int y;
@@ -164,15 +169,31 @@ public class ScoreLogic
             drawNoteSymbol(n, x, y, true, true, 3);
         if (n.getSharps() > 0)
             for (int i = 0; i < n.getSharps(); i++)
-                mG.drawString(NOTE_SHARP, x - mNoteWidth * i, y);
+                mG.drawString(NOTE_SHARP, x - mNoteWidth * (i+1), y + mNoteHeight);
         if (n.getFlats() > 0)
             for (int i = 0; i < n.getFlats(); i++)
-                mG.drawString(NOTE_FLAT, x - mNoteWidth * i, y);
+                mG.drawString(NOTE_FLAT, x - mNoteWidth * (i+1), y + mNoteHeight/2);
         if (n.getDots() > 0)
             for (int i = 0; i < n.getDots(); i++)
                 mG.drawString(NOTE_DOT, x + mNoteWidth * (i + 1), y);
         mData.addFeaturePosition(new Rectangle(x, y - mNoteHeight / 2, mNoteWidth, mNoteHeight), n.getNote());
         //mG.drawString(MIDINote.NOTES[n.getNote().getPitch()]+"/"+n.getYAdjust(), mX + x, y + mNoteWidth);
+    }
+    
+    private static Color getNoteColor(MIDINotation n)
+    {
+        if (!mData.isColorAlignment())
+            return Color.BLACK;
+        int idx = n.getAlignedStart();
+        if ((idx%128) == 0)
+            return Color.red; // quarter note
+        if ((idx%64) == 0)
+            return Color.cyan; // eigth note
+        if ((idx%32) == 0)
+            return Color.yellow; // sixteenth note
+        if ((idx%16) == 0)
+            return Color.orange; // thirty second note
+        return Color.BLACK;
     }
 
     private static void drawNoteSymbol(MIDINotation n, int x, int y, boolean filled, boolean staff, int brevets)
@@ -198,7 +219,7 @@ public class ScoreLogic
                 mG.drawLine(x + mNoteWidth,
                         y - mStaffHeight + (mNoteHeight / 2 * i),
                         x + mNoteWidth * 2,
-                        y - mStaffHeight - (mNoteHeight / 2 * i));
+                        y - mStaffHeight + (mNoteHeight / 2 * i));
         }
         if (mData.getSelected().contains(n.getNote()))
         {
@@ -234,7 +255,7 @@ public class ScoreLogic
         mStaffHeight = 4 * mNoteHeight;
         mPreferredSize.height = mStaffHeight * stavesHigh;
         mClefFont = FontUtils.getFont(Font.DIALOG, mStaffHeight, Font.PLAIN);
-        mTextFont = FontUtils.getFont(Font.DIALOG, mNoteHeight * 2,
+        mTextFont = FontUtils.getFont(Font.DIALOG, mNoteHeight * 3,
                 Font.PLAIN);
         mLeftMargin = mMeasureWidth/4;
     }
