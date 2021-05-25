@@ -5,6 +5,7 @@ import java.util.Map;
 
 import jo.sm.dl.data.gen.ChartProfile;
 import jo.sm.dl.data.sm.SMProject;
+import jo.sm.dl.logic.gen.AlignedChartStrategy;
 import jo.sm.dl.logic.gen.DefaultChartStrategy;
 import jo.sm.dl.logic.gen.IChartStrategy;
 
@@ -15,6 +16,7 @@ public class ChartLogic
     static
     {
         addChartStrategy(new DefaultChartStrategy());
+        addChartStrategy(new AlignedChartStrategy());
     }
     
     private static void addChartStrategy(IChartStrategy ps)

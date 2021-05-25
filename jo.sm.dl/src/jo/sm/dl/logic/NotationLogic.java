@@ -26,6 +26,7 @@ public class NotationLogic
     {
         if (tune.getNotation().size() == tune.getNotes().size())
             return tune.getNotation();
+        tune.getNotationMap().clear();
         for (MIDITrack track : tune.getTrackInfos())
         {
             List<MIDINotation> ret = makeNotation(tune, track.getNotes());
@@ -45,6 +46,7 @@ public class NotationLogic
             if (note.getDuration() == 0L)
                 continue;
             MIDINotation notation = new MIDINotation(note);
+            notation.setTrack(tune.getTrackInfos().get(note.getTrack()));
             int[] data = NOTE_DATA[note.getPitch()];
             notation.setYAdjust(data[1]);
             notation.setSharps(data[2]);
@@ -55,6 +57,7 @@ public class NotationLogic
             notation.setSymbol((String)ldata[1]);
             notation.setDots((int)ldata[2]);
             notations.add(notation);
+            tune.getNotationMap().put(note, notation);
         }
         sortNotations(notations);
         return notations;

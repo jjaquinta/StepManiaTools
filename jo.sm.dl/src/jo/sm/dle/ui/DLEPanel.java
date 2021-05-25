@@ -82,7 +82,7 @@ public class DLEPanel extends JPanel
         else
         {
             MIDINote n = mSong.getSelectedNotes().iterator().next();
-            MIDINotation nn = mSong.getProject().getMIDI().findNotation(n);
+            MIDINotation nn = mSong.getProject().getMIDI().getNotation(n);
             if (nn != null)
                 mNote.setNotation(nn);
             else

@@ -31,6 +31,7 @@ public class DefaultDanceStrategy implements IDanceStrategy
             ChartProfile cp = new ChartProfile();
             cp.setName(DIFFICULTIES[i]);
             cp.setDifficulty(diff);
+            cp.setStrategy(prof.getChartStrategy());
             prof.getCharts().add(cp);
         }
     }

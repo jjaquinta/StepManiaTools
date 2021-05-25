@@ -1,24 +1,27 @@
 package jo.sm.dl.data.midi;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jo.sm.dl.data.sm.SMMark;
 import jo.util.utils.MathUtils;
 
 public class MIDITune
 {
-    private float              mMSPerTick;
-    private List<MIDINote>     mNotes;
-    private List<MIDINotation> mNotation = new ArrayList<>();
-    private List<MIDITrack>    mTrackInfos = new ArrayList<>();
-    private long               mGranularity;
-    private int                mTracks;
-    private int                mPulsesPerQuarter;
-    private float              mBeatsPerMinute;
-    private long               mLengthInTicks;
-    private float              mLengthInSeconds;
-    private List<SMMark>       mBPMs = new ArrayList<>();
+    private float                       mMSPerTick;
+    private List<MIDINote>              mNotes;
+    private List<MIDINotation>          mNotation    = new ArrayList<>();
+    private List<MIDITrack>             mTrackInfos  = new ArrayList<>();
+    private long                        mGranularity;
+    private int                         mTracks;
+    private int                         mPulsesPerQuarter;
+    private float                       mBeatsPerMinute;
+    private long                        mLengthInTicks;
+    private float                       mLengthInSeconds;
+    private List<SMMark>                mBPMs        = new ArrayList<>();
+    private Map<MIDINote, MIDINotation> mNotationMap = new HashMap<>();
 
     // utilities
 
@@ -57,12 +60,9 @@ public class MIDITune
         return minutes;
     }
 
-    public MIDINotation findNotation(MIDINote n)
+    public MIDINotation getNotation(MIDINote n)
     {
-        for (MIDINotation nn : mNotation)
-            if (nn.getNote() == n)
-                return nn;
-        return null;
+        return mNotationMap.get(n);
     }
 
     public long minutesToTick(float targetMinutes)
@@ -218,5 +218,15 @@ public class MIDITune
     public void setTrackInfos(List<MIDITrack> trackInfos)
     {
         mTrackInfos = trackInfos;
+    }
+
+    public Map<MIDINote, MIDINotation> getNotationMap()
+    {
+        return mNotationMap;
+    }
+
+    public void setNotationMap(Map<MIDINote, MIDINotation> notationMap)
+    {
+        mNotationMap = notationMap;
     }
 }

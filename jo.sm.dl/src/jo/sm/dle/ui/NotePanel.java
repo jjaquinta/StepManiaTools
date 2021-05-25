@@ -6,6 +6,7 @@ import javax.swing.JTextField;
 
 import jo.sm.dl.data.midi.MIDINotation;
 import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITrack;
 import jo.sm.dl.logic.MIDILogic;
 import jo.util.ui.swing.TableLayout;
 
@@ -84,11 +85,17 @@ public class NotePanel extends JComponent
                     mNote.getProgram()));
             mLoud.setText(String.valueOf(mNote.getLoud()));
             if (mNotation != null)
+            {
                 mTick.setText(String.valueOf(mNote.getTick())+" / "+(mNotation.getAlignedStart()%128));
+                MIDITrack t = mNotation.getTrack();
+                mTrack.setText("#"+(t.getTrack() + 1)+" "+MIDITrack.typeToString(t.getType()));
+            }
             else
+            {
                 mTick.setText(String.valueOf(mNote.getTick()));
+                mTrack.setText(String.valueOf(mNote.getTrack() + 1));
+            }
             mDuration.setText(String.valueOf(mNote.getDuration()));
-            mTrack.setText(String.valueOf(mNote.getTrack() + 1));
         }
     }
 

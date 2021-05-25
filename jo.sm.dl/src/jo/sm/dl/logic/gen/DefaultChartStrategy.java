@@ -24,7 +24,7 @@ import jo.sm.dl.logic.PatternLogic;
 
 public class DefaultChartStrategy implements IChartStrategy
 {
-    private static Random RND = new Random();
+    protected static Random RND = new Random();
 
     private static float PATTERN_QUOTA = .75f;
 
@@ -94,7 +94,7 @@ public class DefaultChartStrategy implements IChartStrategy
         return beats.size();
     }
 
-    private List<MIDINote> thinToQuota(MIDITune midi, long quarter,
+    protected List<MIDINote> thinToQuota(MIDITune midi, long ppq,
             DiffProfile diff, List<MIDINote> notesOfInterest)
     {
         Collections.sort(notesOfInterest);
@@ -114,23 +114,23 @@ public class DefaultChartStrategy implements IChartStrategy
         quotaTypes[8] = (int)(diff.getNote192nds()*quotaNotes);
         List<MIDINote> selectedNotes = new ArrayList<>();
         int added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter/48, quotaTypes[8]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq/48, quotaTypes[8]);
         quotaTypes[7] += quotaTypes[8] - added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter/16, quotaTypes[7]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq/16, quotaTypes[7]);
         quotaTypes[6] += quotaTypes[7] - added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter/12, quotaTypes[6]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq/12, quotaTypes[6]);
         quotaTypes[5] += quotaTypes[6] - added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter/8, quotaTypes[5]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq/8, quotaTypes[5]);
         quotaTypes[4] += quotaTypes[5] - added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter/6, quotaTypes[4]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq/6, quotaTypes[4]);
         quotaTypes[3] += quotaTypes[4] - added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter/4, quotaTypes[3]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq/4, quotaTypes[3]);
         quotaTypes[2] += quotaTypes[3] - added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter/3, quotaTypes[2]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq/3, quotaTypes[2]);
         quotaTypes[1] += quotaTypes[2] - added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter/2, quotaTypes[1]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq/2, quotaTypes[1]);
         quotaTypes[0] += quotaTypes[1] - added;
-        added = addNotes(selectedNotes, notesOfInterest, quarter, quotaTypes[0]);
+        added = addNotes(selectedNotes, notesOfInterest, ppq, quotaTypes[0]);
         return selectedNotes;
     }
 
@@ -152,7 +152,7 @@ public class DefaultChartStrategy implements IChartStrategy
     private int addPatternNotes(SMProject proj, SMChart chart, int quantity, int ticksPerMeasure, DiffProfile diff, List<DanceBlackout> taken)
     {
         int used = 0;
-        int quarter = proj.getMIDI().getPulsesPerQuarter();
+        int ppq = proj.getMIDI().getPulsesPerQuarter();
         for (int k = 0; k < proj.getPatterns().size(); k++)
         {
             PatDef pattern = proj.getPatterns().get(k);
@@ -162,8 +162,7 @@ public class DefaultChartStrategy implements IChartStrategy
             Map<MIDINote, Integer> patNotes = new HashMap<>();
             for (int i = 0; i < notesOfInterest.size(); i++)
                 patNotes.put(notesOfInterest.get(i), i);
-            List<MIDINote> selectedNotes = thinToQuota(proj.getMIDI(), quarter, diff,
-                    notesOfInterest);
+            List<MIDINote> selectedNotes = thinToQuota(proj.getMIDI(), ppq, diff, notesOfInterest);
             if (selectedNotes.size() < PatternLogic.MIN_INST)
                 continue;
             // first inst
@@ -178,7 +177,7 @@ public class DefaultChartStrategy implements IChartStrategy
                 endTick = inst.getNotes().get(inst.getNotes().size() - 1).getTick();
                 if (intersects(startTick, endTick, taken))
                     continue;
-                if (startTick%quarter != 0)
+                if (startTick%ppq != 0)
                     continue;
                 System.out.print("P"+k+"_"+j+": ");
                 taken.add(new DanceBlackout(startTick, endTick));
@@ -214,7 +213,7 @@ public class DefaultChartStrategy implements IChartStrategy
                 long thisEndTick = inst.getNotes().get(inst.getNotes().size() - 1).getTick();
                 if (intersects(thisStartTick, thisEndTick, taken))
                     continue;
-                if (thisStartTick%quarter != 0)
+                if (thisStartTick%ppq != 0)
                     continue;
                 System.out.print("P"+k+"_"+j+": ");
                 taken.add(new DanceBlackout(thisStartTick, thisEndTick));

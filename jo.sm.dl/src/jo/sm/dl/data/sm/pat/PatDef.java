@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jo.sm.dl.data.midi.MIDINote;
-import jo.sm.dl.data.midi.MIDITrack;
 
 public class PatDef
 {
@@ -41,40 +40,17 @@ public class PatDef
     
     public float getNormalizedVolume()
     {
-        long length = mNotes.get(mNotes.size() - 1).getDeltaTick();
+        long num = 0;
         float vol = 0;
         for (PatInst inst : mInstances)
             for (MIDINote note : inst.getNotes())
             {
                 int loud = note.getVelocity() + note.getExpression() + note.getVolume();
                 vol += loud*note.getDuration();
+                num++;
             }
-        vol /= mInstances.size();
-        vol /= length;
+        vol /= num;
         return vol;
-    }
-    
-    public int getScore(int q)
-    {
-        //return getInstances().size()*getNotes().size();
-        //return getInstances().size();
-        //return getNotes().size();
-        float score = getQLen(q);
-        score *= Math.log10(getInstances().size());
-        score *= getNormalizedVolume();
-        switch (mType)
-        {
-            case MIDITrack.IGNORE:
-                score *= 0;
-                break;
-            case MIDITrack.MELODY:
-                score *= 5;
-                break;
-            case MIDITrack.INCIDENTAL:
-                score *= .5;
-                break;
-        }
-        return (int)score;
     }
     
     // getters and setters

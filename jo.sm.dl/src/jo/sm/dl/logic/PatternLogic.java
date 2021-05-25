@@ -5,6 +5,7 @@ import java.util.Map;
 
 import jo.sm.dl.data.gen.DanceProfile;
 import jo.sm.dl.data.sm.SMProject;
+import jo.sm.dl.logic.gen.AlignedPatternStrategy;
 import jo.sm.dl.logic.gen.DefaultPatternStrategy;
 import jo.sm.dl.logic.gen.IPatternStrategy;
 
@@ -18,6 +19,7 @@ public class PatternLogic
     static
     {
         addPatternStrategy(new DefaultPatternStrategy());
+        addPatternStrategy(new AlignedPatternStrategy());
     }
     
     private static void addPatternStrategy(IPatternStrategy ps)

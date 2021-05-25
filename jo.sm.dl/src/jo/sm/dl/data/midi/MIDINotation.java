@@ -2,6 +2,7 @@ package jo.sm.dl.data.midi;
 
 public class MIDINotation
 {
+    private MIDITrack   mTrack;
     private MIDINote    mNote;
     private int         mYAdjust; // how far to draw +/- from middle c
     private int         mSharps;
@@ -24,7 +25,11 @@ public class MIDINotation
     public int getAlignedStart()
     {
         int a = (int)(mMeasure*512 + .5);
-        a -= a%8;
+        int m = a%8;
+        if (m <= 5)
+            a -= m;
+        else if (m >= 6)
+            a += (8 - m);
         return a;
     }
     
@@ -85,5 +90,15 @@ public class MIDINotation
     public void setMeasure(double measure)
     {
         mMeasure = measure;
+    }
+
+    public MIDITrack getTrack()
+    {
+        return mTrack;
+    }
+
+    public void setTrack(MIDITrack track)
+    {
+        mTrack = track;
     }
     }

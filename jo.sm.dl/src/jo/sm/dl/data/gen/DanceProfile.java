@@ -7,7 +7,12 @@ public class DanceProfile
 {
     private String              mDanceStrategy;
     private String              mPatternStrategy;
+    private String              mChartStrategy;
     private List<ChartProfile>  mCharts = new ArrayList<>();
+    
+    public DanceProfile()
+    {        
+    }
     
     public List<ChartProfile> getCharts()
     {
@@ -32,6 +37,16 @@ public class DanceProfile
     public void setPatternStrategy(String patternStrategy)
     {
         mPatternStrategy = patternStrategy;
+    }
+
+    public String getChartStrategy()
+    {
+        return mChartStrategy;
+    }
+
+    public void setChartStrategy(String chartStrategy)
+    {
+        mChartStrategy = chartStrategy;
     }
 
 }

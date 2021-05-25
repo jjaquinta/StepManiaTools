@@ -10,6 +10,7 @@ import java.util.Map;
 
 import jo.sm.dl.data.gen.DanceProfile;
 import jo.sm.dl.data.midi.MIDINote;
+import jo.sm.dl.data.midi.MIDITrack;
 import jo.sm.dl.data.sm.SMProject;
 import jo.sm.dl.data.sm.pat.PatDef;
 import jo.sm.dl.data.sm.pat.PatInst;
@@ -48,8 +49,8 @@ public class DefaultPatternStrategy implements IPatternStrategy
             if ((lastNote == null) || (note.getTick() + note.getDuration() > lastNote.getTick() + lastNote.getDuration()))
                 lastNote = note;
         }
-        int q = proj.getMIDI().getPulsesPerQuarter();
-        System.out.println(q+" pulses per quarternote");
+        int ppq = proj.getMIDI().getPulsesPerQuarter();
+        System.out.println(ppq+" pulses per quarternote");
         System.out.println(voices.size()+" voices");
         System.out.println("First tick="+firstNote.getTick()+", lastTick="+lastNote.getTick()+"->"+(lastNote.getTick() + lastNote.getDuration()));
         for (Long v : voices.keySet())
@@ -58,7 +59,7 @@ public class DefaultPatternStrategy implements IPatternStrategy
             int type = proj.getMIDI().getTrackInfos().get(voice.get(0).getTrack()).getType();
             for (int i = 0; i < voice.size() - PatternLogic.MIN_INST; i++)
             {
-                if ((voice.get(i).getTick()%q) != 0)
+                if (!isOnBeat(proj, voice.get(i)))
                     continue;   // patterns must start on a beat
                 PatDef best = null;
                 for (int patLen = PatternLogic.MIN_PAT; i + patLen < voice.size(); patLen++)
@@ -66,7 +67,7 @@ public class DefaultPatternStrategy implements IPatternStrategy
                     PatDef def = makePatDef(voice, i, patLen);
                     if (patExists(proj.getPatterns(), def))
                         continue;
-                    findInstances(def, voices.values(), q);
+                    findInstances(def, voices.values(), ppq);
                     if (def.getInstances().size() < PatternLogic.MIN_INST)
                         break;
                     if ((best != null) && (def.getInstances().size() < best.getInstances().size()))
@@ -85,14 +86,23 @@ public class DefaultPatternStrategy implements IPatternStrategy
             @Override
             public int compare(PatDef o1, PatDef o2)
             {
-                return o2.getScore(q) - o1.getScore(q);
+                return getScore(o2, ppq) - getScore(o1, ppq);
             }
         });
+        printBestScores(proj, ppq);
+    }
+
+    protected void printBestScores(SMProject proj, int ppq)
+    {
         System.out.println(proj.getPatterns().size()+" patterns");
         for (int i = 0; i < Math.min(5, proj.getPatterns().size()); i++)
         {
             PatDef def = proj.getPatterns().get(i);
-            System.out.println("  len="+def.getNotes().size()+"/"+def.getQLen(q)+", insts="+def.getInstances().size()+", beat="+def.getBeat()+", score="+def.getScore(q)+", type="+def.getType());
+            System.out.println("  len="+def.getNotes().size()+"/"+def.getQLen(ppq)
+                +", insts="+def.getInstances().size()
+                +", beat="+def.getBeat()
+                +", score="+getScore(def, ppq)
+                +", type="+MIDITrack.typeToString(def.getType()));
             System.out.print("    ticks=");
             for (int j = 0; j < def.getNotes().size(); j++)
                 System.out.print(" "+def.getNotes().get(j).getDeltaTick());
@@ -103,7 +113,24 @@ public class DefaultPatternStrategy implements IPatternStrategy
             System.out.println();
         }
     }
+    
+    protected int getScore(PatDef pat, int ppq)
+    {
+        //return getInstances().size()*getNotes().size();
+        //return getInstances().size();
+        //return getNotes().size();
+        float score = pat.getQLen(ppq);
+        score *= Math.log10(pat.getInstances().size());
+        score *= pat.getNormalizedVolume();
+        return (int)score;
+    }
 
+    protected boolean isOnBeat(SMProject proj, MIDINote note)
+    {
+        int ppq = proj.getMIDI().getPulsesPerQuarter();
+        return (note.getTick()%ppq) == 0;
+    }
+    
     private void calcLCD(PatDef best)
     {
         long lcd = best.getNotes().get(1).getDeltaTick();

@@ -15,6 +15,8 @@ import jo.sm.dl.data.sm.pat.PatDef;
 import jo.sm.dl.logic.NotationLogic;
 import jo.sm.dl.logic.PlayLogic;
 import jo.sm.dl.logic.ProjectLogic;
+import jo.sm.dl.logic.gen.AlignedChartStrategy;
+import jo.sm.dl.logic.gen.AlignedPatternStrategy;
 import jo.sm.dle.data.DirectoryBean;
 import jo.sm.dle.data.SongBean;
 import jo.util.utils.MapUtils;
@@ -63,6 +65,8 @@ public class SongLogic
             t.setType(song.getInSettings().getAsInt("track."+t.getTrack()+".type", "0"));
         DanceProfile prof = new DanceProfile();
         // TODO populate prof from song
+        //prof.setPatternStrategy(AlignedPatternStrategy.NAME);
+        //prof.setChartStrategy(AlignedChartStrategy.NAME);
         ProjectLogic.dance(proj, prof);
         song.setSelectedChart(null);
     }
